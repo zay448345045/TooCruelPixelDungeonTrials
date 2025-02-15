@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.services.news.News;
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.AvailableUpdateData;
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.Updates;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TestWindow;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Archs;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
@@ -280,7 +281,8 @@ public class TitleScene extends PixelScene {
 		@Override
 		protected void onClick() {
 			super.onClick();
-			ShatteredPixelDungeon.switchNoFade( NewsScene.class );
+			ShatteredPixelDungeon.scene().add(new TestWindow());
+//			ShatteredPixelDungeon.switchNoFade( NewsScene.class );
 		}
 	}
 
