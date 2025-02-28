@@ -30,6 +30,7 @@ class Context(val rootGroup: Group = Group()) {
     inline fun <T> update(maxSize: Rect, block: Ui.() -> T): InnerResponse<T> {
         rootGroup.clear()
         mode = ContextMode.DYNAMIC
+        updateMemory()
         memory.swap()
         return drawUi(maxSize, block)
     }
@@ -41,6 +42,15 @@ class Context(val rootGroup: Group = Group()) {
         }
 
         return value as T?
+    }
+
+    @PublishedApi
+    internal fun updateMemory() {
+        memory.values().forEach {
+            if (it is MemoryFrameListener) {
+                it.newFrame()
+            }
+        }
     }
 
     @PublishedApi
@@ -103,7 +113,23 @@ class TwoFrameMap<K, V> {
         return new
     }
 
+    fun values(): Collection<V> {
+        return curr.values
+    }
+
+    fun keys(): Set<K> {
+        return curr.keys
+    }
+
+    fun entries(): Set<Map.Entry<K, V>> {
+        return curr.entries
+    }
+
     fun set(id: K, value: V) {
         curr[id] = value
     }
+}
+
+interface MemoryFrameListener {
+    fun newFrame()
 }

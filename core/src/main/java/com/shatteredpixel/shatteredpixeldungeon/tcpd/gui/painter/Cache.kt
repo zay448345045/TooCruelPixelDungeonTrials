@@ -17,7 +17,11 @@ class PaintCache {
     }
 
     internal fun advance(element: VisualElement): Gizmo {
-        val gizmo = element.asGizmo(cache[pointer])
+        val cached = cache[pointer]
+        val gizmo = element.asGizmo(cached)
+        if(gizmo != cached?.second) {
+            cached?.second?.destroy()
+        }
         cache[pointer] = Pair(element, gizmo)
         pointer++
         return gizmo

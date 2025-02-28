@@ -1,38 +1,43 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.InnerResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.LayoutDirection
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.margins
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstructor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.NinePatchDescriptor
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.watabou.noosa.NinePatch
+import com.watabou.noosa.ui.Component
 
 data class LinearLayout(
     val direction: LayoutDirection,
     val background: NinePatchDescriptor? = null,
 ) {
+    fun createPainter(ui: Ui): Pair<Painter, NinePatchComponent?> {
+        val painter = ui.top().painter().withComponent(NinePatchComponent.Companion)
+        val group = painter.getGroup();
+        if (group != null) {
+            (group as NinePatchComponent).setNinePatch(background!!)
+            return Pair(painter, group)
+        }
+        return Pair(painter, null)
+    }
+
     inline fun <T> show(ui: Ui, block: () -> T): InnerResponse<T> {
-        val background = if (background != null) {
-            ui.top().painter().drawNinePatch(Rect.ZERO, background) as NinePatch
+        val (painter, ninePatch) = if (background != null) {
+            createPainter(ui)
         } else {
-            null
+            Pair(ui.top().painter(), null)
         }
 
-        val margins = background?.margins() ?: Margins.ZERO
+        val margins = ninePatch?.ninePatch?.margins() ?: Margins.ZERO
 
         val res = ui.withLayout(
-            margins = margins,
-            layout = direction,
-            block = block
+            margins = margins, layout = direction, block = block, painter = painter
         )
-
-        if (background != null) {
-            background.x = res.response.rect.min.x.toFloat()
-            background.y = res.response.rect.min.y.toFloat()
-            background.size(res.response.rect.width().toFloat(), res.response.rect.height().toFloat())
-        }
 
         return res
     }
@@ -45,8 +50,7 @@ inline fun <T> Ui.vertical(
         direction = LayoutDirection.VERTICAL,
         background = background,
     ).show(
-        this,
-        block
+        this, block
     )
 }
 
@@ -63,7 +67,53 @@ inline fun <T> Ui.stack(
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
     return LinearLayout(
-        direction = LayoutDirection.STACK,
-        background = background
+        direction = LayoutDirection.STACK, background = background
     ).show(this, block)
+}
+
+class NinePatchComponent : Component() {
+    companion object : ComponentConstructor {
+        override fun construct(): Component {
+            return NinePatchComponent()
+        }
+
+        override fun componentClass(): Class<out Component> {
+            return NinePatchComponent::class.java
+        }
+    }
+
+    var descriptor: NinePatchDescriptor? = null
+        private set
+    var ninePatch: NinePatch? = null
+        private set
+
+    fun setNinePatch(descriptor: NinePatchDescriptor): NinePatch {
+        if (this.descriptor == descriptor) {
+            return this.ninePatch!!
+        }
+
+        this.descriptor = descriptor
+        val np = descriptor.get()
+        this.ninePatch?.destroy()
+        this.ninePatch = np
+        add(np)
+        layout()
+        return np
+    }
+
+    override fun layout() {
+        super.layout()
+        ninePatch?.let {
+            it.x = x
+            it.y = y
+            it.size(width, height)
+        }
+    }
+
+    override fun clear() {
+        super.clear()
+        if (ninePatch != null) {
+            add(ninePatch)
+        }
+    }
 }

@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Style
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
+import com.watabou.noosa.ui.Component
 
 class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
     private val stack: MutableList<UiStackItem>
@@ -80,7 +81,22 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         }
         val allocatedSpace = removed.allocatedSpace.expand(removed.margins)
         val parent = stack.last()
-        return parent.allocateSize(allocatedSpace.size())
+        val response = parent.allocateSize(allocatedSpace.size())
+
+        // if the removed layout had a different painter group, we need to update the rect accordingly
+        val curPainterGroup = removed.painter().getGroup()
+        if(curPainterGroup != null && curPainterGroup != parent.painter().getGroup()) {
+            if(curPainterGroup is Component) {
+                curPainterGroup.setRect(
+                    response.rect.left().toFloat(),
+                    response.rect.top().toFloat(),
+                    response.rect.width().toFloat(),
+                    response.rect.height().toFloat()
+                )
+            }
+        }
+
+        return response
     }
 }
 

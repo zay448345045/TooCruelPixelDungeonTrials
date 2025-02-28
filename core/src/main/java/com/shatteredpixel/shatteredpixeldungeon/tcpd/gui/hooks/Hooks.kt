@@ -1,8 +1,9 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks
 
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.context.MemoryFrameListener
 import kotlin.reflect.KProperty
 
-class HookState {
+class HookState: MemoryFrameListener {
     val values: MutableList<RawHookRef> = mutableListOf()
     var index: Int = 0
 
@@ -26,6 +27,10 @@ class HookState {
         return MutableHookRef<T>(hook).also {
             index++
         }
+    }
+
+    override fun newFrame() {
+        index = 0
     }
 }
 

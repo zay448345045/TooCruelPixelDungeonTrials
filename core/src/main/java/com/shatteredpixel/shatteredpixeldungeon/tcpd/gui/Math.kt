@@ -233,6 +233,9 @@ fun Rect?.contains(pos: Pos2): Boolean {
     return pos.x >= min.x && pos.x < max.x && pos.y >= min.y && pos.y < max.y
 }
 
+@JvmInline
+value class ScreenRect(val rect: Rect)
+
 data class Margins(
     val left: Int,
     val top: Int,

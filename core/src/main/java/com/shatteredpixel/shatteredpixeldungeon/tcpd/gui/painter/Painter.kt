@@ -11,6 +11,8 @@ import com.watabou.noosa.Gizmo
 import com.watabou.noosa.Group
 import com.watabou.noosa.Image
 import com.watabou.noosa.NinePatch
+import com.watabou.noosa.Visual
+import com.watabou.noosa.ui.Component
 
 class Painter internal constructor(
     private val group: Group?,
@@ -24,22 +26,41 @@ class Painter internal constructor(
     }
 
     /**
-     * Returns a new painter with the new clip rect.
+     * Returns a new painter with the new clip rect, optionally using a
+     * component as a group.
      *
      * The new clip rect is the intersection of the current clip rect and the given clip rect.
      *
      * @param clip The new clip rect.
      */
-    fun clipped(clip: Rect?): Painter {
+    fun clipped(clip: Rect?, component: ComponentConstructor? = null): Painter {
         // We are already inside non-visible area.
         if (this.group == null) {
             return this
         }
 
-        val group = add(VisualElement.Group) as Group
-        group.clear()
+        val group = add(VisualElement.Group(component)) as Group
+        if (component == null) {
+            group.clear()
+        } else {
+            component.clearChildren(group as Component)
+        }
         val cam = this.group.camera().withClip(clip) ?: return Painter(null, cache)
         group.camera = cam
+
+        return Painter(group, cache)
+    }
+
+    /**
+     * Same as [clipped], but without clipping.
+     */
+    fun withComponent(component: ComponentConstructor): Painter {
+        if (this.group == null) {
+            return this
+        }
+        val group = add(VisualElement.Group(component)) as Component
+
+        component.clearChildren(group)
 
         return Painter(group, cache)
     }
@@ -60,24 +81,37 @@ class Painter internal constructor(
         return add(VisualElement.Text(rect, text, size, multiline))
     }
 
+    fun drawComponent(rect: Rect, component: ComponentConstructor): Gizmo {
+        return add(VisualElement.Component(rect, component))
+    }
+
+    fun getGroup(): Group? {
+        return group
+    }
+
     private fun add(element: VisualElement): Gizmo {
         val gizmo = cache.advance(element);
 
         group?.addToFront(gizmo)
+        if (gizmo is Component) {
+            PixelScene.align(gizmo)
+        } else if (gizmo is Visual) {
+            PixelScene.align(gizmo)
+        }
         return gizmo
     }
 }
 
 internal sealed class VisualElement {
-    class ColoredRect(val rect: Rect, val color: Int) : VisualElement()
-    class NinePatch(val rect: Rect, val descriptor: NinePatchDescriptor) :
+    data class ColoredRect(val rect: Rect, val color: Int) : VisualElement()
+    data class NinePatch(val rect: Rect, val descriptor: NinePatchDescriptor) :
         VisualElement()
 
-    class Image(val rect: Rect, val texture: TextureDescriptor) : VisualElement()
-    class Text(val rect: Rect, val text: String, val size: Int, val multiline: Boolean) :
+    data class Image(val rect: Rect, val texture: TextureDescriptor) : VisualElement()
+    data class Component(val rect: Rect, val component: ComponentConstructor) : VisualElement()
+    data class Text(val rect: Rect, val text: String, val size: Int, val multiline: Boolean) :
         VisualElement()
-
-    data object Group : VisualElement()
+    data class Group(val component: ComponentConstructor?) : VisualElement()
 
     fun asGizmo(cached: Pair<VisualElement, Gizmo>?): Gizmo {
         when (this) {
@@ -133,22 +167,49 @@ internal sealed class VisualElement {
                 return block
             }
 
-            is Group -> {
-                if (cached?.second is com.watabou.noosa.Group) {
-                    return cached.second as com.watabou.noosa.Group
-                }
+            is Component -> {
+                val comp =
+                    if (cached?.first == this && cached.second.javaClass == this.component.componentClass()) {
+                        cached.second as com.watabou.noosa.ui.Component
+                    } else {
+                        this.component.construct()
+                    }
 
-                return Group()
+                comp.setRect(
+                    rect.min.x.toFloat(),
+                    rect.min.y.toFloat(),
+                    rect.width().toFloat(),
+                    rect.height().toFloat()
+                )
+                return comp
+            }
+
+            is Group -> {
+                if(this.component == null) {
+                    if (cached?.second is com.watabou.noosa.Group) {
+                        return cached.second as com.watabou.noosa.Group
+                    }
+
+                    return Group()
+                } else {
+                    val comp = if (cached?.first == this && cached.second.javaClass == this.component.componentClass()) {
+                        cached.second as com.watabou.noosa.ui.Component
+                    } else {
+                        this.component.construct()
+                    }
+
+                    return comp
+                }
             }
 
             is Text -> {
-                if (cached?.first is Text && cached.second is RenderedTextBlock) {
+                if (cached?.first is Text && cached.second is RenderedTextBlock && (cached.first as Text).size == size) {
                     var block = cached.second as RenderedTextBlock
                     val old = cached.first as Text
 
                     block.text(text)
                     if (multiline) {
-                        block.maxWidth(rect.width().toInt())
+                        block.maxWidth(rect.width())
                     } else {
                         if (old.multiline) {
                             block = PixelScene.renderTextBlock(text, size)
@@ -191,6 +252,14 @@ sealed interface NinePatchDescriptor {
         return when (this) {
             is Chrome -> com.shatteredpixel.shatteredpixeldungeon.Chrome.get(type)
         }
+    }
+}
+
+interface ComponentConstructor {
+    fun construct(): Component
+    fun componentClass(): Class<out Component>
+    fun clearChildren(comp: Component) {
+        comp.clear()
     }
 }
 
