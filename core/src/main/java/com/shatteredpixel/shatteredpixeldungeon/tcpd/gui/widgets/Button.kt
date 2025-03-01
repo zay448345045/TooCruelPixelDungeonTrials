@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstructor
@@ -47,17 +48,28 @@ inline fun <T> Ui.redButton(
 ): InteractiveResponse<T> {
     return customButton { interaction ->
         vertical(background = Chrome.Type.RED_BUTTON.descriptor()) {
-            val bg = (top().painter().getGroup() as NinePatchComponent).ninePatch
-            if (bg != null) {
-                if (interaction.isPointerDown) {
-                    bg.brightness(1.2f)
-                } else {
-                    bg.resetColor()
-                }
-            }
-            content(interaction)
+            margins(Margins(3,3,1,3)) {
+                withRedButtonBackground(this, interaction, content)
+            }.inner
         }.inner
     }
+}
+
+@PublishedApi
+internal inline fun <T> withRedButtonBackground(
+    ui: Ui,
+    interaction: Interaction,
+    content: (interaction: Interaction) -> T
+): T {
+    val bg = (ui.top().painter().getGroup() as NinePatchComponent).ninePatch
+    if (bg != null) {
+        if (interaction.isPointerDown) {
+            bg.brightness(1.2f)
+        } else {
+            bg.resetColor()
+        }
+    }
+    return content(interaction)
 }
 
 data class Interaction(

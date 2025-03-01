@@ -82,6 +82,16 @@ inline fun <T> Ui.stack(
     ).show(this, block)
 }
 
+inline fun <T> Ui.columns(
+    sizes: Array<Float>,
+    background: NinePatchDescriptor? = null, block: () -> T
+): InnerResponse<T> {
+    return LinearLayout(
+        layout = Layout.ColumnsLayout.constructor(sizes),
+        background = background,
+    ).show(this, block)
+}
+
 class NinePatchComponent : Component() {
     companion object : ComponentConstructor {
         override fun construct(): Component {

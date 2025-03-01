@@ -46,7 +46,7 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         val m = margins ?: Margins.ZERO
         val item = UiStackItem(
             layout = (layout ?: parent.layout.childContinued()).construct(
-                availableSpace ?: parent.layout.nextAvailableSpace().shrink(m)
+                availableSpace ?: parent.layout.nextAvailableSpace(style ?: parent.style()).shrink(m)
             ),
             id = id ?: parent.nextAutoId(),
             painter = painter,
@@ -167,7 +167,7 @@ class UiStackItem(
      * @param desiredSize The desired size of the rectangle to allocate.
      */
     fun allocateSize(desiredSize: Vec2): UiResponse {
-        val rect = layout.allocate(desiredSize, style().itemSpacing)
+        val rect = layout.allocate(desiredSize, style())
         allocatedSpace = allocatedSpace.union(rect)
         return UiResponse(rect, nextAutoId())
     }

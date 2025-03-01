@@ -2,11 +2,13 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout
 
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Style
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
+import kotlin.math.max
 
 abstract class Layout(protected var availableSpace: Rect) {
     open class Horizontal(availableSpace: Rect) : Layout(availableSpace) {
-        companion object: LayoutConstructor {
+        companion object : LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
                 return Horizontal(availableSpace)
             }
@@ -14,9 +16,9 @@ abstract class Layout(protected var availableSpace: Rect) {
 
         var cursor: Pos2 = availableSpace.min
 
-        override fun allocate(desired: Vec2, spacing: Int): Rect {
+        override fun allocate(desired: Vec2, style: Style): Rect {
             val rect = Rect.fromSize(cursor, desired).intersection(availableSpace)!!
-            cursor = Pos2(rect.right() + spacing, cursor.y)
+            cursor = Pos2(rect.right() + style.itemSpacing, cursor.y)
             return rect
         }
 
@@ -24,7 +26,7 @@ abstract class Layout(protected var availableSpace: Rect) {
             cursor = Pos2(cursor.x + amount, cursor.y)
         }
 
-        override fun nextAvailableSpace(): Rect {
+        override fun nextAvailableSpace(style: Style): Rect {
             return Rect.fromMinMax(cursor, availableSpace.max)
         }
 
@@ -34,16 +36,17 @@ abstract class Layout(protected var availableSpace: Rect) {
     }
 
     open class Vertical(availableSpace: Rect) : Layout(availableSpace) {
-        companion object: LayoutConstructor {
+        companion object : LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
                 return Vertical(availableSpace)
             }
         }
+
         var cursor: Pos2 = availableSpace.min
 
-        override fun allocate(desired: Vec2, spacing: Int): Rect {
+        override fun allocate(desired: Vec2, style: Style): Rect {
             val rect = Rect.fromSize(cursor, desired).intersection(availableSpace)!!
-            cursor = Pos2(cursor.x, rect.bottom() + spacing)
+            cursor = Pos2(cursor.x, rect.bottom() + style.itemSpacing)
             return rect
         }
 
@@ -51,7 +54,7 @@ abstract class Layout(protected var availableSpace: Rect) {
             cursor = Pos2(cursor.x, cursor.y + amount)
         }
 
-        override fun nextAvailableSpace(): Rect {
+        override fun nextAvailableSpace(style: Style): Rect {
             return Rect.fromMinMax(cursor, availableSpace.max)
         }
 
@@ -61,12 +64,13 @@ abstract class Layout(protected var availableSpace: Rect) {
     }
 
     open class Stack(availableSpace: Rect) : Layout(availableSpace) {
-        companion object: LayoutConstructor {
+        companion object : LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
                 return Stack(availableSpace)
             }
         }
-        override fun allocate(desired: Vec2, spacing: Int): Rect {
+
+        override fun allocate(desired: Vec2, style: Style): Rect {
             return Rect.fromSize(availableSpace.min, desired).intersection(availableSpace)!!
         }
 
@@ -74,7 +78,7 @@ abstract class Layout(protected var availableSpace: Rect) {
             // no-op
         }
 
-        override fun nextAvailableSpace(): Rect {
+        override fun nextAvailableSpace(style: Style): Rect {
             return availableSpace
         }
 
@@ -84,14 +88,64 @@ abstract class Layout(protected var availableSpace: Rect) {
     }
 
     class VerticalJustified(availableSpace: Rect) : Vertical(availableSpace) {
-        companion object: LayoutConstructor {
+        companion object : LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
                 return VerticalJustified(availableSpace)
             }
         }
 
-        override fun allocate(desired: Vec2, spacing: Int): Rect {
-            return super.allocate(Vec2(availableSpace.width(), desired.y), spacing)
+        override fun allocate(desired: Vec2, style: Style): Rect {
+            return super.allocate(Vec2(availableSpace.width(), desired.y), style)
+        }
+
+        override fun childContinued(): LayoutConstructor {
+            return VerticalJustified
+        }
+    }
+
+    class ColumnsLayout(private val columns: Array<Float>, availableSpace: Rect) : Layout(availableSpace) {
+        class ColumnsLayoutConstructor(private val columns: Array<Float>) : LayoutConstructor {
+            override fun construct(availableSpace: Rect): Layout {
+                return ColumnsLayout(columns, availableSpace)
+            }
+        }
+
+        companion object {
+            fun constructor(columns: Array<Float>): LayoutConstructor {
+                return ColumnsLayoutConstructor(columns)
+            }
+        }
+
+        private var column = 0
+        private var cursor = availableSpace.min
+        private var nextRow = 0
+        private val columnsSum = columns.sum()
+
+        private fun nextWidth(spacing:Int): Int {
+            return (columns[column] * (availableSpace.width() - spacing * (columns.size - 1)) / columnsSum).toInt()
+        }
+
+        override fun allocate(desired: Vec2, style: Style): Rect {
+            val width = nextWidth(style.itemSpacing)
+            val rect = Rect.fromSize(cursor, Vec2(width, desired.y)).intersection(availableSpace)!!
+            nextRow = max(nextRow, rect.bottom())
+
+            column += 1
+            if (column >= columns.size) {
+                column = 0
+                cursor = Pos2(availableSpace.min.x, nextRow + style.itemSpacing)
+            } else {
+                cursor = Pos2(cursor.x + width + style.itemSpacing, cursor.y)
+            }
+            return rect
+        }
+
+        override fun addSpace(amount: Int) {
+            // no-op
+        }
+
+        override fun nextAvailableSpace(style: Style): Rect {
+            return Rect.fromMinMax(cursor, Pos2(cursor.x + nextWidth(style.itemSpacing), availableSpace.max.y))
         }
 
         override fun childContinued(): LayoutConstructor {
@@ -102,7 +156,7 @@ abstract class Layout(protected var availableSpace: Rect) {
     /**
      * Allocates space for the next widget.
      */
-    abstract fun allocate(desired: Vec2, spacing: Int): Rect
+    abstract fun allocate(desired: Vec2, style: Style): Rect
 
     /**
      * Adds the space before the next widget.
@@ -112,7 +166,7 @@ abstract class Layout(protected var availableSpace: Rect) {
     /**
      * Returns the available space for the next widget.
      */
-    abstract fun nextAvailableSpace(): Rect
+    abstract fun nextAvailableSpace(style: Style): Rect
 
     /**
      * Returns the child layout with the same direction as this layout, whenever it
