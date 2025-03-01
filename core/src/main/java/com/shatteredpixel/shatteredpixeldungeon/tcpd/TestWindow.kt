@@ -13,6 +13,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.label
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.redButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.vertical
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.Game
@@ -38,7 +39,7 @@ class TestWindow : Window(0, 0, Chrome.get(Chrome.Type.WINDOW)) {
         val res = ctx.update(maxSize) {
             var counter by useState(Unit) { 0 }
 
-            vertical {
+            verticalJustified {
 
                 val sizeBoost = sin((Game.realTime / 200).toDouble() / PI) * 5 + 5
 

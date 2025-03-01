@@ -1,9 +1,9 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
-import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.InnerResponse
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.LayoutDirection
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Layout
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.LayoutConstructor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstructor
@@ -13,7 +13,7 @@ import com.watabou.noosa.NinePatch
 import com.watabou.noosa.ui.Component
 
 data class LinearLayout(
-    val direction: LayoutDirection,
+    val layout: LayoutConstructor?,
     val background: NinePatchDescriptor? = null,
 ) {
     fun createPainter(ui: Ui): Pair<Painter, NinePatchComponent?> {
@@ -36,7 +36,7 @@ data class LinearLayout(
         val margins = ninePatch?.ninePatch?.margins() ?: Margins.ZERO
 
         val res = ui.withLayout(
-            margins = margins, layout = direction, block = block, painter = painter
+            margins = margins, layout = layout, block = block, painter = painter
         )
 
         return res
@@ -47,7 +47,17 @@ inline fun <T> Ui.vertical(
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
     return LinearLayout(
-        direction = LayoutDirection.VERTICAL,
+        layout = Layout.Vertical,
+        background = background,
+    ).show(
+        this, block
+    )
+}
+inline fun <T> Ui.verticalJustified(
+    background: NinePatchDescriptor? = null, block: () -> T
+): InnerResponse<T> {
+    return LinearLayout(
+        layout = Layout.VerticalJustified,
         background = background,
     ).show(
         this, block
@@ -58,7 +68,7 @@ inline fun <T> Ui.horizontal(
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
     return LinearLayout(
-        direction = LayoutDirection.HORIZONTAL,
+        layout = Layout.Horizontal,
         background = background,
     ).show(this, block)
 }
@@ -67,7 +77,8 @@ inline fun <T> Ui.stack(
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
     return LinearLayout(
-        direction = LayoutDirection.STACK, background = background
+        layout = Layout.Stack,
+        background = background,
     ).show(this, block)
 }
 

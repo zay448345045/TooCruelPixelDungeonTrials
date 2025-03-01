@@ -37,8 +37,16 @@ inline fun <T> Ui.customButton(block: (interaction: Interaction) -> T): Interact
 }
 
 fun Ui.redButton(text: String, size: Int = 9): InteractiveResponse<Unit> {
+    return redButton {
+        label(text, size)
+    }
+}
+
+inline fun <T> Ui.redButton(
+    content: (interaction: Interaction) -> T
+): InteractiveResponse<T> {
     return customButton { interaction ->
-        horizontal(background = Chrome.Type.RED_BUTTON.descriptor()) {
+        vertical(background = Chrome.Type.RED_BUTTON.descriptor()) {
             val bg = (top().painter().getGroup() as NinePatchComponent).ninePatch
             if (bg != null) {
                 if (interaction.isPointerDown) {
@@ -47,8 +55,8 @@ fun Ui.redButton(text: String, size: Int = 9): InteractiveResponse<Unit> {
                     bg.resetColor()
                 }
             }
-            label(text, size)
-        }
+            content(interaction)
+        }.inner
     }
 }
 

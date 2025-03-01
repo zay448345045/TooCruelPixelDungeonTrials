@@ -30,6 +30,7 @@ operator fun Pos2.minus(other: Pos2): Vec2 {
     return Vec2(x - other.x, y - other.y)
 }
 
+@ExposedCopyVisibility
 data class Rect private constructor(val min: Pos2, val max: Pos2) {
     companion object {
         fun fromMinMax(min: Pos2, max: Pos2): Rect {
@@ -87,6 +88,14 @@ data class Rect private constructor(val min: Pos2, val max: Pos2) {
             kotlin.math.max(max.y, other.max.y)
         )
         return fromMinMax(min, max)
+    }
+
+    fun centerInside(size: Vec2): Rect {
+        val min = Pos2(
+            left() + (width() - size.x) / 2,
+            top() + (height() - size.y) / 2
+        )
+        return fromMinMax(min, min + size)
     }
 
     fun width(): Int {
@@ -216,7 +225,7 @@ data class Rect private constructor(val min: Pos2, val max: Pos2) {
         )
     }
 
-    fun scaleFromOrigin(factor: Int) : Rect {
+    fun scaleFromOrigin(factor: Int): Rect {
         return fromMinMax(
             min.x * factor,
             min.y * factor,

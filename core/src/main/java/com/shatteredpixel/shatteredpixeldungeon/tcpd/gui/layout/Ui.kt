@@ -1,11 +1,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout
 
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.context.Context
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Style
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.context.Context
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.watabou.noosa.ui.Component
 
@@ -14,8 +13,7 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
 
     init {
         val rootUi = UiStackItem(
-            availableSpace = availableSpace,
-            layout = LayoutDirection.STACK,
+            layout = Layout.Stack(availableSpace),
             painter = painter,
             id = UiId(0),
             margins = Margins.ZERO,
@@ -38,17 +36,18 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
 
     fun pushLayout(
         availableSpace: Rect? = null,
-        layout: LayoutDirection? = null,
+        layout: LayoutConstructor? = null,
         margins: Margins? = null,
         id: UiId? = null,
         painter: Painter? = null,
         style: Style? = null,
     ): UiId {
         val parent = stack.last()
-        val m = margins ?: Margins.ZERO;
+        val m = margins ?: Margins.ZERO
         val item = UiStackItem(
-            availableSpace = availableSpace ?: parent.remainingSpace().shrink(m),
-            layout = layout ?: parent.layout,
+            layout = (layout ?: parent.layout.childContinued()).construct(
+                availableSpace ?: parent.layout.nextAvailableSpace().shrink(m)
+            ),
             id = id ?: parent.nextAutoId(),
             painter = painter,
             style = style,
@@ -61,7 +60,7 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
 
     inline fun <T> withLayout(
         availableSpace: Rect? = null,
-        layout: LayoutDirection? = null,
+        layout: LayoutConstructor? = null,
         margins: Margins? = null,
         id: UiId? = null,
         painter: Painter? = null,
@@ -85,8 +84,8 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
 
         // if the removed layout had a different painter group, we need to update the rect accordingly
         val curPainterGroup = removed.painter().getGroup()
-        if(curPainterGroup != null && curPainterGroup != parent.painter().getGroup()) {
-            if(curPainterGroup is Component) {
+        if (curPainterGroup != null && curPainterGroup != parent.painter().getGroup()) {
+            if (curPainterGroup is Component) {
                 curPainterGroup.setRect(
                     response.rect.left().toFloat(),
                     response.rect.top().toFloat(),
@@ -101,17 +100,16 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
 }
 
 class UiStackItem(
-    val availableSpace: Rect,
     val margins: Margins,
-    val layout: LayoutDirection,
+    val layout: Layout,
     val id: UiId,
     private var painter: Painter? = null,
     private var parent: UiStackItem? = null,
     private var style: Style? = null,
-    private var cursor: Pos2 = availableSpace.min,
 ) {
     private var nextId: UiId = id.next()
-    var allocatedSpace: Rect = Rect.fromMinMax(availableSpace.min, availableSpace.min)
+    var allocatedSpace: Rect =
+        Rect.fromMinMax(layout.getFullAvailableSpace().min, layout.getFullAvailableSpace().min)
         private set
 
     fun style(): Style {
@@ -158,22 +156,20 @@ class UiStackItem(
      * @param amount The amount of space to add.
      */
     fun addSpace(amount: Int) {
-        cursor = layout.advanceCursor(cursor, amount)
+        layout.addSpace(amount)
     }
 
     /**
-     * Allocates a rectangle of the given size and advances the cursor.
-     * @param size The size of the rectangle to allocate.
+     * Allocates a rectangle of the given desired size and advances the cursor.
+     *
+     * The actual size of the allocated rectangle may differ from the desired size.
+     *
+     * @param desiredSize The desired size of the rectangle to allocate.
      */
-    fun allocateSize(size: Vec2): UiResponse {
-        val rect = Rect.fromSize(cursor, size)
+    fun allocateSize(desiredSize: Vec2): UiResponse {
+        val rect = layout.allocate(desiredSize, style().itemSpacing)
         allocatedSpace = allocatedSpace.union(rect)
-        cursor = layout.advanceCursor(cursor, size, style().itemSpacing)
         return UiResponse(rect, nextAutoId())
-    }
-
-    fun remainingSpace(): Rect {
-        return Rect.fromMinMax(cursor, availableSpace.max)
     }
 }
 
@@ -193,4 +189,4 @@ interface Widget {
 }
 
 data class UiResponse(val rect: Rect, val id: UiId)
-data class InnerResponse<T>(val inner: T, val response: UiResponse);
+data class InnerResponse<T>(val inner: T, val response: UiResponse)
