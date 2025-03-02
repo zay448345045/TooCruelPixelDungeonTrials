@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.Trinket;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDData;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDGameInfoData;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
@@ -336,7 +337,8 @@ public enum Rankings {
 		Dungeon.hero.belongings.identify();
 
 		Statistics.restoreFromBundle(data.getBundle(STATS));
-		
+
+		Dungeon.tcpdData = new TCPDData();
 		Dungeon.tcpdData.restoreFromInfoData((TCPDGameInfoData) data.get(TCPD_DATA));
 
 		Dungeon.initialVersion = data.getInt(GAME_VERSION);

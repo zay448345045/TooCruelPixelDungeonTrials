@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
@@ -11,6 +12,7 @@ import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 
 enum class Modifier(val id: Int, locString: String? = null) {
+    // Vanilla challenges
     ON_DIET(0, locString = "no_food"),
     FAITH_ARMOR(1, locString = "no_armor"),
     PHARMACOPHOBIA(2, locString = "no_healing"),
@@ -19,7 +21,12 @@ enum class Modifier(val id: Int, locString: String? = null) {
     DARKNESS(5, locString = "darkness"),
     FORBIDDEN_RUNES(6, locString = "no_scrolls"),
     CHAMPION_ENEMIES(7, locString = "champion_enemies"),
-    STRONGER_BOSSES(8, locString = "stronger_bosses");
+    STRONGER_BOSSES(8, locString = "stronger_bosses"),
+
+    // Custom content!
+    CARDINAL_DISABILITY(9),
+    RACING_THE_DEATH(10),
+    ;
 
     companion object {
         fun fromVanilla(challengeId: Int): Modifier {
@@ -47,11 +54,14 @@ enum class Modifier(val id: Int, locString: String? = null) {
 
     fun localizedDesc(): String {
         return Messages.get(localizationClass, localizationKey + "_desc")
+        return Messages.get(localizationClass, localizationKey + "_desc")
     }
 
     open fun isItemBlocked(item: Item): Boolean {
         return false
     }
+
+    fun active() = Dungeon.tcpdData.modifiers.isEnabled(this)
 }
 
 class Modifiers() : Bundlable {
@@ -102,7 +112,7 @@ class Modifiers() : Bundlable {
     }
 
     override fun restoreFromBundle(bundle: Bundle) {
-        bundle.getBooleanArray(MODIFIERS)
+        bundle.getBooleanArray(MODIFIERS).copyInto(modifiers)
     }
 
     override fun storeInBundle(bundle: Bundle) {
