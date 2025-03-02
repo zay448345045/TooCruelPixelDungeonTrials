@@ -256,7 +256,7 @@ public class StartScene extends PixelScene {
 				level.text(Integer.toString(info.level));
 				level.measure();
 				
-				if (info.challenges > 0){
+				if (info.tcpdData.isChallenged()){
 					name.hardlight(Window.TITLE_COLOR);
 					lastPlayed.hardlight(Window.TITLE_COLOR);
 					depth.hardlight(Window.TITLE_COLOR);

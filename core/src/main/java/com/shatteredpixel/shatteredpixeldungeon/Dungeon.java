@@ -74,6 +74,8 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.secret.SecretRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDData;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
@@ -186,7 +188,7 @@ public class Dungeon {
 
 	}
 
-	public static int challenges;
+	public static TCPDData tcpdData;
 	public static int mobsToChampion;
 
 	public static Hero hero;
@@ -240,7 +242,7 @@ public class Dungeon {
 	public static void init() {
 
 		initialVersion = version = Game.versionCode;
-		challenges = SPDSettings.challenges();
+		tcpdData = new TCPDData();
 		mobsToChampion = -1;
 
 		Actor.clear();
@@ -294,7 +296,11 @@ public class Dungeon {
 	}
 
 	public static boolean isChallenged( int mask ) {
-		return (challenges & mask) != 0;
+		return tcpdData.getModifiers().isVanillaEnabled(mask);
+	}
+
+	public static boolean isChallenged( Modifier modifier ) {
+		return tcpdData.getModifiers().isEnabled(modifier);
 	}
 
 	public static boolean levelHasBeenGenerated(int depth, int branch){
@@ -621,7 +627,8 @@ public class Dungeon {
 	private static final String CHAPTERS	= "chapters";
 	private static final String QUESTS		= "quests";
 	private static final String BADGES		= "badges";
-	
+	private static final String TCPD_DATA	= "tcpd_data";
+
 	public static void saveGame( int save ) {
 		try {
 			Bundle bundle = new Bundle();
@@ -633,7 +640,7 @@ public class Dungeon {
 			bundle.put( DAILY, daily );
 			bundle.put( DAILY_REPLAY, dailyReplay );
 			bundle.put( LAST_PLAYED, lastPlayed = Game.realTime);
-			bundle.put( CHALLENGES, challenges );
+			bundle.put( TCPD_DATA, tcpdData );
 			bundle.put( MOBS_TO_CHAMPION, mobsToChampion );
 			bundle.put( HERO, hero );
 			bundle.put( DEPTH, depth );
@@ -746,7 +753,7 @@ public class Dungeon {
 		QuickSlotButton.reset();
 		Toolbar.swappedQuickslots = false;
 
-		Dungeon.challenges = bundle.getInt( CHALLENGES );
+		Dungeon.tcpdData = (TCPDData) bundle.get( TCPD_DATA );
 		Dungeon.mobsToChampion = bundle.getInt( MOBS_TO_CHAMPION );
 		
 		Dungeon.level = null;
@@ -871,7 +878,7 @@ public class Dungeon {
 	public static void preview( GamesInProgress.Info info, Bundle bundle ) {
 		info.depth = bundle.getInt( DEPTH );
 		info.version = bundle.getInt( VERSION );
-		info.challenges = bundle.getInt( CHALLENGES );
+		info.tcpdData = ((TCPDData) bundle.get( TCPD_DATA )).asInfoData();
 		info.seed = bundle.getLong( SEED );
 		info.customSeed = bundle.getString( CUSTOM_SEED );
 		info.daily = bundle.getBoolean( DAILY );

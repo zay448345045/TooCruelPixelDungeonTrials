@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.InnerResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Layout
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.LayoutConstructor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstructor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.NinePatchDescriptor
@@ -12,12 +13,12 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.watabou.noosa.NinePatch
 import com.watabou.noosa.ui.Component
 
-data class LinearLayout(
+data class WithLayout(
     val layout: LayoutConstructor?,
     val background: NinePatchDescriptor? = null,
 ) {
-    fun createPainter(ui: Ui): Pair<Painter, NinePatchComponent?> {
-        val painter = ui.top().painter().withComponent(NinePatchComponent.Companion)
+    fun createPainter(ui: Ui, id: UiId): Pair<Painter, NinePatchComponent?> {
+        val painter = ui.top().painter().withComponent(id, NinePatchComponent.Companion)
         val group = painter.getGroup();
         if (group != null) {
             (group as NinePatchComponent).setNinePatch(background!!)
@@ -27,8 +28,9 @@ data class LinearLayout(
     }
 
     inline fun <T> show(ui: Ui, block: () -> T): InnerResponse<T> {
+        val id = ui.top().nextAutoId().with("linear")
         val (painter, ninePatch) = if (background != null) {
-            createPainter(ui)
+            createPainter(ui, id)
         } else {
             Pair(ui.top().painter(), null)
         }
@@ -36,7 +38,7 @@ data class LinearLayout(
         val margins = ninePatch?.ninePatch?.margins() ?: Margins.ZERO
 
         val res = ui.withLayout(
-            margins = margins, layout = layout, block = block, painter = painter
+            margins = margins, layout = layout, block = block, painter = painter, id = id,
         )
 
         return res
@@ -46,17 +48,18 @@ data class LinearLayout(
 inline fun <T> Ui.vertical(
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
-    return LinearLayout(
+    return WithLayout(
         layout = Layout.Vertical,
         background = background,
     ).show(
         this, block
     )
 }
+
 inline fun <T> Ui.verticalJustified(
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
-    return LinearLayout(
+    return WithLayout(
         layout = Layout.VerticalJustified,
         background = background,
     ).show(
@@ -67,7 +70,7 @@ inline fun <T> Ui.verticalJustified(
 inline fun <T> Ui.horizontal(
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
-    return LinearLayout(
+    return WithLayout(
         layout = Layout.Horizontal,
         background = background,
     ).show(this, block)
@@ -76,7 +79,7 @@ inline fun <T> Ui.horizontal(
 inline fun <T> Ui.stack(
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
-    return LinearLayout(
+    return WithLayout(
         layout = Layout.Stack,
         background = background,
     ).show(this, block)
@@ -86,7 +89,7 @@ inline fun <T> Ui.columns(
     sizes: Array<Float>,
     background: NinePatchDescriptor? = null, block: () -> T
 ): InnerResponse<T> {
-    return LinearLayout(
+    return WithLayout(
         layout = Layout.ColumnsLayout.constructor(sizes),
         background = background,
     ).show(this, block)

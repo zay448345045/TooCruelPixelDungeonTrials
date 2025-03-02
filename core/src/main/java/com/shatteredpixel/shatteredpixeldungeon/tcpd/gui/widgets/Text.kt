@@ -4,28 +4,33 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Widget
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.WidgetResponse
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import kotlin.math.ceil
 
-class UiText(val text: String, val size: Int, val multiline: Boolean) : Widget {
-    override fun ui(ui: Ui): UiResponse {
+class UiText(val text: String, val size: Int, val multiline: Boolean) {
+    fun show(ui: Ui): WidgetResponse<RenderedTextBlock> {
         val top = ui.top()
         val space = top.layout.nextAvailableSpace(ui.top().style())
-        val text = top.painter().drawText(space, text, size, multiline) as RenderedTextBlock
+        val id = top.nextAutoId()
+        val text = top.painter().drawText(id, space, text, size, multiline) as RenderedTextBlock
 
         val textSize = Vec2(ceil(text.width()).toInt(), ceil(text.height()).toInt());
-        val res = top.allocateSize(textSize)
+        val rect = top.allocateSize(textSize)
 
-        if (res.rect.width() > textSize.x || res.rect.height() > textSize.y) {
-            val newRect = res.rect.centerInside(textSize)
+        if (rect.width() > textSize.x || rect.height() > textSize.y) {
+            val newRect = rect.centerInside(textSize)
             text.setPos(newRect.min.x.toFloat(), newRect.min.y.toFloat())
             PixelScene.align(text)
         }
-        return res
+        return WidgetResponse(text, UiResponse(rect, id))
     }
 }
 
-fun Ui.label(text: String, size: Int, multiline: Boolean = false) {
-    UiText(text, size, multiline).ui(this)
+fun Ui.label(
+    text: String,
+    size: Int,
+    multiline: Boolean = false
+): WidgetResponse<RenderedTextBlock> {
+    return UiText(text, size, multiline).show(this)
 }

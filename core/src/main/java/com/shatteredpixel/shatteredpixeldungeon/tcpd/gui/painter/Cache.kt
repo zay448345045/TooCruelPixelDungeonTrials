@@ -1,29 +1,38 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter
 
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.context.TwoFrameMap
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.watabou.noosa.Gizmo
 
 class PaintCache {
-    private val cache: MutableMap<Int, Pair<VisualElement, Gizmo>> = mutableMapOf()
-    private var pointer: Int = 0
+    private val cache: TwoFrameMap<UiId, Pair<VisualElement, Gizmo>> = TwoFrameMap()
 
     internal fun restart() {
-        // clean up elements that are no longer needed
-        cache.iterator().forEach {
-            if (it.key >= pointer) {
-                it.value.second.remove()
+        val seen = mutableSetOf<Gizmo>()
+        cache.values().forEach {
+            if(!seen.add(it.second)) {
+                throw IllegalStateException("Gizmo $it is duplicated in the cache")
             }
         }
-        pointer = 0
+        // clean up elements that are no longer needed
+        cache.swapDestroying {
+            it.second.destroy()
+        }
     }
 
-    internal fun advance(element: VisualElement): Gizmo {
-        val cached = cache[pointer]
+    internal fun destroy() {
+        cache.values().forEach {
+            it.second.destroy()
+        }
+    }
+
+    internal fun get(id: UiId, element: VisualElement): Gizmo {
+        val cached = cache.get(id)
         val gizmo = element.asGizmo(cached)
         if(gizmo != cached?.second) {
             cached?.second?.destroy()
         }
-        cache[pointer] = Pair(element, gizmo)
-        pointer++
+        cache.set(id, Pair(element, gizmo))
         return gizmo
     }
 }

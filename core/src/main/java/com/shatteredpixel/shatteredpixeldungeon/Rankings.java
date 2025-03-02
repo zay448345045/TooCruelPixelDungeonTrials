@@ -36,6 +36,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.Scroll;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.Trinket;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDGameInfoData;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
@@ -235,7 +236,7 @@ public enum Rankings {
 	public static final String STATS        = "stats";
 	public static final String BADGES       = "badges";
 	public static final String HANDLERS     = "handlers";
-	public static final String CHALLENGES   = "challenges";
+	public static final String TCPD_DATA   = "tcpd_data";
 	public static final String GAME_VERSION = "game_version";
 	public static final String SEED         = "seed";
 	public static final String CUSTOM_SEED	= "custom_seed";
@@ -300,7 +301,7 @@ public enum Rankings {
 		belongings.backpack.items = allItems;
 		
 		//save challenges
-		rec.gameData.put( CHALLENGES, Dungeon.challenges );
+		rec.gameData.put( TCPD_DATA, Dungeon.tcpdData.asInfoData() );
 
 		rec.gameData.put( GAME_VERSION, Dungeon.initialVersion );
 
@@ -336,7 +337,7 @@ public enum Rankings {
 
 		Statistics.restoreFromBundle(data.getBundle(STATS));
 		
-		Dungeon.challenges = data.getInt(CHALLENGES);
+		Dungeon.tcpdData.restoreFromInfoData((TCPDGameInfoData) data.get(TCPD_DATA));
 
 		Dungeon.initialVersion = data.getInt(GAME_VERSION);
 

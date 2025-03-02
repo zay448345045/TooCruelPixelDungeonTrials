@@ -3,6 +3,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstructor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
@@ -12,8 +13,8 @@ import com.watabou.noosa.ui.Component
 
 class UiButton {
     @PublishedApi
-    internal fun createPainter(ui: Ui): Pair<Painter, Interaction> {
-        val painter = ui.top().painter().withComponent(UiButtonComponent.Companion);
+    internal fun createPainter(ui: Ui, id: UiId): Pair<Painter, Interaction> {
+        val painter = ui.top().painter().withComponent(id, UiButtonComponent.Companion);
         val group = painter.getGroup()
         val interaction = if (group == null) {
             Interaction.NONE
@@ -24,9 +25,10 @@ class UiButton {
     }
 
     inline fun <T> show(ui: Ui, block: (interaction: Interaction) -> T): InteractiveResponse<T> {
-        val (painter, interaction) = createPainter(ui)
+        val id = ui.top().nextAutoId().with("button")
+        val (painter, interaction) = createPainter(ui, id)
 
-        val layoutId = ui.pushLayout(painter = painter)
+        val layoutId = ui.pushLayout(painter = painter, id = id)
         val inner = block(interaction)
         val response = ui.popLayout(layoutId)
         return InteractiveResponse(interaction, response, inner)
@@ -48,7 +50,7 @@ inline fun <T> Ui.redButton(
 ): InteractiveResponse<T> {
     return customButton { interaction ->
         vertical(background = Chrome.Type.RED_BUTTON.descriptor()) {
-            margins(Margins(3,3,1,3)) {
+            margins(Margins(3, 3, 1, 3)) {
                 withRedButtonBackground(this, interaction, content)
             }.inner
         }.inner

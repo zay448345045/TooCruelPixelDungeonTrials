@@ -3,6 +3,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.gltextures.SmartTexture
 import com.watabou.gltextures.TextureCache
@@ -33,13 +34,13 @@ class Painter internal constructor(
      *
      * @param clip The new clip rect.
      */
-    fun clipped(clip: Rect?, component: ComponentConstructor? = null): Painter {
+    fun clipped(id: UiId, clip: Rect?, component: ComponentConstructor? = null): Painter {
         // We are already inside non-visible area.
         if (this.group == null) {
             return this
         }
 
-        val group = add(VisualElement.Group(component)) as Group
+        val group = add(id, VisualElement.Group(component)) as Group
         if (component == null) {
             group.clear()
         } else {
@@ -54,43 +55,43 @@ class Painter internal constructor(
     /**
      * Same as [clipped], but without clipping.
      */
-    fun withComponent(component: ComponentConstructor): Painter {
+    fun withComponent(id: UiId, component: ComponentConstructor): Painter {
         if (this.group == null) {
             return this
         }
-        val group = add(VisualElement.Group(component)) as Component
+        val group = add(id, VisualElement.Group(component)) as Component
 
         component.clearChildren(group)
 
         return Painter(group, cache)
     }
 
-    fun drawRect(rect: Rect, color: Int) {
-        add(VisualElement.ColoredRect(rect, color))
+    fun drawRect(id: UiId, rect: Rect, color: Int) {
+        add(id, VisualElement.ColoredRect(rect, color))
     }
 
-    fun drawNinePatch(rect: Rect, descriptor: NinePatchDescriptor): Gizmo {
-        return add(VisualElement.NinePatch(rect, descriptor))
+    fun drawNinePatch(id: UiId, rect: Rect, descriptor: NinePatchDescriptor): Gizmo {
+        return add(id, VisualElement.NinePatch(rect, descriptor))
     }
 
-    fun drawImage(rect: Rect, texture: TextureDescriptor): Gizmo {
-        return add(VisualElement.Image(rect, texture))
+    fun drawImage(id: UiId, rect: Rect, texture: TextureDescriptor): Gizmo {
+        return add(id, VisualElement.Image(rect, texture))
     }
 
-    fun drawText(rect: Rect, text: String, size: Int, multiline: Boolean): Gizmo {
-        return add(VisualElement.Text(rect, text, size, multiline))
+    fun drawText(id: UiId, rect: Rect, text: String, size: Int, multiline: Boolean): Gizmo {
+        return add(id, VisualElement.Text(rect, text, size, multiline))
     }
 
-    fun drawComponent(rect: Rect, component: ComponentConstructor): Gizmo {
-        return add(VisualElement.Component(rect, component))
+    fun drawComponent(id: UiId, rect: Rect, component: ComponentConstructor): Gizmo {
+        return add(id, VisualElement.Component(rect, component))
     }
 
     fun getGroup(): Group? {
         return group
     }
 
-    private fun add(element: VisualElement): Gizmo {
-        val gizmo = cache.advance(element);
+    private fun add(id: UiId, element: VisualElement): Gizmo {
+        val gizmo = cache.get(id, element);
 
         group?.addToFront(gizmo)
         if (gizmo is Component) {

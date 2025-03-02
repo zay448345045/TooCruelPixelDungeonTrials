@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.StartScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndModifiers;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
@@ -67,15 +68,15 @@ public class WndGameInProgress extends Window {
 		title.setRect( 0, 0, WIDTH, 0 );
 		add(title);
 		
-		if (info.challenges > 0) GAP -= 2;
+		if (info.tcpdData.isChallenged()) GAP -= 2;
 		
 		pos = title.bottom() + GAP;
 		
-		if (info.challenges > 0) {
+		if (info.tcpdData.isChallenged()) {
 			RedButton btnChallenges = new RedButton( Messages.get(this, "challenges") ) {
 				@Override
 				protected void onClick() {
-					Game.scene().add( new WndChallenges( info.challenges, false ) );
+					Game.scene().add( new WndModifiers( info.tcpdData.getModifiers(), false ) );
 				}
 			};
 			btnChallenges.icon(Icons.get(Icons.CHALLENGE_COLOR));

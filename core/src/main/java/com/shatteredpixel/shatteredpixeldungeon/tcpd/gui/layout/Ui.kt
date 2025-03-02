@@ -48,7 +48,7 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
             layout = (layout ?: parent.layout.childContinued()).construct(
                 availableSpace ?: parent.layout.nextAvailableSpace(style ?: parent.style()).shrink(m)
             ),
-            id = id ?: parent.nextAutoId(),
+            id = id ?: parent.nextAutoId().with("pushLayout"),
             painter = painter,
             style = style,
             margins = m,
@@ -80,22 +80,22 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         }
         val allocatedSpace = removed.allocatedSpace.expand(removed.margins)
         val parent = stack.last()
-        val response = parent.allocateSize(allocatedSpace.size())
+        val rect = parent.allocateSize(allocatedSpace.size())
 
         // if the removed layout had a different painter group, we need to update the rect accordingly
         val curPainterGroup = removed.painter().getGroup()
         if (curPainterGroup != null && curPainterGroup != parent.painter().getGroup()) {
             if (curPainterGroup is Component) {
                 curPainterGroup.setRect(
-                    response.rect.left().toFloat(),
-                    response.rect.top().toFloat(),
-                    response.rect.width().toFloat(),
-                    response.rect.height().toFloat()
+                    rect.left().toFloat(),
+                    rect.top().toFloat(),
+                    rect.width().toFloat(),
+                    rect.height().toFloat()
                 )
             }
         }
 
-        return response
+        return UiResponse(rect, removed.id())
     }
 }
 
@@ -166,10 +166,10 @@ class UiStackItem(
      *
      * @param desiredSize The desired size of the rectangle to allocate.
      */
-    fun allocateSize(desiredSize: Vec2): UiResponse {
+    fun allocateSize(desiredSize: Vec2): Rect {
         val rect = layout.allocate(desiredSize, style())
         allocatedSpace = allocatedSpace.union(rect)
-        return UiResponse(rect, nextAutoId())
+        return rect
     }
 }
 
@@ -184,9 +184,6 @@ value class UiId(internal val id: Int) {
     }
 }
 
-interface Widget {
-    fun ui(ui: Ui): UiResponse
-}
-
 data class UiResponse(val rect: Rect, val id: UiId)
 data class InnerResponse<T>(val inner: T, val response: UiResponse)
+data class WidgetResponse<T>(val widget: T, val response: UiResponse)

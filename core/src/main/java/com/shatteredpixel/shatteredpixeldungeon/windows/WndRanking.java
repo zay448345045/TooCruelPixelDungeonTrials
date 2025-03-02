@@ -37,6 +37,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.Trinket;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BadgesGrid;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BadgesList;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button;
@@ -60,6 +61,8 @@ import com.watabou.utils.DeviceCompat;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+
+import kotlin.enums.EnumEntries;
 
 public class WndRanking extends WndTabbed {
 	
@@ -111,7 +114,7 @@ public class WndRanking extends WndTabbed {
 			Group[] pages =
 					{new StatsTab(), new TalentsTab(), new ItemsTab(), new BadgesTab(), null};
 
-			if (Dungeon.challenges != 0) pages[4] = new ChallengesTab();
+			if (Dungeon.tcpdData.isChallenged()) pages[4] = new ChallengesTab();
 
 			for (int i = 0; i < pages.length; i++) {
 
@@ -431,12 +434,13 @@ public class WndRanking extends WndTabbed {
 
 			float pos = 0;
 
-			for (int i=0; i < Challenges.NAME_IDS.length; i++) {
+			EnumEntries<Modifier> modifiers = Modifier.getEntries();
+			for (int i = 0; i < modifiers.size(); i++) {
 
-				final String challenge = Challenges.NAME_IDS[i];
+				final Modifier challenge = modifiers.get(i);
 
-				CheckBox cb = new CheckBox( Messages.titleCase(Messages.get(Challenges.class, challenge)) );
-				cb.checked( (Dungeon.challenges & Challenges.MASKS[i]) != 0 );
+				CheckBox cb = new CheckBox( Messages.titleCase(challenge.localizedName()) );
+				cb.checked( Dungeon.tcpdData.getModifiers().isEnabled(challenge) );
 				cb.active = false;
 
 				if (i > 0) {

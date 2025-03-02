@@ -44,6 +44,11 @@ class Context(val rootGroup: Group = Group()) {
         return value as T?
     }
 
+    fun destroy() {
+        rootGroup.clear()
+        paintCache.destroy()
+    }
+
     @PublishedApi
     internal fun updateMemory() {
         memory.values().forEach {
@@ -84,9 +89,13 @@ class TwoFrameMap<K, V> {
      * Advances the map to the next frame, discarding values not accessed in the previous frame.
      */
     fun swap() {
-        val temp = prev
-        prev = curr
-        curr = temp
+        swapCustomClear()
+        curr.clear()
+    }
+
+    inline fun swapDestroying(destroy: (V) -> Unit) {
+        val curr = swapCustomClear()
+        curr.values.forEach(destroy)
         curr.clear()
     }
 
@@ -97,10 +106,19 @@ class TwoFrameMap<K, V> {
             value = prev[id]
             if (value != null) {
                 curr[id] = value
+                prev.remove(id)
             }
         }
 
         return value
+    }
+
+    @PublishedApi
+    internal fun swapCustomClear(): MutableMap<K, V> {
+        val temp = prev
+        prev = curr
+        curr = temp
+        return curr
     }
 
     inline fun getOrPut(id: K, defaultValue: () -> V): V {
@@ -111,6 +129,10 @@ class TwoFrameMap<K, V> {
         val new = defaultValue()
         set(id, new)
         return new
+    }
+
+    fun set(id: K, value: V) {
+        curr[id] = value
     }
 
     fun values(): Collection<V> {
@@ -125,8 +147,9 @@ class TwoFrameMap<K, V> {
         return curr.entries
     }
 
-    fun set(id: K, value: V) {
-        curr[id] = value
+    fun clear() {
+        curr.clear()
+        prev.clear()
     }
 }
 

@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Languages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.audio.Music;
 import com.watabou.noosa.audio.Sample;
@@ -258,12 +259,12 @@ public class SPDSettings extends GameSettings {
 		return getInt( KEY_LAST_CLASS, 0, 0, 3 );
 	}
 	
-	public static void challenges( int value ) {
-		put( KEY_CHALLENGES, value );
+	public static void challenges( Modifiers value ) {
+		put( KEY_CHALLENGES, value.serializeToString() );
 	}
 	
-	public static int challenges() {
-		return getInt( KEY_CHALLENGES, 0, 0, Challenges.MAX_VALUE );
+	public static Modifiers challenges() {
+		return Modifiers.Companion.deserializeFromString(getString( KEY_CHALLENGES, "" ));
 	}
 
 	public static void customSeed( String value ){

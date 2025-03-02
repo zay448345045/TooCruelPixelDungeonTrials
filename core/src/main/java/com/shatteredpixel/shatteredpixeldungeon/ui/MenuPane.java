@@ -32,7 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
-import com.shatteredpixel.shatteredpixeldungeon.windows.WndChallenges;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndModifiers;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndGame;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndJournal;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndKeyBindings;
@@ -120,12 +120,12 @@ public class MenuPane extends Component {
 			challengeButton = new Button(){
 				@Override
 				protected void onClick() {
-					GameScene.show(new WndChallenges(Dungeon.challenges, false));
+					GameScene.show(new WndModifiers(Dungeon.tcpdData.getModifiers(), false));
 				}
 
 				@Override
 				protected String hoverText() {
-					return Messages.get(WndChallenges.class, "title");
+					return Messages.get(WndModifiers.class, "title");
 				}
 			};
 			add(challengeButton);

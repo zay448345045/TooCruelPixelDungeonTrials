@@ -31,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.RankingsScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.TitleScene;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndModifiers;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RedButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
@@ -62,12 +63,12 @@ public class WndGame extends Window {
 		curBtn.icon(Icons.get(Icons.PREFS));
 
 		// Challenges window
-		if (Dungeon.challenges > 0) {
+		if (Dungeon.tcpdData.isChallenged()) {
 			addButton( curBtn = new RedButton( Messages.get(this, "challenges") ) {
 				@Override
 				protected void onClick() {
 					hide();
-					GameScene.show( new WndChallenges( Dungeon.challenges, false ) );
+					GameScene.show( new WndModifiers( Dungeon.tcpdData.getModifiers(), false ) );
 				}
 			} );
 			curBtn.icon(Icons.get(Icons.CHALLENGE_COLOR));

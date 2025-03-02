@@ -24,6 +24,7 @@ package com.shatteredpixel.shatteredpixeldungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDGameInfoData;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.FileUtils;
 
@@ -141,7 +142,7 @@ public class GamesInProgress {
 		info.lastPlayed = Dungeon.lastPlayed;
 		
 		info.depth = Dungeon.depth;
-		info.challenges = Dungeon.challenges;
+		info.tcpdData = Dungeon.tcpdData.asInfoData();
 
 		info.seed = Dungeon.seed;
 		info.customSeed = Dungeon.customSeedText;
@@ -178,7 +179,7 @@ public class GamesInProgress {
 
 		public int depth;
 		public int version;
-		public int challenges;
+		public TCPDGameInfoData tcpdData;
 
 		public long seed;
 		public String customSeed;

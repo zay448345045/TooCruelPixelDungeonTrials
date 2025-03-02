@@ -39,37 +39,29 @@ public class Challenges {
 
 	public static final int MAX_VALUE           = 511;
 
-	public static final String[] NAME_IDS = {
-			"champion_enemies",
-			"stronger_bosses",
-			"no_food",
-			"no_armor",
-			"no_healing",
-			"no_herbalism",
-			"swarm_intelligence",
-			"darkness",
-			"no_scrolls"
-	};
-
-	public static final int[] MASKS = {
-			CHAMPION_ENEMIES, STRONGER_BOSSES, NO_FOOD, NO_ARMOR, NO_HEALING, NO_HERBALISM, SWARM_INTELLIGENCE, DARKNESS, NO_SCROLLS
-	};
+//	public static final String[] NAME_IDS = {
+//			"champion_enemies",
+//			"stronger_bosses",
+//			"no_food",
+//			"no_armor",
+//			"no_healing",
+//			"no_herbalism",
+//			"swarm_intelligence",
+//			"darkness",
+//			"no_scrolls"
+//	};
+//
+//	public static final int[] MASKS = {
+//			CHAMPION_ENEMIES, STRONGER_BOSSES, NO_FOOD, NO_ARMOR, NO_HEALING, NO_HERBALISM, SWARM_INTELLIGENCE, DARKNESS, NO_SCROLLS
+//	};
 
 	public static int activeChallenges(){
-		int chCount = 0;
-		for (int ch : Challenges.MASKS){
-			if ((Dungeon.challenges & ch) != 0) chCount++;
-		}
-		return chCount;
+		return Dungeon.tcpdData.getModifiers().activeChallengesCount();
 	}
 
 	public static boolean isItemBlocked( Item item ){
 
-		if (Dungeon.isChallenged(NO_HERBALISM) && item instanceof Dewdrop){
-			return true;
-		}
-
-		return false;
+		return Dungeon.tcpdData.getModifiers().isItemBlocked(item);
 
 	}
 
