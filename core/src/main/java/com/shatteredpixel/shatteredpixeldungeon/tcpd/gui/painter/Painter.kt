@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.gltextures.SmartTexture
 import com.watabou.gltextures.TextureCache
@@ -105,13 +106,13 @@ class Painter internal constructor(
 
 internal sealed class VisualElement {
     data class ColoredRect(val rect: Rect, val color: Int) : VisualElement()
-    data class NinePatch(val rect: Rect, val descriptor: NinePatchDescriptor) :
-        VisualElement()
+    data class NinePatch(val rect: Rect, val descriptor: NinePatchDescriptor) : VisualElement()
 
     data class Image(val rect: Rect, val texture: TextureDescriptor) : VisualElement()
     data class Component(val rect: Rect, val component: ComponentConstructor) : VisualElement()
     data class Text(val rect: Rect, val text: String, val size: Int, val multiline: Boolean) :
         VisualElement()
+
     data class Group(val component: ComponentConstructor?) : VisualElement()
 
     fun asGizmo(cached: Pair<VisualElement, Gizmo>?): Gizmo {
@@ -137,14 +138,15 @@ internal sealed class VisualElement {
                 val image = if (cached?.second is com.watabou.noosa.Image) {
                     val image = cached.second as com.watabou.noosa.Image
 
-                    image.texture(texture.asKey())
+                    texture.update(image)
                     image
                 } else {
-                    Image(texture.asKey())
+                    texture.asImage()
                 }
                 image.width = rect.width().toFloat()
                 image.height = rect.height().toFloat()
-                image.origin.set(rect.min.x.toFloat(), rect.min.y.toFloat())
+                image.x = rect.min.x.toFloat()
+                image.y = rect.min.y.toFloat()
                 return image
             }
 
@@ -186,18 +188,19 @@ internal sealed class VisualElement {
             }
 
             is Group -> {
-                if(this.component == null) {
+                if (this.component == null) {
                     if (cached?.second is com.watabou.noosa.Group) {
                         return cached.second as com.watabou.noosa.Group
                     }
 
                     return Group()
                 } else {
-                    val comp = if (cached?.first == this && cached.second.javaClass == this.component.componentClass()) {
-                        cached.second as com.watabou.noosa.ui.Component
-                    } else {
-                        this.component.construct()
-                    }
+                    val comp =
+                        if (cached?.first == this && cached.second.javaClass == this.component.componentClass()) {
+                            cached.second as com.watabou.noosa.ui.Component
+                        } else {
+                            this.component.construct()
+                        }
 
                     return comp
                 }
@@ -235,12 +238,23 @@ sealed interface TextureDescriptor {
     class ByName(val name: String) : TextureDescriptor
     class SmartTexture(val texture: com.watabou.gltextures.SmartTexture) : TextureDescriptor
     class Pixmap(val pixmap: com.badlogic.gdx.graphics.Pixmap) : TextureDescriptor
+    class Icon(val icon: Icons) : TextureDescriptor
 
-    fun asKey(): Any {
+    fun asImage(): Image {
         return when (this) {
-            is ByName -> name
-            is SmartTexture -> texture
-            is Pixmap -> pixmap
+            is ByName -> Image(TextureCache.get(name))
+            is SmartTexture -> Image(TextureCache.get(texture))
+            is Pixmap -> Image(TextureCache.get(pixmap))
+            is Icon -> Icons.get(icon)
+        }
+    }
+
+    fun update(image: Image) {
+        when (this) {
+            is ByName -> image.texture(TextureCache.get(name))
+            is Pixmap -> image.texture(TextureCache.get(pixmap))
+            is SmartTexture -> image.texture(TextureCache.get(texture))
+            is Icon -> image.copy(Icons.get(icon))
         }
     }
 }
@@ -266,6 +280,10 @@ interface ComponentConstructor {
 
 fun Chrome.Type.descriptor(): NinePatchDescriptor {
     return NinePatchDescriptor.Chrome(this)
+}
+
+fun Icons.descriptor(): TextureDescriptor {
+    return TextureDescriptor.Icon(this)
 }
 
 fun TextureCache.get(obj: TextureDescriptor): SmartTexture {
