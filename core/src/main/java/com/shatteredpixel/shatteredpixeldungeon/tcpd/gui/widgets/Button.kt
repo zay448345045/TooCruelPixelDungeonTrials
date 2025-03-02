@@ -2,6 +2,9 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
@@ -9,6 +12,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstr
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.watabou.noosa.ui.Component
 
 class UiButton {
@@ -45,6 +49,27 @@ fun Ui.redButton(text: String, size: Int = 9): InteractiveResponse<Unit> {
     }
 }
 
+fun Ui.redCheckbox(checked: Boolean, text: String, size: Int = 9): InteractiveResponse<Unit> {
+    return redButton {
+        val res = label(text, size)
+        val ui = top();
+        val space = ui.layout.getFullAvailableSpace()
+        val checkboxRect = Rect.fromSize(
+            Pos2(
+                space.right() - 12 - 1,
+                (res.widget.top() + (res.widget.height() - 12) / 2).toInt() + 1
+            ), Vec2(12, 12)
+        );
+        ui.painter().drawImage(
+            ui.nextAutoId(), checkboxRect, if (checked) {
+                Icons.CHECKED
+            } else {
+                Icons.UNCHECKED
+            }.descriptor()
+        )
+    }
+}
+
 inline fun <T> Ui.redButton(
     content: (interaction: Interaction) -> T
 ): InteractiveResponse<T> {
@@ -59,9 +84,7 @@ inline fun <T> Ui.redButton(
 
 @PublishedApi
 internal inline fun <T> withRedButtonBackground(
-    ui: Ui,
-    interaction: Interaction,
-    content: (interaction: Interaction) -> T
+    ui: Ui, interaction: Interaction, content: (interaction: Interaction) -> T
 ): T {
     val bg = (ui.top().painter().getGroup() as NinePatchComponent).ninePatch
     if (bg != null) {
@@ -95,9 +118,7 @@ data class Interaction(
 }
 
 data class InteractiveResponse<T>(
-    val interaction: Interaction,
-    val response: UiResponse,
-    val inner: T
+    val interaction: Interaction, val response: UiResponse, val inner: T
 ) {
     fun clicked(): Boolean {
         return interaction.justClicked
