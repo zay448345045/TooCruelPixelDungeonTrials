@@ -85,6 +85,24 @@ inline fun <T> Ui.stack(
     ).show(this, block)
 }
 
+inline fun <T> Ui.stackJustified(
+    background: NinePatchDescriptor? = null, block: () -> T
+): InnerResponse<T> {
+    return WithLayout(
+        layout = Layout.StackJustified,
+        background = background,
+    ).show(this, block)
+}
+
+inline fun <T> Ui.rightToLeft(
+    background: NinePatchDescriptor? = null, block: () -> T
+): InnerResponse<T> {
+    return WithLayout(
+        layout = Layout.RightToLeft,
+        background = background,
+    ).show(this, block)
+}
+
 inline fun <T> Ui.columns(
     sizes: Array<Float>,
     background: NinePatchDescriptor? = null, block: () -> T

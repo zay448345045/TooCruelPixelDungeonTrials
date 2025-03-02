@@ -1,15 +1,16 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
+import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstructor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
@@ -43,6 +44,18 @@ inline fun <T> Ui.customButton(block: (interaction: Interaction) -> T): Interact
     return UiButton().show(this, block)
 }
 
+fun Ui.iconButton(image: TextureDescriptor): InteractiveResponse<Unit> {
+    return customButton { interaction ->
+        val img = image(image)
+
+        if (interaction.isPointerDown) {
+            img.widget.brightness(1.2f)
+        } else {
+            img.widget.resetColor()
+        }
+    }
+}
+
 fun Ui.redButton(text: String, size: Int = 9): InteractiveResponse<Unit> {
     return redButton {
         label(text, size)
@@ -54,19 +67,17 @@ fun Ui.redCheckbox(checked: Boolean, text: String, size: Int = 9): InteractiveRe
         val res = label(text, size)
         val ui = top();
         val space = ui.layout.getFullAvailableSpace()
-        val checkboxRect = Rect.fromSize(
-            Pos2(
-                space.right() - 12 - 1,
-                (res.widget.top() + (res.widget.height() - 12) / 2).toInt() + 1
-            ), Vec2(12, 12)
-        );
-        ui.painter().drawImage(
-            ui.nextAutoId(), checkboxRect, if (checked) {
+        val image = ui.painter().drawImage(
+            ui.nextAutoId(), Pos2(0, 0), if (checked) {
                 Icons.CHECKED
             } else {
                 Icons.UNCHECKED
             }.descriptor()
         )
+        image.x = (space.right() - image.width - 1)
+        image.y =
+            ((res.widget.top() + (res.widget.height() - image.height) / 2) + 1)
+        PixelScene.align(image)
     }
 }
 

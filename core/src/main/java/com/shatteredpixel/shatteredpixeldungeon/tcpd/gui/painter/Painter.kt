@@ -2,7 +2,9 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter
 
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
@@ -67,24 +69,28 @@ class Painter internal constructor(
         return Painter(group, cache)
     }
 
-    fun drawRect(id: UiId, rect: Rect, color: Int) {
-        add(id, VisualElement.ColoredRect(rect, color))
+    fun drawRect(id: UiId, rect: Rect, color: Int): ColorBlock {
+        return add(id, VisualElement.ColoredRect(rect, color)) as ColorBlock
     }
 
-    fun drawNinePatch(id: UiId, rect: Rect, descriptor: NinePatchDescriptor): Gizmo {
-        return add(id, VisualElement.NinePatch(rect, descriptor))
+    fun drawNinePatch(id: UiId, rect: Rect, descriptor: NinePatchDescriptor): NinePatch {
+        return add(id, VisualElement.NinePatch(rect, descriptor)) as NinePatch
     }
 
-    fun drawImage(id: UiId, rect: Rect, texture: TextureDescriptor): Gizmo {
-        return add(id, VisualElement.Image(rect, texture))
+    fun drawSizedImage(id: UiId, rect: Rect, texture: TextureDescriptor): Image {
+        return add(id, VisualElement.SizedImage(rect, texture)) as Image
     }
 
-    fun drawText(id: UiId, rect: Rect, text: String, size: Int, multiline: Boolean): Gizmo {
-        return add(id, VisualElement.Text(rect, text, size, multiline))
+    fun drawImage(id: UiId, pos: Pos2, texture: TextureDescriptor): Image {
+        return add(id, VisualElement.NativeImage(pos, texture)) as Image
     }
 
-    fun drawComponent(id: UiId, rect: Rect, component: ComponentConstructor): Gizmo {
-        return add(id, VisualElement.Component(rect, component))
+    fun drawText(id: UiId, rect: Rect, text: String, size: Int, multiline: Boolean): RenderedTextBlock {
+        return add(id, VisualElement.Text(rect, text, size, multiline)) as RenderedTextBlock
+    }
+
+    fun drawComponent(id: UiId, rect: Rect, component: ComponentConstructor): Component {
+        return add(id, VisualElement.Component(rect, component)) as Component
     }
 
     fun getGroup(): Group? {
@@ -108,7 +114,8 @@ internal sealed class VisualElement {
     data class ColoredRect(val rect: Rect, val color: Int) : VisualElement()
     data class NinePatch(val rect: Rect, val descriptor: NinePatchDescriptor) : VisualElement()
 
-    data class Image(val rect: Rect, val texture: TextureDescriptor) : VisualElement()
+    data class SizedImage(val rect: Rect, val texture: TextureDescriptor) : VisualElement()
+    data class NativeImage(val pos: Pos2, val texture: TextureDescriptor) : VisualElement()
     data class Component(val rect: Rect, val component: ComponentConstructor) : VisualElement()
     data class Text(val rect: Rect, val text: String, val size: Int, val multiline: Boolean) :
         VisualElement()
@@ -134,9 +141,9 @@ internal sealed class VisualElement {
                 return block
             }
 
-            is Image -> {
-                val image = if (cached?.second is com.watabou.noosa.Image) {
-                    val image = cached.second as com.watabou.noosa.Image
+            is SizedImage -> {
+                val image = if (cached?.second is Image) {
+                    val image = cached.second as Image
 
                     texture.update(image)
                     image
@@ -147,6 +154,21 @@ internal sealed class VisualElement {
                 image.height = rect.height().toFloat()
                 image.x = rect.min.x.toFloat()
                 image.y = rect.min.y.toFloat()
+
+                return image
+            }
+
+            is NativeImage -> {
+                val image = if (cached?.second is Image) {
+                    val image = cached.second as Image
+
+                    texture.update(image)
+                    image
+                } else {
+                    texture.asImage()
+                }
+                image.x = pos.x.toFloat()
+                image.y = pos.y.toFloat()
                 return image
             }
 

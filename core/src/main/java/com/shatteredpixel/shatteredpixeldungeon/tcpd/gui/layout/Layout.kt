@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout
 
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
@@ -14,10 +16,10 @@ abstract class Layout(protected var availableSpace: Rect) {
             }
         }
 
-        var cursor: Pos2 = availableSpace.min
+        protected var cursor: Pos2 = availableSpace.min
 
         override fun allocate(desired: Vec2, style: Style): Rect {
-            val rect = Rect.fromSize(cursor, desired).intersection(availableSpace)!!
+            val rect = Rect.fromSize(cursor, desired).allocateIntersect(availableSpace)
             cursor = Pos2(rect.right() + style.itemSpacing, cursor.y)
             return rect
         }
@@ -42,10 +44,10 @@ abstract class Layout(protected var availableSpace: Rect) {
             }
         }
 
-        var cursor: Pos2 = availableSpace.min
+        protected var cursor: Pos2 = availableSpace.min
 
         override fun allocate(desired: Vec2, style: Style): Rect {
-            val rect = Rect.fromSize(cursor, desired).intersection(availableSpace)!!
+            val rect = Rect.fromSize(cursor, desired).allocateIntersect(availableSpace)
             cursor = Pos2(cursor.x, rect.bottom() + style.itemSpacing)
             return rect
         }
@@ -71,7 +73,7 @@ abstract class Layout(protected var availableSpace: Rect) {
         }
 
         override fun allocate(desired: Vec2, style: Style): Rect {
-            return Rect.fromSize(availableSpace.min, desired).intersection(availableSpace)!!
+            return Rect.fromSize(availableSpace.min, desired).allocateIntersect(availableSpace)
         }
 
         override fun addSpace(amount: Int) {
@@ -84,6 +86,22 @@ abstract class Layout(protected var availableSpace: Rect) {
 
         override fun childContinued(): LayoutConstructor {
             return Stack
+        }
+    }
+
+    open class StackJustified(availableSpace: Rect) : Stack(availableSpace) {
+        companion object : LayoutConstructor {
+            override fun construct(availableSpace: Rect): Layout {
+                return StackJustified(availableSpace)
+            }
+        }
+
+        override fun allocate(desired: Vec2, style: Style): Rect {
+            return super.allocate(Vec2(availableSpace.width(), desired.y), style)
+        }
+
+        override fun childContinued(): LayoutConstructor {
+            return StackJustified
         }
     }
 
@@ -103,7 +121,8 @@ abstract class Layout(protected var availableSpace: Rect) {
         }
     }
 
-    class ColumnsLayout(private val columns: Array<Float>, availableSpace: Rect) : Layout(availableSpace) {
+    class ColumnsLayout(private val columns: Array<Float>, availableSpace: Rect) :
+        Layout(availableSpace) {
         class ColumnsLayoutConstructor(private val columns: Array<Float>) : LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
                 return ColumnsLayout(columns, availableSpace)
@@ -121,13 +140,13 @@ abstract class Layout(protected var availableSpace: Rect) {
         private var nextRow = 0
         private val columnsSum = columns.sum()
 
-        private fun nextWidth(spacing:Int): Int {
+        private fun nextWidth(spacing: Int): Int {
             return (columns[column] * (availableSpace.width() - spacing * (columns.size - 1)) / columnsSum).toInt()
         }
 
         override fun allocate(desired: Vec2, style: Style): Rect {
             val width = nextWidth(style.itemSpacing)
-            val rect = Rect.fromSize(cursor, Vec2(width, desired.y)).intersection(availableSpace)!!
+            val rect = Rect.fromSize(cursor, Vec2(width, desired.y)).allocateIntersect(availableSpace)
             nextRow = max(nextRow, rect.bottom())
 
             column += 1
@@ -145,11 +164,52 @@ abstract class Layout(protected var availableSpace: Rect) {
         }
 
         override fun nextAvailableSpace(style: Style): Rect {
-            return Rect.fromMinMax(cursor, Pos2(cursor.x + nextWidth(style.itemSpacing), availableSpace.max.y))
+            return Rect.fromMinMax(
+                cursor,
+                Pos2(cursor.x + nextWidth(style.itemSpacing), availableSpace.max.y)
+            )
         }
 
         override fun childContinued(): LayoutConstructor {
             return VerticalJustified
+        }
+    }
+
+    open class RightToLeft(availableSpace: Rect) : Layout(availableSpace) {
+        init {
+            if (availableSpace.right() >= 1e6) {
+                throw IllegalArgumentException("RightToLeft layout requires a bounded space")
+            }
+        }
+
+        companion object : LayoutConstructor {
+            override fun construct(availableSpace: Rect): Layout {
+                return RightToLeft(availableSpace)
+            }
+        }
+
+        protected var cursorRight: Pos2 = availableSpace.topRight()
+
+        override fun allocate(desired: Vec2, style: Style): Rect {
+            val rect = Rect.fromSize(Pos2(cursorRight.x - desired.x, cursorRight.y), desired)
+                .allocateIntersect(availableSpace)
+            cursorRight = Pos2(rect.left() - style.itemSpacing, cursorRight.y)
+            return rect
+        }
+
+        override fun addSpace(amount: Int) {
+            cursorRight = Pos2(cursorRight.x - amount, cursorRight.y)
+        }
+
+        override fun nextAvailableSpace(style: Style): Rect {
+            return Rect.fromMinMax(
+                Pos2(availableSpace.left(), cursorRight.y),
+                Pos2(cursorRight.x, availableSpace.bottom())
+            )
+        }
+
+        override fun childContinued(): LayoutConstructor {
+            return RightToLeft
         }
     }
 
@@ -177,6 +237,11 @@ abstract class Layout(protected var availableSpace: Rect) {
     fun getFullAvailableSpace(): Rect {
         return availableSpace
     }
+}
+
+fun Rect.allocateIntersect(availableSpace: Rect): Rect {
+    return this.intersection(availableSpace)
+        ?: throw IllegalArgumentException("Attempted to allocate a widget outside of the available space: $this does not intersect $availableSpace")
 }
 
 interface LayoutConstructor {

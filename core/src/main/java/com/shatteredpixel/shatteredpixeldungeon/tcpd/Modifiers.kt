@@ -45,6 +45,10 @@ enum class Modifier(val id: Int, locString: String? = null) {
         return Messages.get(localizationClass, localizationKey)
     }
 
+    fun localizedDesc(): String {
+        return Messages.get(localizationClass, localizationKey + "_desc")
+    }
+
     open fun isItemBlocked(item: Item): Boolean {
         return false
     }

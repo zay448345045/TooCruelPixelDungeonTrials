@@ -78,9 +78,9 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         if (removed.id != id) {
             throw IllegalStateException("Popped layout with wrong ID: ${removed.id} != $id")
         }
-        val allocatedSpace = removed.allocatedSpace.expand(removed.margins)
+        val allocatedSpace = removed.allocatedSpace?.expand(removed.margins)
         val parent = stack.last()
-        val rect = parent.allocateSize(allocatedSpace.size())
+        val rect = parent.allocateSize(allocatedSpace?.size() ?: removed.margins.size())
 
         // if the removed layout had a different painter group, we need to update the rect accordingly
         val curPainterGroup = removed.painter().getGroup()
@@ -108,8 +108,7 @@ class UiStackItem(
     private var style: Style? = null,
 ) {
     private var nextId: UiId = id.next()
-    var allocatedSpace: Rect =
-        Rect.fromMinMax(layout.getFullAvailableSpace().min, layout.getFullAvailableSpace().min)
+    var allocatedSpace: Rect? = null
         private set
 
     fun style(): Style {
@@ -168,7 +167,7 @@ class UiStackItem(
      */
     fun allocateSize(desiredSize: Vec2): Rect {
         val rect = layout.allocate(desiredSize, style())
-        allocatedSpace = allocatedSpace.union(rect)
+        allocatedSpace = allocatedSpace?.union(rect) ?: rect
         return rect
     }
 }

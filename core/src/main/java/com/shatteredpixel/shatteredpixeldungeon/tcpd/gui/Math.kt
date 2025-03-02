@@ -260,11 +260,19 @@ data class Margins(
             return Margins(horizontal, vertical, horizontal, vertical)
         }
 
+        fun only(left: Int = 0, top: Int = 0, right: Int = 0, bottom: Int = 0): Margins {
+            return Margins(left, top, right, bottom)
+        }
+
         val ZERO = Margins(0, 0, 0, 0)
     }
 
     fun isZero(): Boolean {
         return left == 0 && top == 0 && right == 0 && bottom == 0
+    }
+
+    fun size(): Vec2 {
+        return Vec2(left + right, top + bottom)
     }
 }
 

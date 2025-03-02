@@ -71,7 +71,7 @@ class Context(val rootGroup: Group = Group()) {
 
         return InnerResponse(
             inner,
-            UiResponse(allocated, ui.top().id())
+            UiResponse(allocated ?: Rect.ZERO, ui.top().id())
         )
     }
 }

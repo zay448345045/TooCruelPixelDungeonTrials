@@ -108,6 +108,7 @@ public class Assets {
 		public static final String SCENES   = "messages/scenes/scenes";
 		public static final String UI       = "messages/ui/ui";
 		public static final String WINDOWS  = "messages/windows/windows";
+		public static final String TCPD  = "messages/tcpd/tcpd";
 	}
 
 	public static class Music {
