@@ -2,7 +2,10 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
+import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
+import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
+import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ThirteenLeafClover
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
@@ -16,7 +19,11 @@ enum class Modifier(val id: Int, locString: String? = null) {
     ON_DIET(0, locString = "no_food"),
     FAITH_ARMOR(1, locString = "no_armor"),
     PHARMACOPHOBIA(2, locString = "no_healing"),
-    BARREN_LAND(3, locString = "no_herbalism"),
+    BARREN_LAND(3, locString = "no_herbalism") {
+        override fun _isItemBlocked(item: Item): Boolean {
+            return item is Dewdrop
+        }
+    },
     SWARM_INTELLIGENCE(4, locString = "swarm_intelligence"),
     DARKNESS(5, locString = "darkness"),
     FORBIDDEN_RUNES(6, locString = "no_scrolls"),
@@ -26,6 +33,20 @@ enum class Modifier(val id: Int, locString: String? = null) {
     // Custom content!
     CARDINAL_DISABILITY(9),
     RACING_THE_DEATH(10),
+    HORDE(11) {
+        override fun _nMobsMult(): Float {
+            return 2f
+        }
+    },
+    INVASION(12),
+    GREAT_MIGRATION(13),
+    MUTAGEN(14),
+    EVOLUTION(15) {
+        override fun _isItemBlocked(item: Item): Boolean {
+            return item is RatSkull
+        }
+    },
+    ROTTEN_LUCK(16),
     ;
 
     companion object {
@@ -46,7 +67,8 @@ enum class Modifier(val id: Int, locString: String? = null) {
     }
 
     private val localizationKey = locString ?: name.lowercase()
-    private val localizationClass = if(locString == null) Modifier::class.java else Challenges::class.java
+    private val localizationClass =
+        if (locString == null) Modifier::class.java else Challenges::class.java
 
     fun localizedName(): String {
         return Messages.get(localizationClass, localizationKey)
@@ -54,11 +76,14 @@ enum class Modifier(val id: Int, locString: String? = null) {
 
     fun localizedDesc(): String {
         return Messages.get(localizationClass, localizationKey + "_desc")
-        return Messages.get(localizationClass, localizationKey + "_desc")
     }
 
-    open fun isItemBlocked(item: Item): Boolean {
+    open fun _isItemBlocked(item: Item): Boolean {
         return false
+    }
+
+    open fun _nMobsMult(): Float {
+        return 1f
     }
 
     fun active() = Dungeon.tcpdData.modifiers.isEnabled(this)
@@ -66,6 +91,7 @@ enum class Modifier(val id: Int, locString: String? = null) {
 
 class Modifiers() : Bundlable {
     private val modifiers: BooleanArray = BooleanArray(Modifier.entries.size)
+
     constructor(modifiers: BooleanArray) : this() {
         modifiers.copyInto(this.modifiers)
     }
@@ -108,7 +134,17 @@ class Modifiers() : Bundlable {
     }
 
     fun isItemBlocked(item: Item): Boolean {
-        return Modifier.entries.any { modifiers[it.id] && it.isItemBlocked(item) }
+        return Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
+    }
+
+    fun nMobsMult(): Float {
+        var mult = 1f
+        for (modifier in Modifier.entries) {
+            if (modifiers[modifier.id]) {
+                mult *= modifier._nMobsMult()
+            }
+        }
+        return mult
     }
 
     override fun restoreFromBundle(bundle: Bundle) {

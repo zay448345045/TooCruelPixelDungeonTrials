@@ -24,6 +24,8 @@ package com.shatteredpixel.shatteredpixeldungeon.actors.mobs;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
 import com.watabou.utils.Random;
 
 import java.util.ArrayList;
@@ -59,6 +61,19 @@ public class MobSpawner extends Actor {
 	}
 
 	public static ArrayList<Class<? extends Mob>> getMobRotation(int depth ){
+
+		if(Modifier.INVASION.active()) {
+			if(Modifier.GREAT_MIGRATION.active()) {
+				depth += 5;
+				if(depth > 26) depth = 26;
+			} else {
+				if (depth == 2) depth = 3;
+				else if (depth != 1 && depth < 25) {
+					depth += 2;
+				}
+			}
+		}
+
 		ArrayList<Class<? extends Mob>> mobs = standardMobRotation( depth );
 		addRareMobs(depth, mobs);
 		swapMobAlts(mobs);

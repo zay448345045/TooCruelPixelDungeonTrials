@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.trinkets;
 
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 
 public class RatSkull extends Trinket {
 
@@ -46,7 +47,10 @@ public class RatSkull extends Trinket {
 	}
 
 	public static float exoticChanceMultiplier(){
-		return exoticChanceMultiplier(trinketLevel(RatSkull.class));
+		float chance = exoticChanceMultiplier(trinketLevel(RatSkull.class));
+		if(Modifier.EVOLUTION.active()) chance = 50f/4f;
+		if(Modifier.MUTAGEN.active()) chance = 1e6f;
+		return chance;
 	}
 
 	public static float exoticChanceMultiplier( int level ){

@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.trinkets;
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Badges;
+import com.shatteredpixel.shatteredpixeldungeon.Challenges;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
@@ -175,7 +176,11 @@ public class TrinketCatalyst extends Item {
 
 			//roll new trinkets if trinkets were not already rolled
 			while (cata.rolledTrinkets.size() < NUM_TRINKETS-1){
-				cata.rolledTrinkets.add((Trinket) Generator.random(Generator.Category.TRINKET));
+				Trinket t = (Trinket) Generator.random(Generator.Category.TRINKET);
+				if(Challenges.isItemBlocked(t)){
+					continue;
+				}
+				cata.rolledTrinkets.add(t);
 			}
 
 			for (int i = 0; i < NUM_TRINKETS; i++){
@@ -216,7 +221,7 @@ public class TrinketCatalyst extends Item {
 						WndTrinket.this.hide();
 
 						Item result = item;
-						if (result instanceof RandomTrinket){
+						while (result instanceof RandomTrinket || Challenges.isItemBlocked(result)){
 							result = Generator.random(Generator.Category.TRINKET);
 						}
 
