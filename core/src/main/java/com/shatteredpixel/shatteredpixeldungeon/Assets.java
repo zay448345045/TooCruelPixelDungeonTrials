@@ -23,6 +23,18 @@ package com.shatteredpixel.shatteredpixeldungeon;
 
 public class Assets {
 
+	public static class TCPD {
+
+		public static class Interfaces {
+			public static final String BANNER   = "interfaces/banner_TCPD.png";
+			public static final String BANNER_GLOW   = "interfaces/banner_TCPD_glow.png";
+		}
+
+		public static class Messages {
+			public static final String TCPD  = "messages/tcpd/tcpd";
+		}
+	}
+
 	public static class Effects {
 		public static final String EFFECTS      = "effects/effects.png";
 		public static final String FIREBALL     = "effects/fireball.png";
@@ -108,7 +120,6 @@ public class Assets {
 		public static final String SCENES   = "messages/scenes/scenes";
 		public static final String UI       = "messages/ui/ui";
 		public static final String WINDOWS  = "messages/windows/windows";
-		public static final String TCPD  = "messages/tcpd/tcpd";
 	}
 
 	public static class Music {

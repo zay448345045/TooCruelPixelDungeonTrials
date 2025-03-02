@@ -242,7 +242,7 @@ public class TitleScene extends PixelScene {
 		fb.y = y - fb.height();
 
 		align(fb);
-		add( fb );
+//		add( fb );
 	}
 
 	private static class NewsButton extends StyledButton {
