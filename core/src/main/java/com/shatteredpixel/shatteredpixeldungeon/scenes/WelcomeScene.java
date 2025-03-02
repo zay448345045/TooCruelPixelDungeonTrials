@@ -80,7 +80,8 @@ public class WelcomeScene extends PixelScene {
 			return;
 		}
 
-		if (ShatteredPixelDungeon.versionCode == previousVersion && !SPDSettings.intro()) {
+//		if (ShatteredPixelDungeon.versionCode == previousVersion && !SPDSettings.intro()) {
+		if (true) {
 			ShatteredPixelDungeon.switchNoFade(TitleScene.class);
 			return;
 		}
