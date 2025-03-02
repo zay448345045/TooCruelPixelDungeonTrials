@@ -27,7 +27,7 @@ data class WithLayout(
         return Pair(painter, null)
     }
 
-    inline fun <T> show(ui: Ui, block: () -> T): InnerResponse<T> {
+    inline fun <T> show(ui: Ui, crossinline block: () -> T): InnerResponse<T> {
         val id = ui.top().nextAutoId().with("linear")
         val (painter, ninePatch) = if (background != null) {
             createPainter(ui, id)
@@ -46,7 +46,7 @@ data class WithLayout(
 }
 
 inline fun <T> Ui.vertical(
-    background: NinePatchDescriptor? = null, block: () -> T
+    background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {
     return WithLayout(
         layout = Layout.Vertical,
@@ -57,7 +57,7 @@ inline fun <T> Ui.vertical(
 }
 
 inline fun <T> Ui.verticalJustified(
-    background: NinePatchDescriptor? = null, block: () -> T
+    background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {
     return WithLayout(
         layout = Layout.VerticalJustified,
@@ -68,7 +68,7 @@ inline fun <T> Ui.verticalJustified(
 }
 
 inline fun <T> Ui.horizontal(
-    background: NinePatchDescriptor? = null, block: () -> T
+    background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {
     return WithLayout(
         layout = Layout.Horizontal,
@@ -77,7 +77,7 @@ inline fun <T> Ui.horizontal(
 }
 
 inline fun <T> Ui.stack(
-    background: NinePatchDescriptor? = null, block: () -> T
+    background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {
     return WithLayout(
         layout = Layout.Stack,
@@ -86,7 +86,7 @@ inline fun <T> Ui.stack(
 }
 
 inline fun <T> Ui.stackJustified(
-    background: NinePatchDescriptor? = null, block: () -> T
+    background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {
     return WithLayout(
         layout = Layout.StackJustified,
@@ -95,7 +95,7 @@ inline fun <T> Ui.stackJustified(
 }
 
 inline fun <T> Ui.rightToLeft(
-    background: NinePatchDescriptor? = null, block: () -> T
+    background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {
     return WithLayout(
         layout = Layout.RightToLeft,
@@ -104,8 +104,8 @@ inline fun <T> Ui.rightToLeft(
 }
 
 inline fun <T> Ui.columns(
-    sizes: Array<Float>,
-    background: NinePatchDescriptor? = null, block: () -> T
+    sizes: FloatArray,
+    background: NinePatchDescriptor? = null, crossinline block: () -> T
 ): InnerResponse<T> {
     return WithLayout(
         layout = Layout.ColumnsLayout.constructor(sizes),

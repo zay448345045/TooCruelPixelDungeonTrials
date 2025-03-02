@@ -32,7 +32,7 @@ class TestWindow : TcpdWindow() {
                 true
             )
 
-            columns(arrayOf(1f, 1.5f, 1f)) {
+            columns(floatArrayOf(1f, 1.5f, 1f)) {
                 var counter by useState(Unit) { 0 }
                 redButton("-1").onClick {
                     counter--

@@ -34,3 +34,15 @@ fun Ui.label(
 ): WidgetResponse<RenderedTextBlock> {
     return UiText(text, size, multiline).show(this)
 }
+
+fun Ui.activeLabel(
+    text: String,
+    size: Int,
+    multiline: Boolean = false
+): WidgetResponse<RenderedTextBlock> {
+    val res = UiText(text, size, multiline).show(this)
+    if(!top().isEnabled()) {
+        res.widget.alpha(0.3f)
+    }
+    return res
+}

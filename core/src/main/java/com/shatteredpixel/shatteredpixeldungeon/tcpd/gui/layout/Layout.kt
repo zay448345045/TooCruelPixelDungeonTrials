@@ -121,16 +121,16 @@ abstract class Layout(protected var availableSpace: Rect) {
         }
     }
 
-    class ColumnsLayout(private val columns: Array<Float>, availableSpace: Rect) :
+    class ColumnsLayout(private val columns: FloatArray, availableSpace: Rect) :
         Layout(availableSpace) {
-        class ColumnsLayoutConstructor(private val columns: Array<Float>) : LayoutConstructor {
+        class ColumnsLayoutConstructor(private val columns: FloatArray) : LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
                 return ColumnsLayout(columns, availableSpace)
             }
         }
 
         companion object {
-            fun constructor(columns: Array<Float>): LayoutConstructor {
+            fun constructor(columns: FloatArray): LayoutConstructor {
                 return ColumnsLayoutConstructor(columns)
             }
         }

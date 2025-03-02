@@ -15,8 +15,9 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         val rootUi = UiStackItem(
             layout = Layout.Stack(availableSpace),
             painter = painter,
-            id = UiId(0),
+            id = UiId.ROOT,
             margins = Margins.ZERO,
+            enabled = true,
         )
 
         stack = mutableListOf(rootUi)
@@ -41,18 +42,21 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         id: UiId? = null,
         painter: Painter? = null,
         style: Style? = null,
+        enabled: Boolean = true,
     ): UiId {
         val parent = stack.last()
         val m = margins ?: Margins.ZERO
         val item = UiStackItem(
             layout = (layout ?: parent.layout.childContinued()).construct(
-                availableSpace ?: parent.layout.nextAvailableSpace(style ?: parent.style()).shrink(m)
+                availableSpace ?: parent.layout.nextAvailableSpace(style ?: parent.style())
+                    .shrink(m)
             ),
             id = id ?: parent.nextAutoId().with("pushLayout"),
             painter = painter,
             style = style,
             margins = m,
             parent = parent,
+            enabled = enabled && parent.isEnabled()
         )
         stack.add(item)
         return item.id
@@ -65,12 +69,17 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         id: UiId? = null,
         painter: Painter? = null,
         style: Style? = null,
-        block: () -> T
+        enabled: Boolean = true,
+        crossinline block: () -> T
     ): InnerResponse<T> {
-        val layoutId = pushLayout(availableSpace, layout, margins, id, painter, style)
+        val layoutId = pushLayout(availableSpace, layout, margins, id, painter, style, enabled)
         val inner = block()
         val response = popLayout(layoutId)
         return InnerResponse(inner, response)
+    }
+
+    inline fun <T> withEnabled(enabled: Boolean, crossinline block: ()->T):InnerResponse<T> {
+        return withLayout(enabled = enabled, block = block)
     }
 
     fun popLayout(id: UiId): UiResponse {
@@ -103,6 +112,7 @@ class UiStackItem(
     val margins: Margins,
     val layout: Layout,
     val id: UiId,
+    private var enabled: Boolean,
     private var painter: Painter? = null,
     private var parent: UiStackItem? = null,
     private var style: Style? = null,
@@ -170,16 +180,43 @@ class UiStackItem(
         allocatedSpace = allocatedSpace?.union(rect) ?: rect
         return rect
     }
+
+    fun nextAvailableSpace(): Rect {
+        return layout.nextAvailableSpace(style())
+    }
+
+    fun setDisabled() {
+        enabled = false
+    }
+
+    fun isEnabled(): Boolean {
+        return enabled
+    }
 }
 
+//@JvmInline
+//value class UiId(internal val id: Int) {
+//    fun next(): UiId {
+//        return with(1)
+//    }
+//
+//    fun with(id: Any): UiId {
+//        return UiId(Pair(this.id, id).hashCode())
+//    }
+//}
+
 @JvmInline
-value class UiId(internal val id: Int) {
+value class UiId(internal val id: String) {
+    companion object {
+        val ROOT = UiId("root")
+    }
+
     fun next(): UiId {
         return with(1)
     }
 
     fun with(id: Any): UiId {
-        return UiId(Pair(this.id, id).hashCode())
+        return UiId(this.id + "." + id.toString())
     }
 }
 

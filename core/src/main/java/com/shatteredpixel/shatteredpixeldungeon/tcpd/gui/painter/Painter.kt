@@ -146,6 +146,7 @@ internal sealed class VisualElement {
                     val image = cached.second as Image
 
                     texture.update(image)
+                    image.resetColor()
                     image
                 } else {
                     texture.asImage()
@@ -163,6 +164,7 @@ internal sealed class VisualElement {
                     val image = cached.second as Image
 
                     texture.update(image)
+                    image.resetColor()
                     image
                 } else {
                     texture.asImage()
@@ -189,6 +191,7 @@ internal sealed class VisualElement {
                 block.x = rect.min.x.toFloat()
                 block.y = rect.min.y.toFloat()
                 block.size(rect.width().toFloat(), rect.height().toFloat())
+                block.resetColor()
                 return block
             }
 
@@ -242,6 +245,7 @@ internal sealed class VisualElement {
                         }
                     }
                     block.setPos(rect.min.x.toFloat(), rect.min.y.toFloat())
+                    block.resetColor()
                     return block
                 }
                 val block = PixelScene.renderTextBlock(text, size)
