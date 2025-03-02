@@ -5,7 +5,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
-import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ThirteenLeafClover
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
@@ -14,8 +13,10 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.encodeToBase58String
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 
-enum class Modifier(val id: Int, locString: String? = null) {
+enum class Modifier(val id: Int, locString: String? = null, val dependencies: Array<Int> = emptyArray()) {
     // Vanilla challenges
+    CHAMPION_ENEMIES(7, locString = "champion_enemies"),
+    STRONGER_BOSSES(8, locString = "stronger_bosses"),
     ON_DIET(0, locString = "no_food"),
     FAITH_ARMOR(1, locString = "no_armor"),
     PHARMACOPHOBIA(2, locString = "no_healing"),
@@ -27,8 +28,6 @@ enum class Modifier(val id: Int, locString: String? = null) {
     SWARM_INTELLIGENCE(4, locString = "swarm_intelligence"),
     DARKNESS(5, locString = "darkness"),
     FORBIDDEN_RUNES(6, locString = "no_scrolls"),
-    CHAMPION_ENEMIES(7, locString = "champion_enemies"),
-    STRONGER_BOSSES(8, locString = "stronger_bosses"),
 
     // Custom content!
     CARDINAL_DISABILITY(9),
@@ -39,9 +38,9 @@ enum class Modifier(val id: Int, locString: String? = null) {
         }
     },
     INVASION(12),
-    GREAT_MIGRATION(13),
+    GREAT_MIGRATION(13, dependencies = arrayOf(INVASION.id)),
     MUTAGEN(14),
-    EVOLUTION(15) {
+    EVOLUTION(15, dependencies = arrayOf(MUTAGEN.id)) {
         override fun _isItemBlocked(item: Item): Boolean {
             return item is RatSkull
         }
@@ -50,6 +49,14 @@ enum class Modifier(val id: Int, locString: String? = null) {
     ;
 
     companion object {
+        val ALL :Array<Modifier> = Modifier.entries.sortedBy { it.id }.toTypedArray()
+
+        init {
+            if(ALL.last().id != ALL.size - 1) {
+                throw IllegalStateException("Modifier IDs contain gaps!")
+            }
+        }
+
         fun fromVanilla(challengeId: Int): Modifier {
             return when (challengeId) {
                 Challenges.NO_FOOD -> ON_DIET
@@ -123,14 +130,28 @@ class Modifiers() : Bundlable {
 
     fun enable(modifier: Modifier) {
         modifiers[modifier.id] = true
+
+        modifier.dependencies.forEach {
+            enable(Modifier.ALL[it])
+        }
     }
 
     fun disable(modifier: Modifier) {
         modifiers[modifier.id] = false
+
+        for (mod in Modifier.entries) {
+            if (mod.dependencies.contains(modifier.id)) {
+                disable(mod)
+            }
+        }
     }
 
     fun toggle(modifier: Modifier) {
-        modifiers[modifier.id] = !modifiers[modifier.id]
+        if (isEnabled(modifier)) {
+            disable(modifier)
+        } else {
+            enable(modifier)
+        }
     }
 
     fun isItemBlocked(item: Item): Boolean {

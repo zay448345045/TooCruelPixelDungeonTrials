@@ -77,6 +77,10 @@ value class HookRef<T : Any>(private val hook: MutableHookRef<T>) {
     fun tryGet(): T? {
         return hook.tryGet()
     }
+
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+        return get()
+    }
 }
 
 @JvmInline

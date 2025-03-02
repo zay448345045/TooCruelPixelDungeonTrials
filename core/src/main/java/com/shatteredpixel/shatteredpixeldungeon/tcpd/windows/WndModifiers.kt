@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdWindow
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.PaginatedList
@@ -31,8 +32,15 @@ open class WndModifiers(private val modifiers: Modifiers, private val editable: 
         verticalJustified {
             label(Messages.get(WndModifiers::class.java, "title"), 12).widget.hardlight(TITLE_COLOR)
             top().addSpace(2)
-            PaginatedList(Modifier.entries.size, 17).show(this) { i ->
-                modifierBtn(modifiers, Modifier.entries[i], editable)
+            val modifiersList by useMemo(Unit) {
+                val allEnabled = Modifier.entries.filter { modifiers.isEnabled(it) }
+                if(!editable) return@useMemo allEnabled
+
+                val allDisabled = Modifier.entries.filter { !modifiers.isEnabled(it) }
+                allEnabled + allDisabled
+            }
+            PaginatedList(modifiersList.size, 17).show(this) { i ->
+                modifierBtn(modifiers, modifiersList[i], editable)
             }
         }
     }
