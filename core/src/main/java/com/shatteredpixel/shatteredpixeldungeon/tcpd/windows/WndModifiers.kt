@@ -63,8 +63,8 @@ private fun Ui.modifierBtn(modifiers: Modifiers, modifier: Modifier, editable: B
             }
         }
         verticalJustified {
-            redCheckbox(modifiers.isEnabled(modifier), modifier.localizedName(), 9).onClick {
-                if (editable) {
+            withEnabled(editable) {
+                redCheckbox(modifiers.isEnabled(modifier), modifier.localizedName(), 9).onClick {
                     modifiers.toggle(modifier)
                 }
             }
