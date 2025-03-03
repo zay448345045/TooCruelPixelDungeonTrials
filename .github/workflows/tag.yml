@@ -21,11 +21,20 @@ jobs:
 
       # 2
       - name: Build
-        run: make
+        run: make build
+      
+      # 3
+      - name: Sign APK
+        run: make sign-release-apk
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+      
+      # 4
+      - name: Move binaries
+        run: make move-binaries
 
+      # 5
       - name: Upload as Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:

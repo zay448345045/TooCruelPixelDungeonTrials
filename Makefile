@@ -1,36 +1,31 @@
-@PHONY: build
-build: __always
-	rm -rf ./build
-	make build-and-sign-apk
-	make build-desktop
-
-@PHONY: run
+.PHONY: ide
 ide:
 	android-studio . >/dev/null 2>&1 & disown
 
-@PHONY: backup
+.PHONY: backup
 backup:
 	rsync -a . ../tcpd.bk
 
-@PHONY: change
+.PHONY: change
 change:
 	./tools/tinychange
 
-@PHONY: build-and-sign-apk
-build-desktop: __always
-	rm desktop/build/libs/desktop-*.jar
-	./gradlew desktop:release
-	cp desktop/build/libs/desktop-*.jar ./build/desktop.jar
-
-@PHONY: build-and-sign-apk
-build-and-sign-apk: __always
+.PHONY: build
+build: __always
+	rm -rf ./build
+	rm -f desktop/build/libs/desktop-*.jar
+	mkdir -p ./build
 	./gradlew android:assembleRelease
-	make sign-release-apk
-	mv ./build/aligned.apk ./build/android.apk
+	./gradlew desktop:release
 
-@PHONY: sign-release-apk
+.PHONY: sign-release-apk
 sign-release-apk: __always
 	./tools/sign.sh
 
-@PHONY: __always
+.PHONY: move-binaries
+move-binaries:
+	mv ./build/aligned.apk ./build/android.apk
+	mv desktop/build/libs/desktop-*.jar ./build/desktop.jar
+
+.PHONY: __always
 __always:
