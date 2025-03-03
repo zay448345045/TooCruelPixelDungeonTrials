@@ -1,0 +1,36 @@
+name: Upload thing when pushing something (Stable TCPD Trials)
+
+on:
+  push:
+    tags:
+      - "TCPD-*"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Set up JDK environment to 8
+        uses: actions/setup-java@v1.4.3
+        with:
+          java-version: 17
+
+      # 1
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # 2
+      - name: Build
+        run: make
+
+      - name: Upload as Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: false
+          title: "${{ env.version }}"
+          files: |
+              build/*.apk
+              build/*.jar
+

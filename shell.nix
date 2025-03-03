@@ -8,10 +8,16 @@ let
   android-sdk = android-nixpkgs.sdk (sdkPkgs:
     with sdkPkgs; [
       cmdline-tools-latest
-      build-tools-32-0-0
+      build-tools-34-0-0
       platform-tools
-      platforms-android-31
+      platforms-android-34
       emulator
     ]);
 
-in mkShell { buildInputs = [ android-studio android-sdk ]; }
+in mkShell {
+  buildInputs = [ android-studio android-sdk zulu17 ];
+  shellHook = ''
+    rm -f ./local.properties
+    export GRADLE_USER_HOME=./.gradle_home
+  '';
+}

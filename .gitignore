@@ -9,6 +9,7 @@
 
 # Gradle build files
 .gradle/
+.gradle_home/
 build/
 release/
 
@@ -22,3 +23,4 @@ local.properties
 # Misc tooling
 .direnv
 .directory
+.envrc
