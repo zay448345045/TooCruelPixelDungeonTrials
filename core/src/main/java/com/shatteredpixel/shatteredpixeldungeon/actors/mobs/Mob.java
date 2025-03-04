@@ -135,6 +135,8 @@ public abstract class Mob extends Char {
 	protected boolean firstAdded = true;
 	protected void onAdd(){
 		if (firstAdded) {
+			CharHooksKt.mobFirstAdded(this);
+
 			//modify health for ascension challenge if applicable, only on first add
 			float percent = HP / (float) HT;
 			HT = Math.round(HT * AscensionChallenge.statModifier(this));
@@ -817,7 +819,7 @@ public abstract class Mob extends Char {
 			}
 		}
 
-		dmg = CharHooksKt.mobDamageHook(this, dmg, src);
+		dmg = CharHooksKt.mobIncomingDamageHook(this, dmg, src);
 		
 		super.damage( dmg, src );
 	}

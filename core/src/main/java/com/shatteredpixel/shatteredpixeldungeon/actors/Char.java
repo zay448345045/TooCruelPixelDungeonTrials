@@ -145,6 +145,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MobSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.CharHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TargetHealthIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
@@ -781,7 +782,9 @@ public abstract class Char extends Actor {
 	}
 	
 	public void damage( int dmg, Object src ) {
-		
+
+		dmg = CharHooksKt.incomingDamageHook(this, dmg, src);
+
 		if (!isAlive() || dmg < 0) {
 			return;
 		}
@@ -879,6 +882,8 @@ public abstract class Char extends Actor {
 			damage *= resist( srcClass );
 		}
 
+		damage = CharHooksKt.damageMultiplierHook(this, dmg, damage, src);
+
 		dmg = Math.round(damage);
 
 		//we ceil these specifically to favor the player vs. champ dmg reduction
@@ -933,6 +938,8 @@ public abstract class Char extends Actor {
 				}
 			}
 		}
+
+		CharHooksKt.damageTakenHook(this, dmg, shielded, src);
 
 		if (HP < 0 && src instanceof Char && alignment == Alignment.ENEMY){
 			if (((Char) src).buff(Kinetic.KineticTracker.class) != null){
@@ -1040,6 +1047,7 @@ public abstract class Char extends Actor {
 	}
 	
 	public void die( Object src ) {
+		CharHooksKt.deathHook(this, src);
 		destroy();
 		if (src != Chasm.class) {
 			sprite.die();
