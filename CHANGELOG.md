@@ -26,5 +26,5 @@
 
 <!-- next-url -->
 [Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.1.0...HEAD
-[0.1.0]: https://github.com/juh9870/tinychange/compare/TCPD-0.0.0...TCPD-0.1.0
-[0.0.0]: https://github.com/juh9870/tinychange/tree/TCPD-0.0.0
+[0.1.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.0.0...TCPD-0.1.0
+[0.0.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/tree/TCPD-0.0.0
