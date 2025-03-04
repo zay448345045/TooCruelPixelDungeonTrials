@@ -6,6 +6,17 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Great Migration challenge (by juh9870)
+- Racing The Death challenge (by juh9870)
+- Evolution challenge (by juh9870)
+- Mutagen challenge (by juh9870)
+- Cardinal Disability challenge (by juh9870)
+- Horde challenge (by juh9870)
+- Invasion challenge (by juh9870)
+- Rotten Luck challenge (by juh9870)
+
 ## [0.0.0] - ???
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
