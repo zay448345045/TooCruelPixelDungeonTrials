@@ -116,6 +116,7 @@ def main [kind: string@options = "", secondaryKind?: string@mainOptions = "patch
 
     if not $execute {
         print "Dry run completed. Use -x to execute the changes."
+        return
     }
     
     print $"Release version: ($fullClarifiedName)? \(y/n\)"
