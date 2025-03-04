@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+./tools/tinychange merge
+./tools/release.nu "$@"

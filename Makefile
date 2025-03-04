@@ -1,13 +1,13 @@
 .PHONY: ide
-ide:
+ide: __always
 	android-studio . >/dev/null 2>&1 & disown
 
 .PHONY: backup
-backup:
+backup: __always
 	rsync -a . ../tcpd.bk
 
 .PHONY: change
-change:
+change: __always
 	./tools/tinychange
 
 .PHONY: build
@@ -23,7 +23,7 @@ sign-release-apk: __always
 	./tools/sign.sh
 
 .PHONY: move-binaries
-move-binaries:
+move-binaries: __always
 	mv ./build/aligned.apk ./build/android.apk
 	mv desktop/build/libs/desktop-*.jar ./build/desktop.jar
 
