@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+### Changed
+
+- All classes and challenges are unlocked by default (by juh9870)
+
 ## [0.2.0]
 
 > Released on 2025-03-05
