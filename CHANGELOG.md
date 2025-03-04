@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+## [0.1.0]
+
+> Released on 2025-03-04
+
 ### Added
 
 - Great Migration challenge (by juh9870)
@@ -21,5 +25,6 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/tinychange/compare/TCPD-0.0.0...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.1.0...HEAD
+[0.1.0]: https://github.com/juh9870/tinychange/compare/TCPD-0.0.0...TCPD-0.1.0
 [0.0.0]: https://github.com/juh9870/tinychange/tree/TCPD-0.0.0
