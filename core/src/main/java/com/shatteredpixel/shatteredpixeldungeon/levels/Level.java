@@ -186,6 +186,7 @@ public abstract class Level implements Bundlable {
 	public HashSet<CustomTilemap> customWalls;
 	
 	protected ArrayList<Item> itemsToSpawn = new ArrayList<>();
+	public ArrayList<Item> guaranteedItems = new ArrayList<>();
 
 	protected Group visuals;
 	protected Group wallVisuals;
@@ -787,6 +788,7 @@ public abstract class Level implements Bundlable {
 	public void addItemToSpawn( Item item ) {
 		if (item != null) {
 			itemsToSpawn.add( item );
+			guaranteedItems.add( item );
 		}
 	}
 

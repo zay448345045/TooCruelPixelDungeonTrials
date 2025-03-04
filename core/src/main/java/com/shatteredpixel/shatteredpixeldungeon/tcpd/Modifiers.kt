@@ -48,6 +48,7 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
     ROTTEN_LUCK(16),
     ARROWHEAD(17),
     THUNDERSTRUCK(18, dependencies = arrayOf(ARROWHEAD.id)),
+    SECOND_TRY(19),
     ;
 
     companion object {

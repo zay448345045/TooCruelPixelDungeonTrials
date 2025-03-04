@@ -27,7 +27,6 @@ fun Char.damageMultiplierHook(dmg: Int, damage: Float, src: Any?): Float {
     for(buff in buffs()) {
         if(buff is DamageAmplificationBuff) {
             damage *= buff.damageMultiplier(src)
-
         }
     }
     return damage
