@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
@@ -49,6 +50,8 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
     ARROWHEAD(17),
     THUNDERSTRUCK(18, dependencies = arrayOf(ARROWHEAD.id)),
     SECOND_TRY(19),
+    CRYSTAL_SHELTER(20),
+    CRYSTAL_BLOOD(21),
     ;
 
     companion object {
