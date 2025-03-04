@@ -6,6 +6,19 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Second Try challenge (by juh9870)
+- Arrowhead challenge (by juh9870)
+- Thunderstruck challenge (by juh9870)
+- Crystalline Shelter challenge (by juh9870)
+- Crystalline Blood challenge (by juh9870)
+
+### Changed
+
+- Disabled hero remains (by juh9870)
+- App icon to match TCPD (by juh9870)
+
 ## [0.1.0]
 
 > Released on 2025-03-04
