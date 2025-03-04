@@ -137,9 +137,8 @@ def main [kind: string@options = "", secondaryKind?: string@mainOptions = "patch
         }
     }
 
-    print $"Releasing version: ($fullClarifiedName)"
-    write ./CHANGELOG.md $changelogContent
-    write ./build.gradle $buildGradleContent
+    $changelogContent | save -f ./CHANGELOG.md
+    $buildGradleContent | save -f ./build.gradle
 
     print $"Committing changes"
     git add ./CHANGELOG.md ./build.gradle
