@@ -6,6 +6,30 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Revenge Rage modifier (by juh9870)
+- Head Start modifier (by juh9870)
+- Repeater modifier (by juh9870)
+- Bloodbag modifier (by juh9870)
+- Extreme Caution modifier (by juh9870)
+- Duplicator modifier (by juh9870)
+- Blindness modifier (by juh9870)
+- Revenge Fury modifier (by juh9870)
+- Prepared Enemies modifier (by juh9870)
+- Deeper Danger modifier (by juh9870)
+
+### Changed
+
+- Characters affected by Crystal Layers have their defense skill reduced to zero, making it near impossible to dodge enemy (or Hero's attacks) (by juh9870)
+- Rotten Luck now makes multiple rolls and picks the lowest one (by juh9870)
+- Enemy that survived death thanks to crystalline barrier will now instantly die once all barrier layers are destroyed (by juh9870)
+- Great Migration now only takes effect starting from floor 2 (by juh9870)
+
+### Fixed
+
+- Crystalline Blood affecting bosses instead of mobs (by juh9870)
+
 ## [0.2.4]
 
 > Released on 2025-03-05
