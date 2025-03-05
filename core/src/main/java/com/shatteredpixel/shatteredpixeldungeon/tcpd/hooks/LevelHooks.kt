@@ -7,12 +7,17 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
+import com.watabou.utils.Random
+import com.watabou.utils.Reflection
 
 fun RegularLevel.createItemsHook() {
     if (Modifier.HEAD_START.active() && Dungeon.depth == 1) {
@@ -34,6 +39,60 @@ fun Level.postCreateHook() {
     }
     if (Modifier.SECOND_TRY.active()) {
         applySecondTry()
+    }
+}
+
+
+fun Level.placeDuplicatorTraps(trap: Class<out Trap>) {
+    if (trap.isAnonymousClass) return
+    val cells = randomDuplicatorTrapCells()
+    Random.shuffle(cells)
+    val nTraps = 2;
+
+    for (i in 0 until minOf(nTraps, cells.size)) {
+        val pos = cells[i]
+        val t = setTrap(Reflection.newInstance(trap), pos)
+        val old = map[pos]
+        Level.set(pos, Terrain.TRAP, this)
+        t.reveal()
+        GameScene.updateMap(pos)
+        if (Dungeon.hero != null && Dungeon.hero.fieldOfView[pos]) {
+            GameScene.discoverTile(pos, old)
+            ScrollOfMagicMapping.discover(pos)
+        }
+    }
+}
+
+fun Level.randomDuplicatorTrapCells(): List<Int> {
+    val cells: MutableList<Int> = mutableListOf()
+    if (this is RegularLevel) {
+        val rooms = rooms()
+        if (rooms.isNotEmpty()) {
+            for (room in rooms()) {
+                for (point in room.trapPlaceablePoints()) {
+                    val pos = pointToCell(point)
+                    if (isValidDuplicatorTrapPos(pos)) {
+                        cells.add(pos)
+                    }
+                }
+            }
+            return cells
+        }
+    }
+
+    for (i in 0 until length()) {
+        if (isValidDuplicatorTrapPos(i)) {
+            cells.add(i)
+        }
+    }
+    return cells
+}
+
+private fun Level.isValidDuplicatorTrapPos(pos: Int): Boolean {
+    if (pos < 0 || pos >= length()) return false
+    return when (map[pos]) {
+        Terrain.EMPTY, Terrain.GRASS, Terrain.HIGH_GRASS, Terrain.EMBERS, Terrain.EMPTY_DECO, Terrain.EMPTY_SP, Terrain.INACTIVE_TRAP, Terrain.WATER -> true
+        else -> false
     }
 }
 

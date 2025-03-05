@@ -58,6 +58,8 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
     REVENGE(26),
     REVENGE_FURY(27),
     PREPARED_ENEMIES(28),
+    REPEATER(29),
+    DUPLICATOR(30),
     ;
 
     companion object {
