@@ -684,7 +684,16 @@ public class Hero extends Char {
 
 	//damage rolls that come from the hero can have their RNG influenced by clover
 	public static int heroDamageIntRange(int min, int max ){
-		if(Modifier.ROTTEN_LUCK.active()) return Math.min(Random.IntRange(min, max), Random.IntRange(min, max));
+
+		if(Modifier.ROTTEN_LUCK.active()) {
+			// Do two rolls and take the lower one
+			int dmg = Math.min(Random.IntRange(min, max), Random.IntRange(min, max));
+			// If the damage is above the average, a third roll is made
+			if(dmg >= (max + min) / 2) {
+				dmg = Math.min(dmg, Random.IntRange(min, max));
+			}
+			return dmg;
+		}
 
 		if (Random.Float() < ThirteenLeafClover.alterHeroDamageChance()){
 			return ThirteenLeafClover.alterDamageRoll(min, max);
