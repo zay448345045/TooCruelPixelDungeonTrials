@@ -6,6 +6,11 @@
 
 > Released on ReleaseDate
 
+### Fixed
+
+- Application order of crystal barrier (by juh9870)
+- Crystal Barries SFX playing while out of view (by juh9870)
+
 ## [0.2.3]
 
 > Released on 2025-03-05
