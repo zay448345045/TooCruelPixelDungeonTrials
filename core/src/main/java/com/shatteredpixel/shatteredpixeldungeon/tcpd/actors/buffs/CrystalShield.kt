@@ -22,15 +22,15 @@ class CrystalShield : Buff() {
 
     companion object {
         fun applyShieldingLayers(target: Char, amount: Int, text: String) {
-            repeat (amount) {
+            repeat(amount) {
                 append(target, Layer::class.java).fx(true)
             }
-            target.sprite.showStatusWithIcon(
-                CharSprite.POSITIVE,
-                text,
-                FloatingText.SHIELDING
-            )
-            Sample.INSTANCE.play(Assets.Sounds.CHARGEUP, 1f, 1.5f)
+            if (Dungeon.hero != null && Dungeon.hero.fieldOfView[target.pos]) {
+                target.sprite.showStatusWithIcon(
+                    CharSprite.POSITIVE, text, FloatingText.SHIELDING
+                )
+                Sample.INSTANCE.play(Assets.Sounds.CHARGEUP, 1f, 1.5f)
+            }
         }
 
         /**
@@ -43,18 +43,25 @@ class CrystalShield : Buff() {
         fun blockIncomingDamage(target: Char, damage: Int): Boolean {
             target.buff(Layer::class.java)?.let { layer ->
                 val crystal = target.buff(CrystalShield::class.java)
-                if(crystal != null && damage <= crystal.damageThreshold()) {
-                    target.sprite.showStatus(CharSprite.POSITIVE, Messages.get(CrystalShield::class.java, "blocked"))
+                if (crystal != null && damage <= crystal.damageThreshold()) {
+                    target.sprite.showStatus(
+                        CharSprite.POSITIVE, Messages.get(CrystalShield::class.java, "blocked")
+                    )
                     return true
                 }
 
                 layer.detach()
 
-                if(crystal != null && target.buff(Layer::class.java) == null) {
+                if (crystal != null && target.buff(Layer::class.java) == null) {
                     crystal.breakShield()
                 } else {
-                    Sample.INSTANCE.play(Assets.Sounds.SHATTER, 0.25f, 1.5f)
-                    target.sprite.showStatus(CharSprite.POSITIVE, Messages.get(CrystalShield::class.java, "layer_broken"))
+                    if (Dungeon.hero != null && Dungeon.hero.fieldOfView[target.pos]) {
+                        Sample.INSTANCE.play(Assets.Sounds.SHATTER, 0.25f, 1.5f)
+                        target.sprite.showStatus(
+                            CharSprite.POSITIVE,
+                            Messages.get(CrystalShield::class.java, "layer_broken")
+                        )
+                    }
                 }
                 return true
             }
@@ -68,7 +75,7 @@ class CrystalShield : Buff() {
     }
 
     override fun act(): Boolean {
-        if(target.buff(Layer::class.java) == null) {
+        if (target.buff(Layer::class.java) == null) {
             applyShieldingLayers(target, 1, Messages.get(this, "restored"))
         }
         diactivate()
@@ -86,7 +93,9 @@ class CrystalShield : Buff() {
         if (Dungeon.hero != null && Dungeon.hero.fieldOfView[target.pos]) {
             Splash.at(target.sprite.center(), 0x22ffe1, 10)
             Sample.INSTANCE.play(Assets.Sounds.SHATTER)
-            target.sprite.showStatus(CharSprite.POSITIVE, Messages.get(CrystalShield::class.java, "shattered"))
+            target.sprite.showStatus(
+                CharSprite.POSITIVE, Messages.get(CrystalShield::class.java, "shattered")
+            )
         }
     }
 
@@ -111,9 +120,7 @@ class CrystalShield : Buff() {
             )
         } else {
             Messages.get(
-                this,
-                "desc_inactive",
-                dispTurns(visualcooldown())
+                this, "desc_inactive", dispTurns(visualcooldown())
             )
         }
     }
@@ -145,7 +152,7 @@ class CrystalShield : Buff() {
         }
 
         override fun desc(): String {
-            return if(target.buff(CrystalShield::class.java) != null) {
+            return if (target.buff(CrystalShield::class.java) != null) {
                 Messages.get(this, "desc")
             } else {
                 Messages.get(this, "desc_standalone")

@@ -99,7 +99,7 @@ fun Mob.mobFirstAdded() {
         Buff.affect(this, MobArrowhead::class.java)
     }
     if (Modifier.CRYSTAL_SHELTER.active()) {
-        Buff.append(this, CrystalShield.Layer::class.java)
         Buff.affect(this, CrystalShield::class.java)
+        Buff.append(this, CrystalShield.Layer::class.java)
     }
 }
