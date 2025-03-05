@@ -34,10 +34,18 @@ jobs:
       - name: Move binaries
         run: make move-binaries
 
+      - name: Get version
+        run: echo "VERSION_CODE=$(sed -n 's/.*appVersionCode *= *\([0-9]\+\).*/\1/p' build.gradle)" >> $GITHUB_ENV
+
       # 5
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
+          append_body: |
+            A new release is out
+            
+            ---
+            `internal version number: ${{ env.VERSION_CODE }}`
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
               build/*.apk
