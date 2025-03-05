@@ -41,7 +41,7 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          append_body: |
+          body: |
             A new release is out
             
             ---
