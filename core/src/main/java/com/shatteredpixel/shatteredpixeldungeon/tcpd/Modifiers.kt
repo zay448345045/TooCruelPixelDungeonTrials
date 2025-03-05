@@ -2,7 +2,6 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
@@ -52,6 +51,7 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
     SECOND_TRY(19),
     CRYSTAL_SHELTER(20),
     CRYSTAL_BLOOD(21),
+    DEEPER_DANGER(22),
     ;
 
     companion object {
@@ -172,6 +172,10 @@ class Modifiers() : Bundlable {
             }
         }
         return mult
+    }
+
+    fun scalingDepthBonus(): Int {
+        return if (isEnabled(Modifier.DEEPER_DANGER)) 10 else 0
     }
 
     override fun restoreFromBundle(bundle: Bundle) {

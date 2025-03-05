@@ -452,10 +452,11 @@ public class Dungeon {
 	//value used for scaling of damage values and other effects.
 	//is usually the dungeon depth, but can be set to 26 when ascending
 	public static int scalingDepth(){
+		int bonus = tcpdData.getModifiers().scalingDepthBonus();
 		if (Dungeon.hero != null && Dungeon.hero.buff(AscensionChallenge.class) != null){
-			return 26;
+			return 26 + bonus;
 		} else {
-			return depth;
+			return depth + bonus;
 		}
 	}
 
