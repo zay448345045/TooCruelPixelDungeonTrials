@@ -734,6 +734,7 @@ public class Hero extends Char {
 
 	@Override
 	public boolean canSurpriseAttack(){
+		if (Modifier.PREPARED_ENEMIES.active()) return false;
 		KindOfWeapon w = belongings.attackingWeapon();
 		if (!(w instanceof Weapon))             return true;
 		if (RingOfForce.fightingUnarmed(this))  return true;

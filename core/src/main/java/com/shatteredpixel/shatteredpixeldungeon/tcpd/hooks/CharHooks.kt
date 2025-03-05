@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
@@ -218,5 +219,10 @@ fun Mob.mobFirstAdded() {
     if (Modifier.CRYSTAL_SHELTER.active()) {
         Buff.affect(this, CrystalShield::class.java)
         Buff.append(this, CrystalShield.Layer::class.java)
+    }
+    if (Modifier.PREPARED_ENEMIES.active() && this is Snake) {
+        HP *= 4
+        HT *= 4
+        defenseSkill = 0
     }
 }
