@@ -9,8 +9,32 @@ const REMOTE = "tcpd"
 def options [] {
     $TYPES
 }
+
 def mainOptions [] {
     $MAIN_TYPES
+}
+
+
+def bumpPatch [version] {
+    $version | update patch (($version | get patch | into int) + 1 | into string)
+}
+def bumpMinor [version] {
+    setMain $version patch "0" | update minor (($version | get minor | into int) + 1 | into string)
+}
+def bumpMajor [version] {
+    setMain $version minor "0" | setMain $version patch "0" | update major (($version | get major | into int) + 1 | into string)
+}
+
+def setMain [version: record, kind: string, num: string] {
+    $version | update $kind $num
+}
+
+def bumpMain [version, kind] {
+    match $kind {
+        "major" => (bumpMajor $version)
+        "minor" => (bumpMinor $version)
+        "patch" => (bumpPatch $version)
+    }
 }
 
 def main [kind: string@options = "", secondaryKind?: string@mainOptions = "patch", --execute (-x)] {
@@ -30,12 +54,11 @@ def main [kind: string@options = "", secondaryKind?: string@mainOptions = "patch
     $versionCode = $versionCode + 1
 
     match $kind {
-        "major" | "minor" | "patch" => ($version = $version | update $kind ((($version | get $kind | into int) + 1) | into string))
+        "major" | "minor" | "patch" => ($version = bumpMain $version $kind),
         "alpha" | "beta" | "rc" => {
-            $version = $version | update $secondaryKind ((($version | get $secondaryKind | into int) + 1) | into string)
-
             let value = $version | get $kind
             if $value == "" {
+                $version = bumpMain $version $secondaryKind
                 $version = ($version | update $kind "1")
             } else {
                 $version = ($version | update $kind ((($value | into int) + 1) | into string))
