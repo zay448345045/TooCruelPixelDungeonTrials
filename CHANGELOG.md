@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+## [0.2.2]
+
+> Released on 2025-03-05
+
 ### Changed
 
 - Pointed update checker at the right repository (by juh9870)
@@ -56,7 +60,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.1...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.2...HEAD
+[0.2.2]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.1...TCPD-0.2.2
 [0.2.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.0...TCPD-0.2.1
 [0.2.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.1.0...TCPD-0.2.0
 [0.1.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.0.0...TCPD-0.1.0
