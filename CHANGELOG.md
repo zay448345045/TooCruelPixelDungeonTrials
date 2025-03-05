@@ -6,6 +6,12 @@
 
 > Released on ReleaseDate
 
+### Changed
+
+- Pointed update checker at the right repository (by juh9870)
+- Removed support buttons and windows (by juh9870)
+- Application titile to tcpd (by juh9870)
+
 ## [0.2.1]
 
 > Released on 2025-03-05
