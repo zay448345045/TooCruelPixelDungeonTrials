@@ -57,7 +57,7 @@ fun Char.beforeDamageShieldedHook(dmg: Int, src: Any?): Int {
 fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
     if (this is Mob) {
         if (HP <= 0) {
-            if (Modifier.CRYSTAL_BLOOD.active() && buff(ShelteredMarker::class.java) == null && properties().contains(Char.Property.BOSS)) {
+            if (Modifier.CRYSTAL_BLOOD.active() && buff(ShelteredMarker::class.java) == null && !properties().contains(Char.Property.BOSS)) {
                 HP = 1
                 CrystalShield.applyShieldingLayers(this, 5, "barrier x5")
                 Buff.affect(this, ShelteredMarker::class.java)
