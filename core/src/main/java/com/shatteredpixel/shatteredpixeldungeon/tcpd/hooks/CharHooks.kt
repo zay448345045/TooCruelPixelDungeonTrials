@@ -7,14 +7,18 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
+import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead.MobArrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AtkSkillChangeBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AttackAmplificationBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BloodbagBleeding
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CrystalShield
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageAmplificationBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChangeBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import kotlin.math.max
 
 
@@ -57,6 +61,10 @@ fun Char.beforeDamageShieldedHook(dmg: Int, src: Any?): Int {
         Buff.affect(this, BloodbagBleeding::class.java).add(max(dmg / 2f, 1f))
         return -1
     }
+    if ((Modifier.REVENGE.active() || Modifier.REVENGE_FURY.active()) && HP + shielding() <= dmg) {
+        if (fieldOfView == null) fieldOfView = BooleanArray(Dungeon.level.length())
+        Dungeon.level.updateFieldOfView(this, fieldOfView)
+    }
     return dmg
 }
 
@@ -76,7 +84,60 @@ fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
                 Buff.affect(this, CrystalShield.DeathMarker::class.java)
             }
         }
+        if (!isAlive() && alignment != Char.Alignment.ALLY) {
+            val fury = Modifier.REVENGE_FURY.active();
+            val rage = Modifier.REVENGE.active();
+            if ((HP < 0 && rage) || fury) {
+                for(mob in Dungeon.level.mobs) {
+                    if (mob is NPC) continue
+                    if (mob === this) continue
+                    if (mob.alignment == Char.Alignment.ALLY) continue
+                    if (rage && HP < 0) Buff.affect(mob, RevengeRage::class.java).add(-HP)
+                    if (fury) Buff.append(mob, RevengeFury::class.java, 10f)
+                    mob.sprite.emitter().start(Speck.factory(Speck.UP), 0.2f, 3)
+                }
+            }
+        }
     }
+}
+
+/**
+ * Hook which is called when char attacks, to calculate flat damage bonus before multipliers
+ */
+fun Char.attackFlatDamageBonusHook(enemy: Char): Float {
+    var bonus = 0f
+    for (buff in buffs()) {
+        if(buff is AttackAmplificationBuff) {
+            bonus += buff.flatAttackBonus()
+        }
+    }
+    return bonus
+}
+
+/**
+ * Hook which is called when char attacks, to calculate attack damage multiplier
+ */
+fun Char.attackDamageMultiplierHook(enemy: Char): Float {
+    var mult = 1f
+    for (buff in buffs()) {
+        if(buff is AttackAmplificationBuff) {
+            mult *= buff.attackMultiplier()
+        }
+    }
+    return mult
+}
+
+/**
+ * Hook which is called when char attacks, but before the the damage is passed to enemy's defense proc
+ */
+fun Char.attackDamageBeforeApply(enemy: Char, damage: Float): Float {
+    var bonus = 0f
+    for (buff in buffs()) {
+        if(buff is AttackAmplificationBuff) {
+            bonus += buff.flatAttackBonusPostMult()
+        }
+    }
+    return damage + bonus
 }
 
 /**

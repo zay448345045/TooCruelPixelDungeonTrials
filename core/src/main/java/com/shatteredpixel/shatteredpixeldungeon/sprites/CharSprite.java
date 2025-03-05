@@ -21,6 +21,7 @@
 
 package com.shatteredpixel.shatteredpixeldungeon.sprites;
 
+import com.badlogic.gdx.utils.IntMap;
 import com.shatteredpixel.shatteredpixeldungeon.Assets;
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char;
@@ -48,6 +49,7 @@ import com.watabou.noosa.Camera;
 import com.watabou.noosa.Game;
 import com.watabou.noosa.MovieClip;
 import com.watabou.noosa.NoosaScript;
+import com.watabou.noosa.Visual;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.noosa.tweeners.AlphaTweener;
@@ -56,6 +58,7 @@ import com.watabou.noosa.tweeners.Tweener;
 import com.watabou.utils.Callback;
 import com.watabou.utils.PointF;
 import com.watabou.utils.Random;
+import com.watabou.utils.SparseArray;
 
 import java.nio.Buffer;
 import java.util.HashSet;
@@ -112,6 +115,10 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	protected ShieldHalo shield;
 	protected AlphaTweener invisible;
 	protected Flare aura;
+
+	protected SparseArray<Emitter> customEmitters;
+	protected SparseArray<Flare> customAuras;
+	protected SparseArray<Visual> customVisuals;
 	
 	protected EmoIcon emo;
 	protected CharHealthIndicator health;
@@ -131,6 +138,9 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	public CharSprite() {
 		super();
 		listener = this;
+		customAuras = new SparseArray<>();
+		customEmitters = new SparseArray<>();
+		customVisuals = new SparseArray<>();
 	}
 	
 	@Override
@@ -470,6 +480,72 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		remove(State.AURA);
 	}
 
+
+	public void customAura( Class cl, int color, float sizeMod, boolean light ){
+		Flare aura = customAuras.get(cl.hashCode());
+		if (aura != null){
+			aura.killAndErase();
+		}
+		float size = Math.max(width(), height());
+		size = Math.max(size+4, 16);
+		size*=sizeMod;
+		aura = new Flare(5, size);
+		aura.angularSpeed = 90;
+		aura.color(color, light);
+
+		if (parent != null) {
+			aura.show(this, 0);
+		}
+		customAuras.put(cl.hashCode(),aura);
+	}
+
+	public void clearCustomAura(Class cl){
+		Flare aura = customAuras.get(cl.hashCode());
+		if (aura != null){
+			aura.killAndErase();
+			customAuras.remove(cl.hashCode());
+		}
+	}
+
+	public Emitter emit(Class cl){
+		Emitter emitter = customEmitters.get(cl.hashCode());
+		if(emitter!=null) {
+			emitter.killAndErase();
+		}
+		emitter = emitter();
+		customEmitters.put(cl.hashCode(), emitter);
+		return emitter;
+	}
+
+	public void killEmitter(Class cl){
+		Emitter emitter = customEmitters.get(cl.hashCode());
+		if(emitter!=null) {
+			emitter.on=false;
+			emitter.autoKill=true;
+			customEmitters.remove(cl.hashCode());
+		}
+	}
+
+	public void bindCustomVisual(Class cl, Visual visual) {
+		customVisuals.put(cl.hashCode(), visual);
+		visual.center(center());
+	}
+
+	public void unbindCustomVisual(Class cl) {
+		Visual visual = customVisuals.get(cl.hashCode());
+		if (visual != null) {
+			customVisuals.remove(cl.hashCode());
+		}
+	}
+
+	protected float invisibilityAlpha(){
+		float alpha = 0.4f;
+		if(ch != null && ch.alignment == Char.Alignment.ENEMY) {
+			alpha = 0.1f;
+		}
+		return alpha;
+	}
+
 	protected synchronized void processStateRemoval( State state ) {
 		switch (state) {
 			case BURNING:
@@ -627,6 +703,34 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 		synchronized (EmoIcon.class) {
 			if (emo != null && emo.alive) {
 				emo.visible = visible;
+			}
+		}
+
+		float alpha = invisible == null ? 1 : invisibilityAlpha();
+
+		for (IntMap.Entry<Flare> aura : customAuras) {
+			if (aura.value != null) {
+				if (aura.value.parent == null) {
+					aura.value.show(this, 0);
+				}
+				aura.value.visible = visible;
+				aura.value.point(center());
+				aura.value.alpha(alpha);
+			}
+		}
+		for (IntMap.Entry<Emitter> emitter : customEmitters) {
+			if (emitter.value != null) {
+				emitter.value.visible = visible && invisible==null;
+			}
+		}
+		for (IntMap.Entry<Visual> visuals : customVisuals) {
+			if (visuals.value != null) {
+				visuals.value.visible = visible;
+				if (visible) {
+					visuals.value.x = x + (width() - visuals.value.width()) /2;
+					visuals.value.y = y + height() - visuals.value.height();
+					visuals.value.alpha(alpha);
+				}
 			}
 		}
 	}

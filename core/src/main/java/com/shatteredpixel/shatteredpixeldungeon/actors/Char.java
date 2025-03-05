@@ -414,6 +414,7 @@ public abstract class Char extends Actor {
 
 			//flat damage bonus is affected by multipliers
 			dmg += dmgBonus;
+			dmg += CharHooksKt.attackFlatDamageBonusHook(this, enemy);
 
 			if (enemy.buff(GuidingLight.Illuminated.class) != null){
 				enemy.buff(GuidingLight.Illuminated.class).detach();
@@ -485,6 +486,9 @@ public abstract class Char extends Actor {
 					dmg *= 0.5f;
 				}
 			}
+
+			dmg *= CharHooksKt.attackDamageMultiplierHook(this, enemy);
+			dmg = CharHooksKt.attackDamageBeforeApply(this, enemy, dmg);
 			
 			int effectiveDamage = enemy.defenseProc( this, Math.round(dmg) );
 			//do not trigger on-hit logic if defenseProc returned a negative value
