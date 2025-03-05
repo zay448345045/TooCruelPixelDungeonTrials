@@ -1,28 +1,52 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 
+import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength
+import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
+import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
-import com.watabou.utils.Random
 
+fun RegularLevel.createItemsHook() {
+    if (Modifier.HEAD_START.active() && Dungeon.depth == 1) {
+        repeat(2) {
+            drop(ScrollOfUpgrade(), placeItemPos())
+            Dungeon.LimitedDrops.UPGRADE_SCROLLS.drop()
+        }
+        drop(PotionOfStrength(), placeItemPos())
+        Dungeon.LimitedDrops.STRENGTH_POTIONS.drop()
+    }
+}
 
 fun Level.postCreateHook() {
     // Reveal all traps if THUNDERSTRUCK modifier is active, for fairness
-    if(Modifier.THUNDERSTRUCK.active()) {
-        for(trap in traps.valueList()) {
+    if (Modifier.THUNDERSTRUCK.active()) {
+        for (trap in traps.valueList()) {
             trap.reveal()
         }
     }
-    if(Modifier.SECOND_TRY.active()) {
+    if (Modifier.SECOND_TRY.active()) {
         applySecondTry()
     }
 }
 
+private fun RegularLevel.placeItemPos(roomType: Class<out Room?>? = null): Int {
+    val cell: Int =
+        if (roomType != null) randomDropCellExposedHook(roomType) else randomDropCellExposedHook()
+
+    if (map[cell] == Terrain.HIGH_GRASS || map[cell] == Terrain.FURROWED_GRASS) {
+        map[cell] = Terrain.GRASS
+        losBlocking[cell] = false
+    }
+    return cell
+}
 
 private fun Level.applySecondTry() {
     var barricades = 0

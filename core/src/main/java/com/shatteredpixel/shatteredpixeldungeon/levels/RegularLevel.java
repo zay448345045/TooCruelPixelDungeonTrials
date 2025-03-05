@@ -77,6 +77,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.WornDartTrap;
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelHooksKt;
 import com.watabou.utils.BArray;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
@@ -457,6 +458,10 @@ public abstract class RegularLevel extends Level {
 		//we can use a random long for these as they will be the same longs every time
 
 		Random.pushGenerator( Random.Long() );
+			LevelHooksKt.createItemsHook(this);
+		Random.popGenerator();
+
+		Random.pushGenerator( Random.Long() );
 			if (Dungeon.isChallenged(Challenges.DARKNESS)){
 				int cell = randomDropCell();
 				if (map[cell] == Terrain.HIGH_GRASS || map[cell] == Terrain.FURROWED_GRASS) {
@@ -699,7 +704,7 @@ public abstract class RegularLevel extends Level {
 	protected int randomDropCell(){
 		return randomDropCell(StandardRoom.class);
 	}
-	
+
 	protected int randomDropCell( Class<?extends Room> roomType ) {
 		int tries = 100;
 		while (tries-- > 0) {
@@ -731,7 +736,15 @@ public abstract class RegularLevel extends Level {
 		}
 		return -1;
 	}
-	
+
+	public int randomDropCellExposedHook(){
+		return randomDropCell();
+	}
+
+	public int randomDropCellExposedHook( Class<?extends Room> roomType ) {
+		return randomDropCell(roomType);
+	}
+
 	@Override
 	public int fallCell( boolean fallIntoPit ) {
 		if (fallIntoPit) {

@@ -63,7 +63,7 @@ public class MobSpawner extends Actor {
 	public static ArrayList<Class<? extends Mob>> getMobRotation(int depth ){
 
 		if(Modifier.INVASION.active()) {
-			if(Modifier.GREAT_MIGRATION.active()) {
+			if(Modifier.GREAT_MIGRATION.active() && depth != 1) {
 				depth += 5;
 				if(depth > 26) depth = 26;
 			} else {
