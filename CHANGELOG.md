@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+## [0.3.0]
+
+> Released on 2025-03-06
+
 ### Added
 
 - Revenge Rage modifier (by juh9870)
@@ -97,7 +101,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.4...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.3.0...HEAD
+[0.3.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.4...TCPD-0.3.0
 [0.2.4]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.3...TCPD-0.2.4
 [0.2.3]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.2...TCPD-0.2.3
 [0.2.2]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.2.1...TCPD-0.2.2
