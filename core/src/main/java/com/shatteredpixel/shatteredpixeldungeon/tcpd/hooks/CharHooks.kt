@@ -4,12 +4,14 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead.MobArrowhead
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AtkSkillChangeBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CrystalShield
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageAmplificationBuff
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ShelteredMarker
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChangeBuff
 
 
 /**
@@ -57,10 +59,10 @@ fun Char.beforeDamageShieldedHook(dmg: Int, src: Any?): Int {
 fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
     if (this is Mob) {
         if (HP <= 0) {
-            if (Modifier.CRYSTAL_BLOOD.active() && buff(ShelteredMarker::class.java) == null && !properties().contains(Char.Property.BOSS)) {
+            if (Modifier.CRYSTAL_BLOOD.active() && buff(CrystalShield.DeathMarker::class.java) == null && !properties().contains(Char.Property.BOSS)) {
                 HP = 1
                 CrystalShield.applyShieldingLayers(this, 5, "barrier x5")
-                Buff.affect(this, ShelteredMarker::class.java)
+                Buff.affect(this, CrystalShield.DeathMarker::class.java)
             }
         }
     }
@@ -75,6 +77,43 @@ fun Char.deathHook(src: Any?) {
             Buff.affect(Dungeon.hero, Arrowhead::class.java).addStack()
         }
     }
+}
+
+fun charHitAcuStatHook( attacker: Char, defender: Char, acuStat: Float ): Float {
+    var stat = acuStat
+    for (buff in attacker.buffs()) {
+        if(buff is AtkSkillChangeBuff) {
+            stat = buff.modifyAtkSkill(stat, defender)
+        }
+    }
+    return stat
+}
+fun charHitDefStatHook( attacker: Char, defender: Char, defStat: Float ): Float {
+    var stat = defStat
+    for (buff in defender.buffs()) {
+        if(buff is DefSkillChangeBuff) {
+            stat = buff.modifyDefSkill(stat, attacker)
+        }
+    }
+    return stat
+}
+fun charHitAcuRollHook( attacker: Char, defender: Char, acuRoll: Float ): Float {
+    var roll = acuRoll
+    for (buff in attacker.buffs()) {
+        if(buff is AtkSkillChangeBuff) {
+            roll *= buff.atkRollMultiplier(attacker)
+        }
+    }
+    return roll
+}
+fun charHitDefRollHook(attacker: Char, defender: Char, defRoll: Float ): Float {
+    var roll = defRoll
+    for (buff in defender.buffs()) {
+        if(buff is DefSkillChangeBuff) {
+            roll *= buff.defRollMultiplier(attacker)
+        }
+    }
+    return roll
 }
 
 /**
@@ -95,6 +134,9 @@ fun Mob.mobIncomingDamageHook(dmg: Int, src: Any?): Int {
 }
 
 fun Mob.mobFirstAdded() {
+    if(this is NPC) {
+        return
+    }
     if (Modifier.ARROWHEAD.active()) {
         Buff.affect(this, MobArrowhead::class.java)
     }

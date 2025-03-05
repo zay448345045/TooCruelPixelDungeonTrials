@@ -13,7 +13,6 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator
 import com.watabou.noosa.Image
 import com.watabou.noosa.audio.Sample
-import kotlin.math.min
 
 class CrystalShield : Buff() {
     init {
@@ -52,13 +51,21 @@ class CrystalShield : Buff() {
 
                 layer.detach()
 
-                if (crystal != null && target.buff(Layer::class.java) == null) {
-                    crystal.breakShield()
+                val hasMoreLayers = target.buff(Layer::class.java) != null
+
+                if (!hasMoreLayers) {
+                    if (target.buff(DeathMarker::class.java) != null) {
+                        // Directly set HP to zero. This function is only
+                        // called from damage method, so it will handle the actual death
+                        target.HP = 0
+                        return false
+                    }
+                    crystal?.breakShield()
                 } else {
                     if (Dungeon.hero != null && Dungeon.hero.fieldOfView[target.pos]) {
                         Sample.INSTANCE.play(Assets.Sounds.SHATTER, 0.25f, 1.5f)
                         target.sprite.showStatus(
-                            CharSprite.POSITIVE,
+                            CharSprite.NEGATIVE,
                             Messages.get(CrystalShield::class.java, "layer_broken")
                         )
                     }
@@ -71,7 +78,7 @@ class CrystalShield : Buff() {
     }
 
     fun damageThreshold(): Int {
-        return min(target.HT / 4, Dungeon.scalingDepth() / 2 + 1)
+        return Dungeon.scalingDepth() / 2 + 1
     }
 
     override fun act(): Boolean {
@@ -94,7 +101,7 @@ class CrystalShield : Buff() {
             Splash.at(target.sprite.center(), 0x22ffe1, 10)
             Sample.INSTANCE.play(Assets.Sounds.SHATTER)
             target.sprite.showStatus(
-                CharSprite.POSITIVE, Messages.get(CrystalShield::class.java, "shattered")
+                CharSprite.NEGATIVE, Messages.get(CrystalShield::class.java, "shattered")
             )
         }
     }
@@ -104,7 +111,7 @@ class CrystalShield : Buff() {
     }
 
     override fun icon(): Int {
-        return BuffIndicator.ARMOR
+        return if (active()) BuffIndicator.ARMOR else BuffIndicator.VULNERABLE
     }
 
     override fun tintIcon(icon: Image) {
@@ -125,7 +132,7 @@ class CrystalShield : Buff() {
         }
     }
 
-    class Layer : Buff() {
+    class Layer : Buff(), DefSkillChangeBuff {
         var shield: ShieldHalo? = null
 
         init {
@@ -157,6 +164,25 @@ class CrystalShield : Buff() {
             } else {
                 Messages.get(this, "desc_standalone")
             }
+        }
+
+        // Can't dodge while having a crystal shield layer
+        override fun defRollMultiplier(attacker: Char): Float {
+            return 0f
+        }
+    }
+
+    class DeathMarker : Buff() {
+        init {
+            type = buffType.NEUTRAL;
+        }
+
+        override fun icon(): Int {
+            return BuffIndicator.CORRUPT
+        }
+
+        override fun tintIcon(icon: Image) {
+            icon.hardlight(0.5f, 1f, 2f)
         }
     }
 }

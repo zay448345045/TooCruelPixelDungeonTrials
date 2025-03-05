@@ -1,0 +1,42 @@
+package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
+
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char
+
+interface DamageAmplificationBuff {
+    /**
+     * Multiplier for the received damage
+     */
+    fun damageMultiplier(source: Any?): Float
+}
+
+interface DefSkillChangeBuff {
+    /**
+     * Modifier for the defense skill, before the roll is made
+     *
+     * Mainly used for returning [Char.INFINITE_EVASION][Char.INFINITE_EVASION]
+     */
+    fun modifyDefSkill(defSkill: Float, attacker: Char): Float {
+        return defSkill
+    }
+
+    /**
+     * Multiplier for the defense roll
+     */
+    fun defRollMultiplier(attacker: Char): Float
+}
+
+interface AtkSkillChangeBuff {
+    /**
+     * Modifier for the attack skill, before the roll is made
+     *
+     * Mainly used for returning [Char.INFINITE_ACCURACY][Char.INFINITE_ACCURACY]
+     */
+    fun modifyAtkSkill(atkSkill: Float, defender: Char): Float {
+        return atkSkill
+    }
+
+    /**
+     * Multiplier for the attack roll
+     */
+    fun atkRollMultiplier(defender: Char): Float
+}

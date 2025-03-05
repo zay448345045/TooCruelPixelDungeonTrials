@@ -623,6 +623,9 @@ public abstract class Char extends Actor {
 			defStat = INFINITE_EVASION;
 		}
 
+		acuStat = CharHooksKt.charHitAcuStatHook(attacker, defender, acuStat);
+		defStat = CharHooksKt.charHitDefStatHook(attacker, defender, defStat);
+
 		//if accuracy or evasion are large enough, treat them as infinite.
 		//note that infinite evasion beats infinite accuracy
 		if (defStat >= INFINITE_EVASION){
@@ -660,6 +663,9 @@ public abstract class Char extends Actor {
 			// + 3%/5%
 			defRoll *= 1.01f + 0.02f*Dungeon.hero.pointsInTalent(Talent.BLESS);
 		}
+
+		acuRoll = CharHooksKt.charHitAcuRollHook(attacker, defender, acuRoll);
+		defRoll = CharHooksKt.charHitDefRollHook(attacker, defender, defRoll);
 		
 		return (acuRoll * accMulti) >= defRoll;
 	}
