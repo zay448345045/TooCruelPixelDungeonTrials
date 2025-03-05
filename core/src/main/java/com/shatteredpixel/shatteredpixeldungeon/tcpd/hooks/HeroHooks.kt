@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 
 fun Hero.heroLiveHook() {
@@ -12,6 +13,9 @@ fun Hero.heroLiveHook() {
     }
     if(Modifier.THUNDERSTRUCK.active()) {
         Buff.affect(this, Arrowhead::class.java).set(9001)
+    }
+    if(Modifier.BLINDNESS.active()) {
+        Buff.affect(this, PermaBlind::class.java)
     }
 }
 fun Hero.heroSpendConstantHook(time: Float) {
