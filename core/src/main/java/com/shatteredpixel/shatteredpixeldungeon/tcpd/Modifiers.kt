@@ -16,6 +16,7 @@ import com.watabou.utils.Bundle
 enum class Modifier(val id: Int, locString: String? = null, val dependencies: Array<Int> = emptyArray()) {
     // Vanilla challenges
     CHAMPION_ENEMIES(7, locString = "champion_enemies"),
+    COLOSSEUM(32, dependencies = arrayOf(CHAMPION_ENEMIES.id)),
     STRONGER_BOSSES(8, locString = "stronger_bosses"),
     ON_DIET(0, locString = "no_food"),
     FAITH_ARMOR(1, locString = "no_armor"),

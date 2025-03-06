@@ -60,12 +60,13 @@ public class DesktopLauncher {
 			SharedLibraryLoader.is64Bit = System.getProperty("os.arch").contains("64") || System.getProperty("os.arch").startsWith("armv8");
 		}
 		
-		final String title;
+		final String rawTitle;
 		if (DesktopLauncher.class.getPackage().getSpecificationTitle() == null){
-			title = System.getProperty("Specification-Title");
+			rawTitle = System.getProperty("Specification-Title");
 		} else {
-			title = DesktopLauncher.class.getPackage().getSpecificationTitle();
+			rawTitle = DesktopLauncher.class.getPackage().getSpecificationTitle();
 		}
+		final String title = rawTitle.replaceAll(":", "");
 		
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override

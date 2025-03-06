@@ -23,10 +23,10 @@ fun RegularLevel.createItemsHook() {
     if (Modifier.HEAD_START.active() && Dungeon.depth == 1) {
         repeat(2) {
             drop(ScrollOfUpgrade(), placeItemPos())
-            Dungeon.LimitedDrops.UPGRADE_SCROLLS.drop()
+            Dungeon.LimitedDrops.UPGRADE_SCROLLS.count++
         }
         drop(PotionOfStrength(), placeItemPos())
-        Dungeon.LimitedDrops.STRENGTH_POTIONS.drop()
+        Dungeon.LimitedDrops.UPGRADE_SCROLLS.count++
     }
 }
 
