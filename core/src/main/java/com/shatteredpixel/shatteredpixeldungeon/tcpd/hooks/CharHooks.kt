@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
@@ -9,7 +10,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
+import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead.MobArrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AtkSkillChangeBuff
@@ -145,9 +148,12 @@ fun Char.attackDamageBeforeApply(enemy: Char, damage: Float): Float {
  * Hook which is called when char dies.
  */
 fun Char.deathHook(src: Any?) {
-    if (this is Mob) {
+    if (this is Mob && alignment != Char.Alignment.ALLY) {
         if (Modifier.ARROWHEAD.active()) {
             Buff.affect(Dungeon.hero, Arrowhead::class.java).addStack()
+        }
+        if(Modifier.PATRON_SAINTS.active()) {
+            GameScene.add(Blob.seed(pos, 1, PatronSaintsBlob::class.java))
         }
     }
 }

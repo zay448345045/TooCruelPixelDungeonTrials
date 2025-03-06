@@ -30,6 +30,8 @@ import com.watabou.utils.Bundle;
 import com.watabou.utils.Rect;
 import com.watabou.utils.Reflection;
 
+import org.jetbrains.annotations.Nullable;
+
 public class Blob extends Actor {
 
 	{
@@ -37,7 +39,7 @@ public class Blob extends Actor {
 	}
 	
 	public int volume = 0;
-	
+
 	public int[] cur;
 	protected int[] off;
 	

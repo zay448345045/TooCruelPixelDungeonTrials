@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.effects;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.effects.CustomBlobCellEmission;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.watabou.noosa.particles.Emitter;
 import com.watabou.utils.Random;
@@ -55,6 +56,8 @@ public class BlobEmitter extends Emitter {
 		int[] map = blob.cur;
 		float size = DungeonTilemap.SIZE;
 
+		boolean isCustomCellEmitter = blob instanceof CustomBlobCellEmission;
+
 		int cell;
 		for (int i = blob.area.left; i < blob.area.right; i++) {
 			for (int j = blob.area.top; j < blob.area.bottom; j++) {
@@ -62,6 +65,10 @@ public class BlobEmitter extends Emitter {
 				if (cell < Dungeon.level.heroFOV.length
 						&& (Dungeon.level.heroFOV[cell] || blob.alwaysVisible)
 						&& map[cell] > 0) {
+					if(isCustomCellEmitter) {
+						((CustomBlobCellEmission) blob).emit(this, factory, index, i, j, cell, size);
+						continue;
+					}
 					float x = (i + Random.Float(bound.left, bound.right)) * size;
 					float y = (j + Random.Float(bound.top, bound.bottom)) * size;
 					factory.emit(this, index, x, y);
