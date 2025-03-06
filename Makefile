@@ -27,5 +27,7 @@ move-binaries: __always
 	mv ./build/aligned.apk ./build/android.apk
 	mv desktop/build/libs/desktop-*.jar ./build/desktop.jar
 
+full-build: build sign-release-apk move-binaries
+
 .PHONY: __always
 __always:
