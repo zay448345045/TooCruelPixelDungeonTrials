@@ -64,6 +64,8 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndBag;
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndOptions;
@@ -291,7 +293,12 @@ public class Potion extends Item {
 		hero.spend( TIME_TO_DRINK );
 		hero.busy();
 		apply( hero );
-		
+
+		if(Modifier.INTOXICATION.active()) {
+			if (this instanceof ExoticPotion)Buff.affect(hero, Intoxication.class).extend(Intoxication.EXOTIC_INTOXICATION);
+			else Buff.affect(hero, Intoxication.class).extend(Intoxication.POION_INTOXICATION);
+		}
+
 		Sample.INSTANCE.play( Assets.Sounds.DRINK );
 		
 		hero.sprite.operate( hero.pos );

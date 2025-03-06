@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 
@@ -16,6 +17,9 @@ fun Hero.heroLiveHook() {
     }
     if(Modifier.BLINDNESS.active()) {
         Buff.affect(this, PermaBlind::class.java)
+    }
+    if(Modifier.TOXIC_WATER.active()) {
+        Buff.affect(this, Intoxication.ToxicWaterTracker::class.java)
     }
 }
 fun Hero.heroSpendConstantHook(time: Float) {

@@ -22,6 +22,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BloodbagBleedi
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CrystalShield
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageAmplificationBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChangeBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import kotlin.math.max
@@ -103,6 +104,8 @@ fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
                 }
             }
         }
+    } else if(this is Hero && Modifier.PLAGUE.active() && dmg > 0) {
+        Buff.affect(this, Intoxication::class.java).processHit(dmg, src)
     }
 }
 

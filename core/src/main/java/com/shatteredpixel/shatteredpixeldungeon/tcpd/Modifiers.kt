@@ -65,6 +65,9 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
     PATRON_SAINTS(33),
     PERSISTENT_SAINTS(34, dependencies = arrayOf(PATRON_SAINTS.id)),
     HOLY_WATER(35),
+    INTOXICATION(36),
+    PLAGUE(37),
+    TOXIC_WATER(38),
     ;
 
     companion object {
