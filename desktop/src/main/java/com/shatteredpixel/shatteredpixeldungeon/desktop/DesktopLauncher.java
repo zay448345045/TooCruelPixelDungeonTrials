@@ -60,13 +60,12 @@ public class DesktopLauncher {
 			SharedLibraryLoader.is64Bit = System.getProperty("os.arch").contains("64") || System.getProperty("os.arch").startsWith("armv8");
 		}
 		
-		final String rawTitle;
+		final String title;
 		if (DesktopLauncher.class.getPackage().getSpecificationTitle() == null){
-			rawTitle = System.getProperty("Specification-Title");
+			title = System.getProperty("Specification-Title");
 		} else {
-			rawTitle = DesktopLauncher.class.getPackage().getSpecificationTitle();
+			title = DesktopLauncher.class.getPackage().getSpecificationTitle();
 		}
-		final String title = rawTitle.replaceAll(":", "");
 		
 		Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
 			@Override
@@ -147,10 +146,11 @@ public class DesktopLauncher {
 		String basePath = "";
 		Files.FileType baseFileType = null;
 		if (SharedLibraryLoader.isWindows) {
+			String winTitle = title.replace(":", "");
 			if (System.getProperties().getProperty("os.name").equals("Windows XP")) {
-				basePath = "Application Data/." + vendor + "/" + title + "/";
+				basePath = "Application Data/." + vendor + "/" + winTitle + "/";
 			} else {
-				basePath = "AppData/Roaming/." + vendor + "/" + title + "/";
+				basePath = "AppData/Roaming/." + vendor + "/" + winTitle + "/";
 			}
 			baseFileType = Files.FileType.External;
 		} else if (SharedLibraryLoader.isMac) {
