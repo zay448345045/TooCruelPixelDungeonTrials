@@ -11,15 +11,20 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PatronSaints
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.effects.CustomBlobCellEmission
 import com.watabou.noosa.Game
 import com.watabou.noosa.particles.Emitter
+import com.watabou.utils.DeviceCompat
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import kotlin.math.PI
 import kotlin.math.cos
+import kotlin.math.max
 import kotlin.math.sin
 
 const val STACKS_MASK: Int = 0b00001111
 const val SOULS_MASK: Int = 0b11110000
 const val MAX_STACKS: Int = 8
+
+const val PATRON_SEED_SOUL: Int = 0x9870
+const val PATRON_SEED_BLESS: Int = 0x9871
 
 @Suppress("NOTHING_TO_INLINE")
 @JvmInline
@@ -83,6 +88,7 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
         // Act right after mobs, to give buffs to those who enter the area
         actPriority = MOB_PRIO - 1
     }
+
     fun stacksAt(pos: Int): Int {
         return cur?.get(pos)?.let { EncodedCell(it).stacks() } ?: 0
     }
@@ -93,8 +99,8 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
         var value: Int
         for (ch in chars()) {
             value = cur[ch.pos]
-            if(value > 0) {
-                if(ch.alignment != Char.Alignment.ALLY) {
+            if (value > 0) {
+                if (ch.alignment != Char.Alignment.ALLY) {
                     Buff.affect(ch, PatronSaints::class.java)
                 }
             }
@@ -105,19 +111,27 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
         if (!level.insideMap(cell)) {
             return
         }
+
+
         val curCenter = cur?.get(cell)?.let { EncodedCell(it) } ?: EncodedCell.EMPTY
 
-        val newCenter = curCenter.incrementStacks().incrementSouls()
-        // Incrementing stacks or setting center both can only result in larger number
-        newCenter.seedDifference(curCenter)?.let { super.seed(level, cell, it) }
+        if (amount == PATRON_SEED_SOUL) {
+            val newCenter = curCenter.incrementStacks().incrementSouls()
+            newCenter.seedDifference(curCenter)?.let { super.seed(level, cell, it) }
 
-        for (o in PathFinder.NEIGHBOURS8) {
-            if (level.insideMap(cell + o)) {
-                val pos = cell + o
-                val curNeighbour = cur?.get(pos)?.let { EncodedCell(it) } ?: EncodedCell.EMPTY
-                val newNeighbour = curNeighbour.incrementStacks()
-                newNeighbour.seedDifference(curNeighbour)?.let { super.seed(level, pos, it) }
+            for (o in PathFinder.NEIGHBOURS8) {
+                if (level.insideMap(cell + o)) {
+                    val pos = cell + o
+                    val curNeighbour = cur?.get(pos)?.let { EncodedCell(it) } ?: EncodedCell.EMPTY
+                    val newNeighbour = curNeighbour.incrementStacks()
+                    newNeighbour.seedDifference(curNeighbour)?.let { super.seed(level, pos, it) }
+                }
             }
+        } else if (amount == PATRON_SEED_BLESS) {
+            val newCenter = curCenter.withStacks(max(1, curCenter.stacks()))
+            newCenter.seedDifference(curCenter)?.let { super.seed(level, cell, it) }
+        } else if(DeviceCompat.isDebug()) {
+            throw IllegalArgumentException("Invalid saint blob seed amount: $amount")
         }
     }
 
@@ -148,12 +162,12 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
             if (o != 0) {
                 if (nCur == 0) {
                     //  -width, -1, +1, +width
-                   when(idx) {
-                       0 -> top = true
-                       1 -> left = true
-                       2 -> right = true
-                       3 -> bottom = true
-                   }
+                    when (idx) {
+                        0 -> top = true
+                        1 -> left = true
+                        2 -> right = true
+                        3 -> bottom = true
+                    }
                 }
             }
         }
@@ -166,7 +180,7 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
 
         if (souls > 0) {
             var t = time % (2 * PI.toFloat())
-            val max = if(souls == 4 || souls == 8) souls + 3 else souls
+            val max = if (souls == 4 || souls == 8) souls + 3 else souls
             repeat(souls) {
                 t += 2 * PI.toFloat() / max
                 val fx = DamageReductionAreaFx.emitOne(

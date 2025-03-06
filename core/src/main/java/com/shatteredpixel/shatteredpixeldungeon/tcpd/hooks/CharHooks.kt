@@ -12,6 +12,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_SOUL
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead.MobArrowhead
@@ -153,9 +154,9 @@ fun Char.deathHook(src: Any?) {
             Buff.affect(Dungeon.hero, Arrowhead::class.java).addStack()
         }
         if(Modifier.PATRON_SAINTS.active()) {
-            GameScene.add(Blob.seed(pos, 1, PatronSaintsBlob::class.java))
+            GameScene.add(Blob.seed(pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java))
             if(Modifier.PERSISTENT_SAINTS.active()) {
-                GameScene.add(Blob.seed(Dungeon.hero.pos, 1, PatronSaintsBlob::class.java))
+                GameScene.add(Blob.seed(Dungeon.hero.pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java))
             }
         }
     }

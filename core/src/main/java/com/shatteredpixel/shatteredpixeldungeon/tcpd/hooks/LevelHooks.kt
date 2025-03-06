@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
+import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
@@ -16,6 +17,8 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_BLESS
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
 import com.watabou.utils.Random
 import com.watabou.utils.Reflection
 
@@ -39,6 +42,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.SECOND_TRY.active()) {
         applySecondTry()
+    }
+    if (Modifier.HOLY_WATER.active()) {
+        applyHolyWater()
     }
 }
 
@@ -136,6 +142,14 @@ private fun Level.applySecondTry() {
     for (blob in blobs.values) {
         if (blob is WellWater) {
             blob.fullyClear(this)
+        }
+    }
+}
+
+private fun Level.applyHolyWater() {
+    for(i in 0 until length()) {
+        if(map[i] == Terrain.WATER) {
+            Blob.seed(i, PATRON_SEED_BLESS, PatronSaintsBlob::class.java, this)
         }
     }
 }
