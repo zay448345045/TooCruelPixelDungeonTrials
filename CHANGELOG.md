@@ -6,6 +6,12 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Bad Plumbing modifier (by juh9870)
+- Intoxication modifier (by juh9870)
+- Plague modifier (by juh9870)
+
 ## [0.4.0]
 
 > Released on 2025-03-07
