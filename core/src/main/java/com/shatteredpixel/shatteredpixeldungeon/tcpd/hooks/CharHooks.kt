@@ -154,6 +154,9 @@ fun Char.deathHook(src: Any?) {
         }
         if(Modifier.PATRON_SAINTS.active()) {
             GameScene.add(Blob.seed(pos, 1, PatronSaintsBlob::class.java))
+            if(Modifier.PERSISTENT_SAINTS.active()) {
+                GameScene.add(Blob.seed(Dungeon.hero.pos, 1, PatronSaintsBlob::class.java))
+            }
         }
     }
 }

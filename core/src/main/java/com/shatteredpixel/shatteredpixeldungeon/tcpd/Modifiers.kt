@@ -63,6 +63,7 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
     DUPLICATOR(30),
     EXTREME_CAUTION(31),
     PATRON_SAINTS(33),
+    PERSISTENT_SAINTS(34, dependencies = arrayOf(PATRON_SAINTS.id)),
     ;
 
     companion object {
