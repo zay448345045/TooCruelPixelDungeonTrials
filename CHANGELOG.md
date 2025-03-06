@@ -6,6 +6,18 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Colosseum modifier (by juh9870)
+- Patron Saints modifier (by juh9870)
+- Persistent Saints modifier (by juh9870)
+- Holy Water modifier (by juh9870)
+
+### Fixed
+
+- Game not being able to save prefs on windows (by juh9870)
+- Head Start incorrectly incrementing dropped SoU amount (by juh9870)
+
 ## [0.3.0]
 
 > Released on 2025-03-06
