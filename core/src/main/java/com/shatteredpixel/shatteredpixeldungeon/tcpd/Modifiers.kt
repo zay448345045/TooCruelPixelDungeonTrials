@@ -11,6 +11,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.decodeBase58
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.encodeToBase58String
+import com.watabou.utils.BArray
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 
@@ -142,6 +143,12 @@ class Modifiers() : Bundlable {
         modifiers.copyInto(this.modifiers)
     }
 
+    constructor(vararg modifiers: Modifier) : this() {
+        for (modifier in modifiers) {
+            enable(modifier)
+        }
+    }
+
     companion object {
         fun deserializeFromString(encoded: String): Modifiers {
             val bits = encoded.decodeBase58().asBits()
@@ -193,6 +200,19 @@ class Modifiers() : Bundlable {
         }
     }
 
+    fun enableFrom(other: Modifiers) {
+        BArray.setFalse(modifiers)
+        for (entry in Modifier.entries) {
+            if(other.isEnabled(entry)) {
+                enable(entry)
+            }
+        }
+    }
+
+    fun disableAll() {
+        BArray.setFalse(modifiers)
+    }
+
     fun isItemBlocked(item: Item): Boolean {
         return Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
     }
@@ -220,6 +240,8 @@ class Modifiers() : Bundlable {
     }
 
     fun serializeToString(): String {
-        return modifiers.asBytes(false).encodeToBase58String()
+        val str = modifiers.asBytes(false).encodeToBase58String()
+        if(str.all { it == '1' }) return ""
+        return str
     }
 }

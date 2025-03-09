@@ -20,7 +20,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.redCheckbox
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.rightToLeft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndError
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput
 
 open class WndModifiers(private val modifiers: Modifiers, private val editable: Boolean) :
     TcpdWindow() {
@@ -30,7 +32,46 @@ open class WndModifiers(private val modifiers: Modifiers, private val editable: 
 
     override fun Ui.drawUi() {
         verticalJustified {
-            label(Messages.get(WndModifiers::class.java, "title"), 12).widget.hardlight(TITLE_COLOR)
+            rightToLeft {
+                iconButton(Icons.SCROLL_COLOR.descriptor()).onClick {
+                    ShatteredPixelDungeon.scene().add(
+                        object: WndTextInput(
+                            Messages.get(WndModifiers::class.java, "edit_title"),
+                            Messages.get(WndModifiers::class.java, "edit_body"),
+                            modifiers.serializeToString(),
+                            256,
+                            false,
+                            Messages.get(WndModifiers::class.java, "edit_apply"),
+                            Messages.get(WndModifiers::class.java, "edit_cancel"),
+                        ) {
+                            override fun onSelect(positive: Boolean, text: String) {
+                                if(positive && editable) {
+                                    try {
+                                        val trimmed = text.trim()
+                                        if(trimmed.isBlank()) {
+                                            modifiers.disableAll()
+                                        } else {
+                                            modifiers.enableFrom(
+                                                Modifiers.deserializeFromString(
+                                                    trimmed
+                                                )
+                                            )
+                                        }
+                                    } catch (e: Exception) {
+                                        ShatteredPixelDungeon.scene().add(WndError(Messages.get(WndModifiers::class.java, "edit_error")))
+                                    }
+                                }
+                                super.onSelect(positive, text)
+                            }
+                        }
+                    )
+                }
+                verticalJustified {
+                    label(Messages.get(WndModifiers::class.java, "title"), 12).widget.hardlight(
+                        TITLE_COLOR
+                    )
+                }
+            }
             top().addSpace(2)
             val modifiersList by useMemo(Unit) {
                 val allEnabled = Modifier.entries.filter { modifiers.isEnabled(it) }
