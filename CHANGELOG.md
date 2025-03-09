@@ -6,6 +6,21 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Unstable Accessories modifier (by juh9870)
+- Pandemonium modifier (by juh9870)
+- Barrier Breaker modifier (by juh9870)
+- Retiered and Untiered modifiers (by juh9870)
+- Text and sound indication for when Intoxication level increases (by juh9870)
+- Certainty of Steel modifier (by juh9870)
+- Moles modifier (by juh9870)
+- Builder Paradox modifier (by juh9870)
+
+### Changed
+
+- Shielding no longer protects from Plague effects (by juh9870)
+
 ## [0.5.0]
 
 > Released on 2025-03-07
