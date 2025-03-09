@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window;
 import com.watabou.noosa.Image;
+import com.watabou.utils.DeviceCompat;
 
 public class WndInfoCell extends Window {
 	
@@ -150,6 +151,19 @@ public class WndInfoCell extends Window {
 					desc += blob.tileDesc();
 				}
 			}
+		}
+
+		if(DeviceCompat.isDebug()) {
+			desc += "\n\n" + cell;
+			desc += "\nx: " + x + ", y: " + y;
+			desc += "\nterrain: " + Dungeon.level.map[cell];
+			desc += "\nsolid: " + Dungeon.level.solid[cell];
+			desc += "\npassable: " + Dungeon.level.passable[cell];
+			desc += "\nlosBlocking: " + Dungeon.level.losBlocking[cell];
+			desc += "\nvisited: " + Dungeon.level.visited[cell];
+			desc += "\nheroFOV: " + Dungeon.level.heroFOV[cell];
+			desc += "\ndiscoverable: " + Dungeon.level.discoverable[cell];
+			desc += "\nmapped: " + Dungeon.level.mapped[cell];
 		}
 		
 		info.text( desc.length() == 0 ? Messages.get(this, "nothing") : desc );

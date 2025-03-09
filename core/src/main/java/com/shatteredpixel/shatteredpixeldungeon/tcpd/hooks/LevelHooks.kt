@@ -62,7 +62,7 @@ fun Level.placeDuplicatorTraps(trap: Class<out Trap>) {
         Level.set(pos, Terrain.TRAP, this)
         t.reveal()
         GameScene.updateMap(pos)
-        if (Dungeon.hero != null && Dungeon.hero.fieldOfView[pos]) {
+        if (Dungeon.level.heroFOV[pos]) {
             GameScene.discoverTile(pos, old)
             ScrollOfMagicMapping.discover(pos)
         }

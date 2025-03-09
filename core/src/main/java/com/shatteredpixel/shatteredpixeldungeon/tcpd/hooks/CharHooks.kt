@@ -29,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CrystalShield
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageAmplificationBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChangeBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefenseProcBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.FullSceneUpdater
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
@@ -248,13 +249,15 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
             spendConstant(1f)
         }
     } else if (this is Mob && Modifier.MOLES.active()) {
+        var destruction = false
         if (Char.hasProp(this, Char.Property.LARGE) && !Dungeon.level.openSpace[step]) {
             var visibleDestruction = false
             for (o in PathFinder.NEIGHBOURS8) {
                 val n = step + o
                 if (Dungeon.level.solid[n]) {
                     destroyCell(n);
-                    if (Dungeon.hero?.fieldOfView != null && Dungeon.hero.fieldOfView[step]) {
+                    destruction = true
+                    if (Dungeon.level.heroFOV[step]) {
                         CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
                         visibleDestruction = true
                     }
@@ -264,18 +267,23 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
         }
         val terrain = Dungeon.level.map[step]
         if (Dungeon.level.solid[step] && terrain != Terrain.DOOR && terrain != Terrain.OPEN_DOOR) {
+            destruction = true
             destroyCell(step);
-            if (Dungeon.hero?.fieldOfView != null && Dungeon.hero.fieldOfView[step]) {
+            if (Dungeon.level.heroFOV[step]) {
                 Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
                 CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
             }
+        }
+
+        if(destruction) {
+            FullSceneUpdater.request()
         }
     }
 }
 
 fun destroyCell(cell: Int) {
+    if(!Dungeon.level.insideMap(cell)) return
     Level.set(cell, Terrain.EMBERS)
-    GameScene.updateMap(cell)
     for (o in PathFinder.NEIGHBOURS8) {
         val n = cell + o
         val terrain = Dungeon.level.map[n]

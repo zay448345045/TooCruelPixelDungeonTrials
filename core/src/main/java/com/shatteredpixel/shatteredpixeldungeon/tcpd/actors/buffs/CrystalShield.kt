@@ -24,7 +24,7 @@ class CrystalShield : Buff() {
             repeat(amount) {
                 append(target, Layer::class.java).fx(true)
             }
-            if (Dungeon.hero != null && Dungeon.hero.fieldOfView[target.pos]) {
+            if (Dungeon.level.heroFOV[target.pos]) {
                 target.sprite.showStatusWithIcon(
                     CharSprite.POSITIVE, text, FloatingText.SHIELDING
                 )
@@ -62,7 +62,7 @@ class CrystalShield : Buff() {
                     }
                     crystal?.breakShield()
                 } else {
-                    if (Dungeon.hero != null && Dungeon.hero.fieldOfView[target.pos]) {
+                    if (Dungeon.level.heroFOV[target.pos]) {
                         Sample.INSTANCE.play(Assets.Sounds.SHATTER, 0.25f, 1.5f)
                         target.sprite.showStatus(
                             CharSprite.NEGATIVE,
@@ -97,7 +97,7 @@ class CrystalShield : Buff() {
         timeToNow()
         postpone(repairTime())
 
-        if (Dungeon.hero != null && Dungeon.hero.fieldOfView[target.pos]) {
+        if (Dungeon.level.heroFOV[target.pos]) {
             Splash.at(target.sprite.center(), 0x22ffe1, 10)
             Sample.INSTANCE.play(Assets.Sounds.SHATTER)
             target.sprite.showStatus(

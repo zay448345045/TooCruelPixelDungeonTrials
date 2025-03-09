@@ -166,7 +166,9 @@ public abstract class Level implements Bundlable {
 	public boolean[] pit;
 
 	public boolean[] openSpace;
-	
+
+	public boolean[] insideLevel;
+
 	public Feeling feeling = Feeling.NONE;
 	
 	public int entrance;
@@ -340,6 +342,8 @@ public abstract class Level implements Bundlable {
 		pit			= new boolean[length];
 
 		openSpace   = new boolean[length];
+
+		insideLevel = new boolean[length];
 		
 		PathFinder.setMapSize(w, h);
 	}
@@ -834,6 +838,8 @@ public abstract class Level implements Bundlable {
 			avoid[i]		= (flags & Terrain.AVOID) != 0;
 			water[i]		= (flags & Terrain.LIQUID) != 0;
 			pit[i]			= (flags & Terrain.PIT) != 0;
+
+			insideLevel[i]  = true;
 		}
 
 		for (Blob b : blobs.values()){
@@ -846,12 +852,16 @@ public abstract class Level implements Bundlable {
 			losBlocking[i] = solid[i] = true;
 			passable[lastRow + i] = avoid[lastRow + i] = false;
 			losBlocking[lastRow + i] = solid[lastRow + i] = true;
+
+			insideLevel[i] = insideLevel[lastRow + i] = false;
 		}
 		for (int i=width(); i < lastRow; i += width()) {
 			passable[i] = avoid[i] = false;
 			losBlocking[i] = solid[i] = true;
 			passable[i + width()-1] = avoid[i + width()-1] = false;
 			losBlocking[i + width()-1] = solid[i + width()-1] = true;
+
+			insideLevel[i] = insideLevel[i + width()-1] = false;
 		}
 
 		//an open space is large enough to fit large mobs. A space is open when it is not solid

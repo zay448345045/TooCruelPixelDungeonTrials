@@ -485,7 +485,7 @@ public abstract class Mob extends Char {
 	}
 
 	private boolean cellIsPathable( int cell ){
-		if(Modifier.MOLES.active()) {
+		if(Modifier.MOLES.active() && Dungeon.level.insideMap(cell)) {
 			if(!Dungeon.level.passable[cell] && !Dungeon.level.solid[cell]) {
 				if (flying || buff(Amok.class) != null) {
 					if (!Dungeon.level.avoid[cell]) {
@@ -525,7 +525,9 @@ public abstract class Mob extends Char {
 
 	private boolean[] passableCells() {
 		if(Modifier.MOLES.active()) {
-			return BArray.or(Dungeon.level.solid, Dungeon.level.passable, null);
+			boolean[] cells = BArray.or(Dungeon.level.solid, Dungeon.level.passable, null);
+			BArray.and(cells, Dungeon.level.insideLevel, cells);
+			return cells;
 		} else {
 			return Dungeon.level.passable;
 		}
