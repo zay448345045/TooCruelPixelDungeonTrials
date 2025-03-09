@@ -1,7 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
 import com.shatteredpixel.shatteredpixeldungeon.SPDSettings
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.getBundlable
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 
@@ -25,7 +24,7 @@ class TCPDData : Bundlable {
     var modifiers: Modifiers = SPDSettings.challenges()
 
     override fun restoreFromBundle(bundle: Bundle) {
-        modifiers = bundle.getBundlable(MODIFIERS)
+        modifiers = bundle.get(MODIFIERS) as Modifiers
     }
 
     override fun storeInBundle(bundle: Bundle) {
@@ -45,7 +44,7 @@ class TCPDGameInfoData : Bundlable {
     }
 
     override fun restoreFromBundle(bundle: Bundle) {
-        modifiers = bundle.getBundlable(MODIFIERS)
+        modifiers = bundle.get(MODIFIERS) as Modifiers
     }
 
     override fun storeInBundle(bundle: Bundle) {

@@ -409,6 +409,19 @@ public class MeleeWeapon extends Weapon {
 		return price;
 	}
 
+	private static final String TIER   = "tier";
+	@Override
+	public void restoreFromBundle(Bundle bundle) {
+		super.restoreFromBundle(bundle);
+		if(bundle.contains(TIER)) tier = bundle.getInt(TIER);
+	}
+
+	@Override
+	public void storeInBundle(Bundle bundle) {
+		super.storeInBundle(bundle);
+		bundle.put(TIER, tier);
+	}
+
 	public static class Charger extends Buff implements ActionIndicator.Action {
 
 		public int charges = 2;

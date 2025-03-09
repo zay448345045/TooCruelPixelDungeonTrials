@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
 
 fun Hero.heroLiveHook() {
@@ -24,6 +25,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.CERTAINTY_OF_STEEL.active()) {
         Buff.affect(this, SteelBody::class.java)
+    }
+    if (Modifier.RETIERED.active()) {
+        Buff.affect(this, RetieredBuff::class.java)
     }
 }
 
