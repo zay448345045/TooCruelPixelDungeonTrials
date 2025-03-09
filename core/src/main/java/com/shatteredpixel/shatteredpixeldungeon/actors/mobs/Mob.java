@@ -88,9 +88,11 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.CharHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
+import com.watabou.utils.BArray;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.PathFinder;
 import com.watabou.utils.Random;
@@ -395,7 +397,7 @@ public abstract class Mob extends Char {
 				return null;
 			} else {
 				//go after the closest potential enemy, preferring enemies that can be reached/attacked, and the hero if two are equidistant
-				PathFinder.buildDistanceMap(pos, Dungeon.findPassable(this, Dungeon.level.passable, fieldOfView, true));
+				PathFinder.buildDistanceMap(pos, Dungeon.findPassable(this, passableCells(), fieldOfView, true));
 				Char closest = null;
 				int closestDist = Integer.MAX_VALUE;
 
@@ -483,23 +485,50 @@ public abstract class Mob extends Char {
 	}
 
 	private boolean cellIsPathable( int cell ){
-		if (!Dungeon.level.passable[cell]){
-			if (flying || buff(Amok.class) != null){
-				if (!Dungeon.level.avoid[cell]){
+		if(Modifier.MOLES.active()) {
+			if(!Dungeon.level.passable[cell] && !Dungeon.level.solid[cell]) {
+				if (flying || buff(Amok.class) != null) {
+					if (!Dungeon.level.avoid[cell]) {
+						return false;
+					}
+				} else {
+					return false;
+				}
+			}
+
+			if (Actor.findChar(cell) != null){
+				return false;
+			}
+
+			return true;
+		}
+
+		if (!Dungeon.level.passable[cell]) {
+			if (flying || buff(Amok.class) != null) {
+				if (!Dungeon.level.avoid[cell]) {
 					return false;
 				}
 			} else {
 				return false;
 			}
 		}
-		if (Char.hasProp(this, Char.Property.LARGE) && !Dungeon.level.openSpace[cell]){
+		if (Char.hasProp(this, Char.Property.LARGE) && !Dungeon.level.openSpace[cell]) {
 			return false;
 		}
+
 		if (Actor.findChar(cell) != null){
 			return false;
 		}
 
 		return true;
+	}
+
+	private boolean[] passableCells() {
+		if(Modifier.MOLES.active()) {
+			return BArray.or(Dungeon.level.solid, Dungeon.level.passable, null);
+		} else {
+			return Dungeon.level.passable;
+		}
 	}
 
 	protected boolean getCloser( int target ) {
@@ -593,13 +622,13 @@ public abstract class Mob extends Char {
 			//generate a new path
 			if (newPath) {
 				//If we aren't hunting, always take a full path
-				PathFinder.Path full = Dungeon.findPath(this, target, Dungeon.level.passable, fieldOfView, true);
+				PathFinder.Path full = Dungeon.findPath(this, target, passableCells(), fieldOfView, true);
 				if (state != HUNTING){
 					path = full;
 				} else {
 					//otherwise, check if other characters are forcing us to take a very slow route
 					// and don't try to go around them yet in response, basically assume their blockage is temporary
-					PathFinder.Path ignoreChars = Dungeon.findPath(this, target, Dungeon.level.passable, fieldOfView, false);
+					PathFinder.Path ignoreChars = Dungeon.findPath(this, target, passableCells(), fieldOfView, false);
 					if (ignoreChars != null && (full == null || full.size() > 2*ignoreChars.size())){
 						//check if first cell of shorter path is valid. If it is, use new shorter path. Otherwise do nothing and wait.
 						path = ignoreChars;
@@ -631,7 +660,7 @@ public abstract class Mob extends Char {
 			return false;
 		}
 		
-		int step = Dungeon.flee( this, target, Dungeon.level.passable, fieldOfView, true );
+		int step = Dungeon.flee( this, target, passableCells(), fieldOfView, true );
 		if (step != -1) {
 			move( step );
 			return true;

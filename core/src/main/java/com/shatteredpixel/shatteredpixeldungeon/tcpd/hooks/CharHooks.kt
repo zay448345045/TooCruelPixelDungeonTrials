@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.watabou.noosa.audio.Sample
+import com.watabou.utils.PathFinder
 import kotlin.math.max
 
 
@@ -238,12 +239,48 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
     if (this is Hero && Modifier.BARRIER_BREAKER.active()) {
         val terrain = Dungeon.level.map[step]
         if (terrain == Terrain.OPEN_DOOR || terrain == Terrain.DOOR) {
-            Level.set(step, Terrain.EMBERS)
+            destroyCell(step)
+
             Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
             Sample.INSTANCE.play(Assets.Sounds.BURNING, 0.25f, 1.5f)
-            CellEmitter.center(step).burst(SmokeParticle.FACTORY, 5)
-            GameScene.updateMap(step)
+            CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
+
             spendConstant(1f)
+        }
+    } else if (this is Mob && Modifier.MOLES.active()) {
+        if (Char.hasProp(this, Char.Property.LARGE) && !Dungeon.level.openSpace[step]) {
+            var visibleDestruction = false
+            for (o in PathFinder.NEIGHBOURS8) {
+                val n = step + o
+                if (Dungeon.level.solid[n]) {
+                    destroyCell(n);
+                    if (Dungeon.hero?.fieldOfView != null && Dungeon.hero.fieldOfView[step]) {
+                        CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
+                        visibleDestruction = true
+                    }
+                }
+            }
+            if (visibleDestruction) Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
+        }
+        val terrain = Dungeon.level.map[step]
+        if (Dungeon.level.solid[step] && terrain != Terrain.DOOR && terrain != Terrain.OPEN_DOOR) {
+            destroyCell(step);
+            if (Dungeon.hero?.fieldOfView != null && Dungeon.hero.fieldOfView[step]) {
+                Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
+                CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
+            }
+        }
+    }
+}
+
+fun destroyCell(cell: Int) {
+    Level.set(cell, Terrain.EMBERS)
+    GameScene.updateMap(cell)
+    for (o in PathFinder.NEIGHBOURS8) {
+        val n = cell + o
+        val terrain = Dungeon.level.map[n]
+        if (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR) {
+            destroyCell(n)
         }
     }
 }

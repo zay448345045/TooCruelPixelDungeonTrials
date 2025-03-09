@@ -84,6 +84,7 @@ enum class Modifier(
     UNSTABLE_ACCESSORIES(43),
     PANDEMONIUM(44),
     BARRIER_BREAKER(45),
+    MOLES(46),
     ;
 
     companion object {
