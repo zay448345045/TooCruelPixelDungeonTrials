@@ -130,7 +130,7 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
         } else if (amount == PATRON_SEED_BLESS) {
             val newCenter = curCenter.withStacks(max(1, curCenter.stacks()))
             newCenter.seedDifference(curCenter)?.let { super.seed(level, cell, it) }
-        } else if(DeviceCompat.isDebug()) {
+        } else if (DeviceCompat.isDebug()) {
             throw IllegalArgumentException("Invalid saint blob seed amount: $amount")
         }
     }

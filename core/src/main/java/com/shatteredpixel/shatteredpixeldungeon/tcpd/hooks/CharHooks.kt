@@ -94,7 +94,7 @@ fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
             val fury = Modifier.REVENGE_FURY.active();
             val rage = Modifier.REVENGE.active();
             if ((HP < 0 && rage) || fury) {
-                for(mob in Dungeon.level.mobs) {
+                for (mob in Dungeon.level.mobs) {
                     if (mob is NPC) continue
                     if (mob === this) continue
                     if (mob.alignment == Char.Alignment.ALLY) continue
@@ -104,7 +104,7 @@ fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
                 }
             }
         }
-    } else if(this is Hero && Modifier.PLAGUE.active() && dmg > 0) {
+    } else if (this is Hero && Modifier.PLAGUE.active() && dmg > 0) {
         Buff.affect(this, Intoxication::class.java).processHit(dmg + shielded, src)
     }
 }
@@ -115,7 +115,7 @@ fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
 fun Char.attackFlatDamageBonusHook(enemy: Char): Float {
     var bonus = 0f
     for (buff in buffs()) {
-        if(buff is AttackAmplificationBuff) {
+        if (buff is AttackAmplificationBuff) {
             bonus += buff.flatAttackBonus()
         }
     }
@@ -128,7 +128,7 @@ fun Char.attackFlatDamageBonusHook(enemy: Char): Float {
 fun Char.attackDamageMultiplierHook(enemy: Char): Float {
     var mult = 1f
     for (buff in buffs()) {
-        if(buff is AttackAmplificationBuff) {
+        if (buff is AttackAmplificationBuff) {
             mult *= buff.attackMultiplier()
         }
     }
@@ -141,7 +141,7 @@ fun Char.attackDamageMultiplierHook(enemy: Char): Float {
 fun Char.attackDamageBeforeApply(enemy: Char, damage: Float): Float {
     var bonus = 0f
     for (buff in buffs()) {
-        if(buff is AttackAmplificationBuff) {
+        if (buff is AttackAmplificationBuff) {
             bonus += buff.flatAttackBonusPostMult()
         }
     }
@@ -156,10 +156,16 @@ fun Char.deathHook(src: Any?) {
         if (Modifier.ARROWHEAD.active()) {
             Buff.affect(Dungeon.hero, Arrowhead::class.java).addStack()
         }
-        if(Modifier.PATRON_SAINTS.active()) {
+        if (Modifier.PATRON_SAINTS.active()) {
             GameScene.add(Blob.seed(pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java))
-            if(Modifier.PERSISTENT_SAINTS.active()) {
-                GameScene.add(Blob.seed(Dungeon.hero.pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java))
+            if (Modifier.PERSISTENT_SAINTS.active()) {
+                GameScene.add(
+                    Blob.seed(
+                        Dungeon.hero.pos,
+                        PATRON_SEED_SOUL,
+                        PatronSaintsBlob::class.java
+                    )
+                )
             }
         }
     }

@@ -50,7 +50,7 @@ class PaginatedList(val count: Int, val itemHeight: Int) {
                             currentPage--
                         }
                     }
-                    ui.margins(Margins.symmetric(0,2)) {
+                    ui.margins(Margins.symmetric(0, 2)) {
                         ui.label("${currentPage + 1} / $pagesCount", 9).widget.hardlight(0xFFFF44)
                     }
                     ui.withEnabled(currentPage < pagesCount - 1) {
@@ -74,7 +74,7 @@ class PaginatedList(val count: Int, val itemHeight: Int) {
                 assertEq(res.response.rect.height(), itemHeight)
             }
 
-            if(currentPage == pagesCount - 1) {
+            if (currentPage == pagesCount - 1) {
                 for (i in lastItem until pagesCount * itemsPerPage) {
                     ui.spacer(Vec2(0, itemHeight))
                 }

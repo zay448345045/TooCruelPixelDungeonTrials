@@ -78,7 +78,7 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         return InnerResponse(inner, response)
     }
 
-    inline fun <T> withEnabled(enabled: Boolean, crossinline block: ()->T):InnerResponse<T> {
+    inline fun <T> withEnabled(enabled: Boolean, crossinline block: () -> T): InnerResponse<T> {
         return withLayout(enabled = enabled, block = block)
     }
 

@@ -10,25 +10,25 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
 
 fun Hero.heroLiveHook() {
-    if(Modifier.RACING_THE_DEATH.active()) {
+    if (Modifier.RACING_THE_DEATH.active()) {
         Buff.affect(this, RacingTheDeath::class.java)
     }
-    if(Modifier.THUNDERSTRUCK.active()) {
+    if (Modifier.THUNDERSTRUCK.active()) {
         Buff.affect(this, Arrowhead::class.java).set(9001)
     }
-    if(Modifier.BLINDNESS.active()) {
+    if (Modifier.BLINDNESS.active()) {
         Buff.affect(this, PermaBlind::class.java)
     }
-    if(Modifier.TOXIC_WATER.active()) {
+    if (Modifier.TOXIC_WATER.active()) {
         Buff.affect(this, Intoxication.ToxicWaterTracker::class.java)
     }
-    if(Modifier.CERTAINTY_OF_STEEL.active()) {
+    if (Modifier.CERTAINTY_OF_STEEL.active()) {
         Buff.affect(this, SteelBody::class.java)
     }
 }
 
 fun Hero.heroSpendConstantHook(time: Float) {
-    if(time > 0) {
+    if (time > 0) {
         buff(RacingTheDeath::class.java)?.tick()
     }
 }

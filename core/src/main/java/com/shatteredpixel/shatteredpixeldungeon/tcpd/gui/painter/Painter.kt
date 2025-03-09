@@ -4,7 +4,6 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
@@ -85,7 +84,13 @@ class Painter internal constructor(
         return add(id, VisualElement.NativeImage(pos, texture)) as Image
     }
 
-    fun drawText(id: UiId, rect: Rect, text: String, size: Int, multiline: Boolean): RenderedTextBlock {
+    fun drawText(
+        id: UiId,
+        rect: Rect,
+        text: String,
+        size: Int,
+        multiline: Boolean
+    ): RenderedTextBlock {
         return add(id, VisualElement.Text(rect, text, size, multiline)) as RenderedTextBlock
     }
 

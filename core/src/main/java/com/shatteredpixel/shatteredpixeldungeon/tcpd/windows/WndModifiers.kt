@@ -34,7 +34,7 @@ open class WndModifiers(private val modifiers: Modifiers, private val editable: 
             top().addSpace(2)
             val modifiersList by useMemo(Unit) {
                 val allEnabled = Modifier.entries.filter { modifiers.isEnabled(it) }
-                if(!editable) return@useMemo allEnabled
+                if (!editable) return@useMemo allEnabled
 
                 val allDisabled = Modifier.entries.filter { !modifiers.isEnabled(it) }
                 allEnabled + allDisabled

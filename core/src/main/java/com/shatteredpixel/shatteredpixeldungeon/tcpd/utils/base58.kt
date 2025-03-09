@@ -46,7 +46,8 @@ fun ByteArray.encodeToBase58String(): String {
     var outputStart = encoded.size
     var inputStart = zeros
     while (inputStart < input.size) {
-        encoded[--outputStart] = alphabet[divmod(input, inputStart.toUInt(), 256.toUInt(), 58.toUInt()).toInt()]
+        encoded[--outputStart] =
+            alphabet[divmod(input, inputStart.toUInt(), 256.toUInt(), 58.toUInt()).toInt()]
         if (input[inputStart].toInt() == 0) {
             ++inputStart // optimization - skip leading zeros
         }
@@ -93,7 +94,8 @@ fun String.decodeBase58(): ByteArray {
     var outputStart = decoded.size
     var inputStart = zeros
     while (inputStart < input58.size) {
-        decoded[--outputStart] = divmod(input58, inputStart.toUInt(), 58.toUInt(), 256.toUInt()).toByte()
+        decoded[--outputStart] =
+            divmod(input58, inputStart.toUInt(), 58.toUInt(), 256.toUInt()).toByte()
         if (input58[inputStart].toInt() == 0) {
             ++inputStart // optimization - skip leading zeros
         }

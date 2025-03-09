@@ -14,7 +14,11 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.encodeToBase58String
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 
-enum class Modifier(val id: Int, locString: String? = null, val dependencies: Array<Int> = emptyArray()) {
+enum class Modifier(
+    val id: Int,
+    locString: String? = null,
+    val dependencies: Array<Int> = emptyArray()
+) {
     // Vanilla challenges
     CHAMPION_ENEMIES(7, locString = "champion_enemies"),
     COLOSSEUM(32, dependencies = arrayOf(CHAMPION_ENEMIES.id)),
@@ -78,10 +82,10 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
     ;
 
     companion object {
-        val ALL :Array<Modifier> = Modifier.entries.sortedBy { it.id }.toTypedArray()
+        val ALL: Array<Modifier> = Modifier.entries.sortedBy { it.id }.toTypedArray()
 
         init {
-            if(ALL.last().id != ALL.size - 1) {
+            if (ALL.last().id != ALL.size - 1) {
                 throw IllegalStateException("Modifier IDs contain gaps!")
             }
         }

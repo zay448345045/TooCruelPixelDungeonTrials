@@ -41,7 +41,7 @@ fun Ui.activeLabel(
     multiline: Boolean = false
 ): WidgetResponse<RenderedTextBlock> {
     val res = UiText(text, size, multiline).show(this)
-    if(!top().isEnabled()) {
+    if (!top().isEnabled()) {
         res.widget.alpha(0.3f)
     }
     return res

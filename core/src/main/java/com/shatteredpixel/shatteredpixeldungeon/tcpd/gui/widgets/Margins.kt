@@ -13,6 +13,6 @@ class Margins(val margins: Margins) {
     }
 }
 
-inline fun <T> Ui.margins(margins: Margins, crossinline block: ()->T): InnerResponse<T> {
+inline fun <T> Ui.margins(margins: Margins, crossinline block: () -> T): InnerResponse<T> {
     return Margins(margins).show(this, block)
 }

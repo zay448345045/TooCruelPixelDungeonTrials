@@ -1,8 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
-import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 
 
 interface DamageAmplificationBuff {
@@ -48,9 +46,11 @@ interface AttackAmplificationBuff {
     fun flatAttackBonus(): Float {
         return 0f
     }
+
     fun attackMultiplier(): Float {
         return 1f
     }
+
     fun flatAttackBonusPostMult(): Float {
         return 0f
     }

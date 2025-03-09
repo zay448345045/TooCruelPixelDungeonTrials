@@ -10,7 +10,7 @@ class PaintCache {
     internal fun restart() {
         val seen = mutableSetOf<Gizmo>()
         cache.values().forEach {
-            if(!seen.add(it.second)) {
+            if (!seen.add(it.second)) {
                 throw IllegalStateException("Gizmo $it is duplicated in the cache")
             }
         }
@@ -29,7 +29,7 @@ class PaintCache {
     internal fun get(id: UiId, element: VisualElement): Gizmo {
         val cached = cache.get(id)
         val gizmo = element.asGizmo(cached)
-        if(gizmo != cached?.second) {
+        if (gizmo != cached?.second) {
             cached?.second?.destroy()
         }
         cache.set(id, Pair(element, gizmo))

@@ -147,8 +147,8 @@ private fun Level.applySecondTry() {
 }
 
 private fun Level.applyHolyWater() {
-    for(i in 0 until length()) {
-        if(map[i] == Terrain.WATER) {
+    for (i in 0 until length()) {
+        if (map[i] == Terrain.WATER) {
             Blob.seed(i, PATRON_SEED_BLESS, PatronSaintsBlob::class.java, this)
         }
     }

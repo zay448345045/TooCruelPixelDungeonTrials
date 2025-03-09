@@ -146,7 +146,8 @@ abstract class Layout(protected var availableSpace: Rect) {
 
         override fun allocate(desired: Vec2, style: Style): Rect {
             val width = nextWidth(style.itemSpacing)
-            val rect = Rect.fromSize(cursor, Vec2(width, desired.y)).allocateIntersect(availableSpace)
+            val rect =
+                Rect.fromSize(cursor, Vec2(width, desired.y)).allocateIntersect(availableSpace)
             nextRow = max(nextRow, rect.bottom())
 
             column += 1

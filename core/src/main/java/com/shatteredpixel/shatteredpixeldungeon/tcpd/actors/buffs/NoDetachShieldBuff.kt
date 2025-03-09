@@ -2,7 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.ShieldBuff
 
-open class NoDetachShieldBuff: ShieldBuff() {
+open class NoDetachShieldBuff : ShieldBuff() {
     //logic edited slightly as buff should not detach
     @Suppress("NAME_SHADOWING")
     override fun absorbDamage(dmg: Int): Int {

@@ -67,7 +67,11 @@ fun Ui.iconButton(image: TextureDescriptor): InteractiveResponse<Unit> {
     }
 }
 
-fun Ui.redButton(text: String, size: Int = 9, margins: Margins = RED_BUTTON_MARGINS): InteractiveResponse<Unit> {
+fun Ui.redButton(
+    text: String,
+    size: Int = 9,
+    margins: Margins = RED_BUTTON_MARGINS
+): InteractiveResponse<Unit> {
     return redButton(margins) {
         activeLabel(text, size)
     }
