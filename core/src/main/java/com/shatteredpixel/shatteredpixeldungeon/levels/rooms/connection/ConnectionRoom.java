@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.levels.rooms.connection;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
@@ -77,8 +78,18 @@ public abstract class ConnectionRoom extends Room {
 		chances[22] = new float[]{15, 4,    0, 2,       3, 2};
 		chances[26] = chances[25] = chances[24] = chances[23] = chances[22];
 	}
+
+	private static float[] paradoxChances = new float[rooms.size()];
+	static {
+		for (int i = 0; i < rooms.size(); i++){
+			paradoxChances[i] = 1;
+		}
+	}
 	
 	public static ConnectionRoom createRoom(){
+		if(Modifier.PARADOX_LEVELGEN.active()) {
+			return Reflection.newInstance(rooms.get(Random.chances(paradoxChances)));
+		}
 		return Reflection.newInstance(rooms.get(Random.chances(chances[Dungeon.depth])));
 	}
 }

@@ -153,6 +153,7 @@ public enum HeroClass {
 
 		if(DeviceCompat.isDebug()) {
 			new PotionOfHealing().collect();
+			new ScrollOfMagicMapping().collect();
 		}
 
 	}

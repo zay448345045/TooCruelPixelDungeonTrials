@@ -25,6 +25,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.watabou.utils.Point;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
@@ -180,9 +181,20 @@ public abstract class StandardRoom extends Room {
 		chances[21] = new float[]{5,  0,0,0,0, 0,0,0,0, 0,0,0,0, 0,0,0,0, 15,10,5,5,   1,1,1,1,1,1,1,1,1,1};
 		chances[26] = chances[25] = chances[24] = chances[23] = chances[22] = chances[21];
 	}
+
+	private static float[] paradoxChances = new float[rooms.size()];
+	static {
+		// Skip empty room
+		for (int i = 1; i < rooms.size(); i++){
+			paradoxChances[i] = 1;
+		}
+	}
 	
 	
 	public static StandardRoom createRoom(){
+		if(Modifier.PARADOX_LEVELGEN.active()) {
+			return Reflection.newInstance(rooms.get(Random.chances(paradoxChances)));
+		}
 		return Reflection.newInstance(rooms.get(Random.chances(chances[Dungeon.depth])));
 	}
 	

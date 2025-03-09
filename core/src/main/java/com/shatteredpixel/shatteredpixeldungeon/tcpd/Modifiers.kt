@@ -74,6 +74,7 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
             return item is ChaliceOfBlood
         }
     },
+    PARADOX_LEVELGEN(40),
     ;
 
     companion object {
