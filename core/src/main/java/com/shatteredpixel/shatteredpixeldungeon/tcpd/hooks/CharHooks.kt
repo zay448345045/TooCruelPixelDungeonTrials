@@ -105,7 +105,7 @@ fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
             }
         }
     } else if(this is Hero && Modifier.PLAGUE.active() && dmg > 0) {
-        Buff.affect(this, Intoxication::class.java).processHit(dmg, src)
+        Buff.affect(this, Intoxication::class.java).processHit(dmg + shielded, src)
     }
 }
 
