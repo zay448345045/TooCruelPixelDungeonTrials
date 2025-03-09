@@ -62,6 +62,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.HeroHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
@@ -203,6 +204,7 @@ public abstract class Wand extends Item {
 
 	protected void wandProc(Char target, int chargesUsed){
 		wandProc(target, buffedLvl(), chargesUsed);
+		HeroHooksKt.wandProcHook(curUser, target, this, chargesUsed);
 	}
 
 	//TODO Consider externalizing char awareness buff
@@ -533,6 +535,8 @@ public abstract class Wand extends Item {
 			}
 			if (removed) new Flare( 6, 32 ).color(0xFF4CD2, true).show( Dungeon.hero.sprite, 2f );
 		}
+
+		HeroHooksKt.wandUsedHook(curUser, this);
 
 		Invisibility.dispel();
 		updateQuickslot();

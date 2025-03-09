@@ -18,10 +18,12 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead.MobArrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AtkSkillChangeBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AttackAmplificationBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AttackProcBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BloodbagBleeding
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CrystalShield
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageAmplificationBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChangeBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefenseProcBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
@@ -138,7 +140,7 @@ fun Char.attackDamageMultiplierHook(enemy: Char): Float {
 /**
  * Hook which is called when char attacks, but before the the damage is passed to enemy's defense proc
  */
-fun Char.attackDamageBeforeApply(enemy: Char, damage: Float): Float {
+fun Char.attackDamageBeforeApplyHook(enemy: Char, damage: Float): Float {
     var bonus = 0f
     for (buff in buffs()) {
         if (buff is AttackAmplificationBuff) {
@@ -146,6 +148,23 @@ fun Char.attackDamageBeforeApply(enemy: Char, damage: Float): Float {
         }
     }
     return damage + bonus
+}
+
+fun Char.attackProcHook(enemy: Char, damage: Int) {
+    for(buff in buffs()) {
+        if(buff is AttackProcBuff) {
+            buff.attackProc(enemy, damage)
+        }
+    }
+}
+
+
+fun Char.defenseProcHook(enemy: Char, damage: Int) {
+    for(buff in buffs()) {
+        if(buff is DefenseProcBuff) {
+            buff.defenseProc(enemy, damage)
+        }
+    }
 }
 
 /**

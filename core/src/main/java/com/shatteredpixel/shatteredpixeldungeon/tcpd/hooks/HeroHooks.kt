@@ -1,10 +1,14 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ControlledRandomness
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
@@ -29,11 +33,27 @@ fun Hero.heroLiveHook() {
     if (Modifier.RETIERED.active()) {
         Buff.affect(this, RetieredBuff::class.java)
     }
+    if(Modifier.UNSTABLE_ACCESSORIES.active()) {
+        Buff.affect(this, ControlledRandomness::class.java)
+    }
+    if(Modifier.PANDEMONIUM.active()) {
+        Buff.affect(this, Pandemonium::class.java)
+    }
 }
 
 fun Hero.heroSpendConstantHook(time: Float) {
     if (time > 0) {
         buff(RacingTheDeath::class.java)?.tick()
+    }
+}
+
+fun Hero.wandProcHook(target:Char, wand: Wand, chargesUsed: Int) {
+
+}
+
+fun Hero.wandUsedHook(wand: Wand) {
+    if(Modifier.PANDEMONIUM.active()) {
+        buff(Pandemonium::class.java)?.wandUsed(wand)
     }
 }
 

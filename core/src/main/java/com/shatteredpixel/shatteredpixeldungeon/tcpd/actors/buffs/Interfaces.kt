@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand
 
 
 interface DamageAmplificationBuff {
@@ -54,4 +55,12 @@ interface AttackAmplificationBuff {
     fun flatAttackBonusPostMult(): Float {
         return 0f
     }
+}
+
+interface DefenseProcBuff {
+    fun defenseProc(enemy: Char, damage: Int)
+}
+
+interface AttackProcBuff {
+    fun attackProc(enemy: Char, damage: Int)
 }

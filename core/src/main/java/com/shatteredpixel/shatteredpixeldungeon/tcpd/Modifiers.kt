@@ -81,6 +81,8 @@ enum class Modifier(
     PARADOX_LEVELGEN(40),
     RETIERED(41),
     UNTIERED(42, dependencies = arrayOf(RETIERED.id)),
+    UNSTABLE_ACCESSORIES(43),
+    PANDEMONIUM(44),
     ;
 
     companion object {

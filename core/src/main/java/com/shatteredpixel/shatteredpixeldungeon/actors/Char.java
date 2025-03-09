@@ -145,7 +145,6 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MobSprite;
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CrystalShield;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.CharHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TargetHealthIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -488,7 +487,7 @@ public abstract class Char extends Actor {
 			}
 
 			dmg *= CharHooksKt.attackDamageMultiplierHook(this, enemy);
-			dmg = CharHooksKt.attackDamageBeforeApply(this, enemy, dmg);
+			dmg = CharHooksKt.attackDamageBeforeApplyHook(this, enemy, dmg);
 			
 			int effectiveDamage = enemy.defenseProc( this, Math.round(dmg) );
 			//do not trigger on-hit logic if defenseProc returned a negative value
@@ -705,6 +704,8 @@ public abstract class Char extends Actor {
 		for (ChampionEnemy buff : buffs(ChampionEnemy.class)){
 			buff.onAttackProc( enemy );
 		}
+
+		CharHooksKt.attackProcHook(this, enemy, damage);
 		return damage;
 	}
 	
@@ -738,6 +739,8 @@ public abstract class Char extends Actor {
 				damage = Dungeon.hero.belongings.armor().proc( enemy, this, damage );
 			}
 		}
+
+		CharHooksKt.defenseProcHook(this, enemy, damage);
 
 		return damage;
 	}
