@@ -1,6 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
-import com.shatteredpixel.shatteredpixeldungeon.Challenges
+import com.shatteredpixel.shatteredpixeldungeon.Assets
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
@@ -24,7 +24,9 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.Image
+import com.watabou.noosa.audio.Sample
 import com.watabou.utils.Bundle
 import com.watabou.utils.Random
 import kotlin.math.max
@@ -115,7 +117,9 @@ class Intoxication : Buff() {
     }
 
     fun extend(duration: Float) {
+        val previous = this.level
         this.level += duration
+        notifyLevelChange(previous)
     }
 
     fun processHit(damage: Int, source: Any?) {
@@ -152,10 +156,26 @@ class Intoxication : Buff() {
         level = bundle.getInt(LEVEL).toFloat()
     }
 
-    class ToxicWaterTracker: Buff() {
+    private fun notifyLevelChange(previous: Float) {
+        if (previous < DANGER_1 && level >= DANGER_1) {
+            GLog.w(Messages.get(this, "notify_light"))
+        } else if (previous < DANGER_2 && level >= DANGER_2) {
+            GLog.n(Messages.get(this, "notify_medium"))
+        } else if (previous < DANGER_3 && level >= DANGER_3) {
+            GLog.n(Messages.get(this, "notify_heavy"))
+            Sample.INSTANCE.play(Assets.Sounds.HEALTH_WARN, 1f, 1.5f)
+        } else if (previous < DANGER_4 && level >= DANGER_4) {
+            GLog.n(Messages.get(this, "notify_deadly"))
+            Sample.INSTANCE.play(Assets.Sounds.HEALTH_CRITICAL, 1f, 1.5f)
+        }
+    }
+
+    class ToxicWaterTracker : Buff() {
         override fun act(): Boolean {
-            if(Dungeon.level.map[target.pos] == Terrain.WATER) {
-                affect(target, Intoxication::class.java).extend(Random.NormalIntRange(5,10).toFloat())
+            if (Dungeon.level.map[target.pos] == Terrain.WATER) {
+                affect(target, Intoxication::class.java).extend(
+                    Random.NormalIntRange(5, 10).toFloat()
+                )
             }
             spend(TICK)
             return true
