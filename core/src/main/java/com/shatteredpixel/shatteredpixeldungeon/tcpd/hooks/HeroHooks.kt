@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
 
 fun Hero.heroLiveHook() {
     if(Modifier.RACING_THE_DEATH.active()) {
@@ -21,9 +22,21 @@ fun Hero.heroLiveHook() {
     if(Modifier.TOXIC_WATER.active()) {
         Buff.affect(this, Intoxication.ToxicWaterTracker::class.java)
     }
+    if(Modifier.CERTAINTY_OF_STEEL.active()) {
+        Buff.affect(this, SteelBody::class.java)
+    }
 }
+
 fun Hero.heroSpendConstantHook(time: Float) {
     if(time > 0) {
         buff(RacingTheDeath::class.java)?.tick()
     }
+}
+
+fun hungerDisabled(): Boolean {
+    return Modifier.CERTAINTY_OF_STEEL.active()
+}
+
+fun regenerationDisabled(): Boolean {
+    return Modifier.CERTAINTY_OF_STEEL.active()
 }

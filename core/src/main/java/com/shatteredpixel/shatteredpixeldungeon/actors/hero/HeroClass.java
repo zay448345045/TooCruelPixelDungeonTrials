@@ -151,6 +151,10 @@ public enum HeroClass {
 			}
 		}
 
+		if(DeviceCompat.isDebug()) {
+			new PotionOfHealing().collect();
+		}
+
 	}
 
 	public Badges.Badge masteryBadge() {

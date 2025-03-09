@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Challenges
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
@@ -68,6 +69,11 @@ enum class Modifier(val id: Int, locString: String? = null, val dependencies: Ar
     INTOXICATION(36),
     PLAGUE(37),
     TOXIC_WATER(38),
+    CERTAINTY_OF_STEEL(39) {
+        override fun _isItemBlocked(item: Item): Boolean {
+            return item is ChaliceOfBlood
+        }
+    },
     ;
 
     companion object {

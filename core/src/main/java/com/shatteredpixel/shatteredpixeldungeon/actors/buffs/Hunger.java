@@ -30,6 +30,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Document;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.HeroHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.utils.Bundle;
@@ -61,6 +62,10 @@ public class Hunger extends Buff implements Hero.Doom {
 
 	@Override
 	public boolean act() {
+		if(HeroHooksKt.hungerDisabled()) {
+			diactivate();
+			return true;
+		}
 
 		if (Dungeon.level.locked
 				|| target.buff(WellFed.class) != null

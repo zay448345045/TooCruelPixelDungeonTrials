@@ -28,6 +28,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood;
 import com.shatteredpixel.shatteredpixeldungeon.items.rings.RingOfEnergy;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ChaoticCenser;
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.HeroHooksKt;
 import com.watabou.utils.Bundle;
 
 public class Regeneration extends Buff {
@@ -44,6 +45,11 @@ public class Regeneration extends Buff {
 	
 	@Override
 	public boolean act() {
+		if(HeroHooksKt.regenerationDisabled()) {
+			diactivate();
+			return true;
+		}
+
 		if (target.isAlive()) {
 
 			//if other trinkets ever get buffs like this should probably make the buff attaching
