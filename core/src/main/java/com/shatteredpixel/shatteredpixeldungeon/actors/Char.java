@@ -1253,6 +1253,8 @@ public abstract class Char extends Actor {
 			Door.leave( pos );
 		}
 
+		CharHooksKt.moveHook(this, step, travelling);
+
 		pos = step;
 		
 		if (this != Dungeon.hero) {

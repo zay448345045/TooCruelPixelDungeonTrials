@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
@@ -9,7 +10,11 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
+import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
+import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SmokeParticle
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level
+import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_SOUL
@@ -27,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefenseProcBuf
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
+import com.watabou.noosa.audio.Sample
 import kotlin.math.max
 
 
@@ -151,8 +157,8 @@ fun Char.attackDamageBeforeApplyHook(enemy: Char, damage: Float): Float {
 }
 
 fun Char.attackProcHook(enemy: Char, damage: Int) {
-    for(buff in buffs()) {
-        if(buff is AttackProcBuff) {
+    for (buff in buffs()) {
+        if (buff is AttackProcBuff) {
             buff.attackProc(enemy, damage)
         }
     }
@@ -160,8 +166,8 @@ fun Char.attackProcHook(enemy: Char, damage: Int) {
 
 
 fun Char.defenseProcHook(enemy: Char, damage: Int) {
-    for(buff in buffs()) {
-        if(buff is DefenseProcBuff) {
+    for (buff in buffs()) {
+        if (buff is DefenseProcBuff) {
             buff.defenseProc(enemy, damage)
         }
     }
@@ -180,9 +186,7 @@ fun Char.deathHook(src: Any?) {
             if (Modifier.PERSISTENT_SAINTS.active()) {
                 GameScene.add(
                     Blob.seed(
-                        Dungeon.hero.pos,
-                        PATRON_SEED_SOUL,
-                        PatronSaintsBlob::class.java
+                        Dungeon.hero.pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java
                     )
                 )
             }
@@ -228,6 +232,20 @@ fun charHitDefRollHook(attacker: Char, defender: Char, defRoll: Float): Float {
         }
     }
     return roll
+}
+
+fun Char.moveHook(step: Int, travelling: Boolean) {
+    if (this is Hero && Modifier.BARRIER_BREAKER.active()) {
+        val terrain = Dungeon.level.map[step]
+        if (terrain == Terrain.OPEN_DOOR || terrain == Terrain.DOOR) {
+            Level.set(step, Terrain.EMBERS)
+            Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
+            Sample.INSTANCE.play(Assets.Sounds.BURNING, 0.25f, 1.5f)
+            CellEmitter.center(step).burst(SmokeParticle.FACTORY, 5)
+            GameScene.updateMap(step)
+            spendConstant(1f)
+        }
+    }
 }
 
 /**

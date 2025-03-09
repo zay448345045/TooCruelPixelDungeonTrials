@@ -83,6 +83,7 @@ enum class Modifier(
     UNTIERED(42, dependencies = arrayOf(RETIERED.id)),
     UNSTABLE_ACCESSORIES(43),
     PANDEMONIUM(44),
+    BARRIER_BREAKER(45),
     ;
 
     companion object {
