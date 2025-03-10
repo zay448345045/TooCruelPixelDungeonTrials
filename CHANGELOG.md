@@ -6,6 +6,22 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Dungeon Loft modifier (by juh9870)
+- Copy and paste functionality to challenges window (by juh9870)
+- Bulky Frame modifier (by juh9870)
+- Insomnia modifier (by juh9870)
+- Slippery Floor modifier (by juh9870)
+
+### Changed
+
+- Nerfed corrosion duration caused by intoxication (by juh9870)
+
+### Fixed
+
+- Certainty of Steel giving shielding on game reload (by juh9870)
+
 ## [0.6.0]
 
 > Released on 2025-03-09
