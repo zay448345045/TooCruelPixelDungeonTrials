@@ -15,8 +15,10 @@ class SteelBody : NoDetachShieldBuff() {
     override fun attachTo(target: Char?): Boolean {
         return super.attachTo(target).also { attached ->
             if (attached) {
-                this.target.HP = 1
-                this.incShield(this.target.HT)
+                if(this.target.HP == this.target.HP && shielding() == 0) {
+                    this.target.HP = 1
+                    this.incShield(this.target.HT)
+                }
             }
         }
     }
