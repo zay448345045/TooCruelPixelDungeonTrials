@@ -224,11 +224,14 @@ public class CharSprite extends MovieClip implements Tweener.Listener, MovieClip
 	}
 	
 	public void move( int from, int to ) {
+		move( from, to, 1 );
+	}
+	public void move( int from, int to, float moveIntervalMultiplier ) {
 		turnTo( from , to );
 
 		play( run );
 		
-		motion = new PosTweener( this, worldToCamera( to ), moveInterval );
+		motion = new PosTweener( this, worldToCamera( to ), moveInterval * moveIntervalMultiplier );
 		motion.listener = this;
 		parent.add( motion );
 

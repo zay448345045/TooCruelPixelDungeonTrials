@@ -34,6 +34,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.connection.Connecti
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.special.SpecialRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.StandardRoom;
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.watabou.noosa.Game;
 import com.watabou.utils.Graph;
 import com.watabou.utils.PathFinder;
@@ -51,6 +52,7 @@ public abstract class RegularPainter extends Painter {
 	private int waterSmoothness;
 	
 	public RegularPainter setWater(float fill, int smoothness){
+		if(Modifier.SLIDING.active()) fill *= 1.5f;
 		waterFill = fill;
 		waterSmoothness = smoothness;
 		return this;

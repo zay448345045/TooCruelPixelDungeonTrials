@@ -1833,8 +1833,10 @@ public class Hero extends Char {
 			if (subClass == HeroSubClass.FREERUNNER){
 				Buff.affect(this, Momentum.class).gainStack();
 			}
+
+			step = HeroHooksKt.moveHook(this, step);
 			
-			sprite.move(pos, step);
+			sprite.move(pos, step, Dungeon.level.distance(pos, step));
 			move(step);
 
 			spend( delay );
