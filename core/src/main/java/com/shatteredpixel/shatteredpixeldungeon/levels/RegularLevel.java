@@ -189,9 +189,7 @@ public abstract class RegularLevel extends Level {
 	protected abstract Painter painter();
 	
 	protected int nTraps() {
-		int mult = 1;
-		if(Modifier.EXTREME_CAUTION.active()) mult = 4;
-		return mult * Random.NormalIntRange( 2, 3 + (Dungeon.depth/5) );
+		return Random.NormalIntRange( 2, 3 + (Dungeon.depth/5) );
 	}
 	
 	protected Class<?>[] trapClasses(){

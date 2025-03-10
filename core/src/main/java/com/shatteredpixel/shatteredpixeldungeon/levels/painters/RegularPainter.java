@@ -72,6 +72,7 @@ public abstract class RegularPainter extends Painter {
 	private float[] trapChances;
 	
 	public RegularPainter setTraps(int num, Class<?>[] classes, float[] chances){
+		if(Modifier.EXTREME_CAUTION.active()) num *= 4;
 		nTraps = num;
 		trapClasses = (Class<? extends Trap>[]) classes;
 		trapChances = chances;
