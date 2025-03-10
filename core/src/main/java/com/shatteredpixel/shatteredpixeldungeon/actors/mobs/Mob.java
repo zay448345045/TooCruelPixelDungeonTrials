@@ -137,7 +137,7 @@ public abstract class Mob extends Char {
 	protected boolean firstAdded = true;
 	protected void onAdd(){
 		if (firstAdded) {
-			CharHooksKt.mobFirstAdded(this);
+			CharHooksKt.mobFirstAddedHook(this);
 
 			//modify health for ascension challenge if applicable, only on first add
 			float percent = HP / (float) HT;
@@ -255,6 +255,8 @@ public abstract class Mob extends Char {
 			spend( TICK );
 			return true;
 		}
+
+		CharHooksKt.mobBeforeActHook(this, enemyInFOV, justAlerted);
 
 		boolean result = state.act( enemyInFOV, justAlerted );
 

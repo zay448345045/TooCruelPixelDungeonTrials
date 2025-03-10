@@ -770,6 +770,8 @@ public abstract class Char extends Actor {
 		speed *= Flow.speedBoost(this, glyphLevel(Flow.class));
 		speed *= Bulk.speedBoost(this, glyphLevel(Bulk.class));
 
+		speed = CharHooksKt.speedHook(this, speed);
+
 		return speed;
 	}
 
@@ -1334,7 +1336,7 @@ public abstract class Char extends Actor {
 	//similar to isImmune, but only factors in damage.
 	//Is used in AI decision-making
 	public boolean isInvulnerable( Class effect ){
-		return buff(Challenge.SpectatorFreeze.class) != null || buff(Invulnerability.class) != null;
+		return buff(Challenge.SpectatorFreeze.class) != null || buff(Invulnerability.class) != null || CharHooksKt.isInvulnerableHook(this, effect);
 	}
 
 	protected HashSet<Property> properties = new HashSet<>();

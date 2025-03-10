@@ -6,8 +6,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invulnerability
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge.SpectatorFreeze
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
@@ -30,10 +32,13 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageAmplific
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChangeBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefenseProcBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.FullSceneUpdater
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSlowdown
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSpeed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvulnerabilityBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
-import com.sun.org.apache.xpath.internal.operations.Mod
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.PathFinder
 import kotlin.math.max
@@ -197,6 +202,27 @@ fun Char.deathHook(src: Any?) {
     }
 }
 
+@Suppress("NAME_SHADOWING")
+fun Char.speedHook(speed:Float):Float {
+    var speed = speed
+    for(b in buffs()) {
+        if(b is TimescaleBuff) {
+            speed *= b.speedFactor()
+        }
+    }
+    return speed
+}
+
+fun Char.isInvulnerableHook(effect:Class<*>): Boolean {
+    for (buff in buffs()) {
+        if(buff is InvulnerabilityBuff) {
+            if(buff.isInvulnerable(effect)) {
+                return true
+            }
+        }
+    }
+    return false
+}
 fun charHitAcuStatHook(attacker: Char, defender: Char, acuStat: Float): Float {
     var stat = acuStat
     for (buff in attacker.buffs()) {
@@ -298,7 +324,7 @@ fun Mob.mobIncomingDamageHook(dmg: Int, src: Any?): Int {
     return dmg
 }
 
-fun Mob.mobFirstAdded() {
+fun Mob.mobFirstAddedHook() {
     if (this is NPC) {
         return
     }
@@ -316,5 +342,14 @@ fun Mob.mobFirstAdded() {
     }
     if(Modifier.LOFT.active() && Modifier.MOLES.active()) {
         Buff.affect(this, Levitation::class.java, Float.POSITIVE_INFINITY)
+    }
+    if(Modifier.INSOMNIA.active()) {
+        Buff.affect(this, InsomniaSpeed::class.java)
+    }
+}
+
+fun Mob.mobBeforeActHook(enemyInFOV: Boolean, justAlerted: Boolean) {
+    if (enemyInFOV && Modifier.INSOMNIA.active()) {
+        Buff.prolong(this, InsomniaSlowdown::class.java, InsomniaSlowdown.DURATION)
     }
 }

@@ -91,6 +91,7 @@ enum class Modifier(
     LOFT(47),
     BULKY_FRAME(48),
     SLIDING(49),
+    INSOMNIA(50),
     ;
 
     companion object {

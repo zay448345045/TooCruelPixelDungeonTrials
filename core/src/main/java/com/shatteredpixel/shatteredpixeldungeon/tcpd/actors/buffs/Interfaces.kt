@@ -1,8 +1,11 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
-import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand
 
+
+interface TimescaleBuff {
+    fun speedFactor(): Float
+}
 
 interface DamageAmplificationBuff {
     /**
@@ -63,4 +66,8 @@ interface DefenseProcBuff {
 
 interface AttackProcBuff {
     fun attackProc(enemy: Char, damage: Int)
+}
+
+interface InvulnerabilityBuff {
+    fun isInvulnerable(effect: Class<out Any>): Boolean
 }

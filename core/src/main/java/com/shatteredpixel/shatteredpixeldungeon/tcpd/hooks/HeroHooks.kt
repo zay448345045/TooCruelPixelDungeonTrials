@@ -15,6 +15,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ControlledRandomness
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
@@ -50,6 +51,9 @@ fun Hero.heroLiveHook() {
     }
     if(Modifier.PANDEMONIUM.active()) {
         Buff.affect(this, Pandemonium::class.java)
+    }
+    if(Modifier.INSOMNIA.active()) {
+        Buff.affect(this, Insomnia::class.java)
     }
 }
 
