@@ -96,6 +96,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.InterlevelScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -1306,6 +1307,8 @@ public abstract class Level implements Bundlable {
 					}
 				}
 			}
+
+			blocking = LevelHooksKt.updateFieldOfViewHook(this, c, modifiableBlocking, blocking);
 
 			if (blocking == null){
 				blocking = Dungeon.level.losBlocking;

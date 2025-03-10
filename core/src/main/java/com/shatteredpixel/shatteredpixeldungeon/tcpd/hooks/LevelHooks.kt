@@ -1,8 +1,10 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key
@@ -19,6 +21,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_BLESS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
+import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import com.watabou.utils.Reflection
 
@@ -46,6 +49,41 @@ fun Level.postCreateHook() {
     if (Modifier.HOLY_WATER.active()) {
         applyHolyWater()
     }
+    if (Modifier.LOFT.active()) {
+        applyLoft()
+    }
+}
+
+@Suppress("NAME_SHADOWING")
+fun Level.updateFieldOfViewHook(
+    c: Char, modifiableBlocking: BooleanArray, blocking: BooleanArray?
+): BooleanArray? {
+    var blocking = blocking
+    if(c is Hero || c.alignment == Char.Alignment.ALLY) {
+        if (Modifier.LOFT.active()) {
+            blocking = blocking ?: initBlocking(modifiableBlocking)
+            for (i in blocking.indices) {
+                if (!blocking[i] && pit[i]) {
+                    blocking[i] = true
+                }
+            }
+        }
+        if(Modifier.BULKY_FRAME.active()) {
+            blocking = blocking ?: initBlocking(modifiableBlocking)
+            for (mob in mobs) {
+                blocking[mob.pos] = true
+            }
+        }
+    }
+    return blocking
+}
+
+private fun Level.initBlocking(modifiableBlocking: BooleanArray): BooleanArray {
+    System.arraycopy(
+        Dungeon.level.losBlocking, 0, modifiableBlocking, 0, modifiableBlocking.size
+    )
+
+    return modifiableBlocking
 }
 
 
@@ -150,6 +188,30 @@ private fun Level.applyHolyWater() {
     for (i in 0 until length()) {
         if (map[i] == Terrain.WATER) {
             Blob.seed(i, PATRON_SEED_BLESS, PatronSaintsBlob::class.java, this)
+        }
+    }
+}
+
+private fun Level.applyLoft() {
+    for (i in 0 until length()) {
+        if ((map[i] == Terrain.WALL || map[i] == Terrain.WALL_DECO) && insideMap(i)) {
+            map[i] = Terrain.CHASM
+        } else if (!insideMap(i)) {
+            map[i] = Terrain.CHASM
+        }
+    }
+    buildFlagMaps()
+    cleanWalls()
+}
+
+fun Level.destroyCell(cell: Int) {
+    if (!insideMap(cell)) return
+    Level.set(cell, Terrain.EMBERS)
+    for (o in PathFinder.NEIGHBOURS8) {
+        val n = cell + o
+        val terrain = map[n]
+        if (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR) {
+            destroyCell(n)
         }
     }
 }

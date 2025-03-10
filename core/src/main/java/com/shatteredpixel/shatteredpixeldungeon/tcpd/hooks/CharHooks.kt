@@ -6,6 +6,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
@@ -13,7 +14,6 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SmokeParticle
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
@@ -33,6 +33,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.FullSceneUpdat
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
+import com.sun.org.apache.xpath.internal.operations.Mod
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.PathFinder
 import kotlin.math.max
@@ -240,7 +241,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
     if (this is Hero && Modifier.BARRIER_BREAKER.active()) {
         val terrain = Dungeon.level.map[step]
         if (terrain == Terrain.OPEN_DOOR || terrain == Terrain.DOOR) {
-            destroyCell(step)
+            Dungeon.level.destroyCell(step)
 
             Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
             Sample.INSTANCE.play(Assets.Sounds.BURNING, 0.25f, 1.5f)
@@ -255,7 +256,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
             for (o in PathFinder.NEIGHBOURS8) {
                 val n = step + o
                 if (Dungeon.level.solid[n]) {
-                    destroyCell(n);
+                    Dungeon.level.destroyCell(n);
                     destruction = true
                     if (Dungeon.level.heroFOV[step]) {
                         CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
@@ -268,7 +269,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
         val terrain = Dungeon.level.map[step]
         if (Dungeon.level.solid[step] && terrain != Terrain.DOOR && terrain != Terrain.OPEN_DOOR) {
             destruction = true
-            destroyCell(step);
+            Dungeon.level.destroyCell(step);
             if (Dungeon.level.heroFOV[step]) {
                 Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
                 CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
@@ -280,19 +281,6 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
         }
     }
 }
-
-fun destroyCell(cell: Int) {
-    if(!Dungeon.level.insideMap(cell)) return
-    Level.set(cell, Terrain.EMBERS)
-    for (o in PathFinder.NEIGHBOURS8) {
-        val n = cell + o
-        val terrain = Dungeon.level.map[n]
-        if (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR) {
-            destroyCell(n)
-        }
-    }
-}
-
 /**
  * Same as [Char.damageTakenHook], but called only for mobs.
  */
@@ -325,5 +313,8 @@ fun Mob.mobFirstAdded() {
         HP *= 4
         HT *= 4
         defenseSkill = 0
+    }
+    if(Modifier.LOFT.active() && Modifier.MOLES.active()) {
+        Buff.affect(this, Levitation::class.java, Float.POSITIVE_INFINITY)
     }
 }

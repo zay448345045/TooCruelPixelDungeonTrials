@@ -88,6 +88,8 @@ enum class Modifier(
     PANDEMONIUM(44),
     BARRIER_BREAKER(45),
     MOLES(46),
+    LOFT(47),
+    BULKY_FRAME(48),
     ;
 
     companion object {
