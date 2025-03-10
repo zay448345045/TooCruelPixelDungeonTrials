@@ -64,3 +64,16 @@ fun BooleanArray.asBytes(padValue: Boolean): ByteArray {
 
     return result
 }
+
+/**
+ * This will either return a new byte array with all the trailing 0 bytes removed
+ */
+fun ByteArray.trimEnd(): ByteArray {
+    for(i in this.size - 1 downTo 0) {
+        if (this[i] == 0.toByte()) {
+            continue
+        }
+        return this.copyOf(i + 1)
+    }
+    return this.copyOf()
+}

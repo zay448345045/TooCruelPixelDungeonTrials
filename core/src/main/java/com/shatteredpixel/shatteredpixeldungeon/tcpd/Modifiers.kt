@@ -9,8 +9,10 @@ import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.assertEq
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.decodeBase58
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.encodeToBase58String
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.trimEnd
 import com.watabou.utils.BArray
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
@@ -156,6 +158,10 @@ class Modifiers() : Bundlable {
         }
 
         const val MODIFIERS = "modifiers"
+
+        init {
+            doTests()
+        }
     }
 
     fun isChallenged(): Boolean {
@@ -203,7 +209,7 @@ class Modifiers() : Bundlable {
     fun enableFrom(other: Modifiers) {
         BArray.setFalse(modifiers)
         for (entry in Modifier.entries) {
-            if(other.isEnabled(entry)) {
+            if (other.isEnabled(entry)) {
                 enable(entry)
             }
         }
@@ -240,8 +246,38 @@ class Modifiers() : Bundlable {
     }
 
     fun serializeToString(): String {
-        val str = modifiers.asBytes(false).encodeToBase58String()
-        if(str.all { it == '1' }) return ""
+        val str = modifiers.asBytes(false).trimEnd().encodeToBase58String()
+        if (str.all { it == '1' }) return ""
         return str
     }
+}
+
+private fun doTests() {
+    val mods = booleanArrayOf(
+        true,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false
+    )
+    val newMods = booleanArrayOf(true, false, true)
+
+    val ogBytes = mods.asBytes(false).trimEnd()
+    val newBytes = newMods.asBytes(false).trimEnd()
+
+    val ogBase58 = ogBytes.encodeToBase58String()
+    val newBase58 = newBytes.encodeToBase58String()
+
+    assertEq(ogBase58, newBase58)
 }
