@@ -46,6 +46,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.rogue.Smok
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Endure;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.HeroicLeap;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.warrior.Shockwave;
+import com.shatteredpixel.shatteredpixeldungeon.items.Amulet;
 import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal;
 import com.shatteredpixel.shatteredpixeldungeon.items.Item;
 import com.shatteredpixel.shatteredpixeldungeon.items.Waterskin;
@@ -81,6 +82,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSp
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
 import com.watabou.utils.DeviceCompat;
 
 public enum HeroClass {
@@ -152,10 +154,18 @@ public enum HeroClass {
 			}
 		}
 
-		if(DeviceCompat.isDebug()) {
+		if(Modifiers.Companion.debugModeActive()) {
 			new PotionOfHealing().collect();
 			new ScrollOfMagicMapping().collect();
 			new WarHammer().identify().collect();
+			Amulet amulet = new Amulet();
+			amulet.collect();
+			for (int s = 0; s < QuickSlot.SIZE; s++) {
+				if (Dungeon.quickslot.getItem(s) == null) {
+					Dungeon.quickslot.setSlot(s, amulet);
+					break;
+				}
+			}
 		}
 
 	}

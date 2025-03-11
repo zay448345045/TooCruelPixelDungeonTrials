@@ -119,9 +119,12 @@ public class Patch {
 			int[] neighbours = new int[]{-w - 1, -w, -w + 1, -1, 0, +1, +w - 1, +w, +w + 1};
 			boolean growing = fillDiff < 0;
 
-			while (fillDiff != 0) {
+			int fillTries = 0;
+			while (fillDiff != 0 && fillTries < length) {
 				int cell;
 				int tries = 0;
+
+				fillTries++;
 
 				//random cell, not in the map's borders
 				// try length/10 times to find a cell we can grow from, and not start a new patch/hole

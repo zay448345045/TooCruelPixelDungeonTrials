@@ -16,6 +16,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.trimEnd
 import com.watabou.utils.BArray
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
+import com.watabou.utils.DeviceCompat
 
 enum class Modifier(
     val id: Int,
@@ -159,6 +160,10 @@ class Modifiers() : Bundlable {
         fun deserializeFromString(encoded: String): Modifiers {
             val bits = encoded.decodeBase58().asBits()
             return Modifiers(bits.copyOf(Modifier.entries.size))
+        }
+
+        fun debugModeActive(): Boolean {
+           return DeviceCompat.isDebug()
         }
 
         const val MODIFIERS = "modifiers"
