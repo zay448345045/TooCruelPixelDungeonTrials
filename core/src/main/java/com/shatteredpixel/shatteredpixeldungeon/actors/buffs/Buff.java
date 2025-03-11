@@ -134,6 +134,9 @@ public class Buff extends Actor {
 
 	//to handle the common case of showing how many turns are remaining in a buff description.
 	protected String dispTurns(float input){
+		if(input > 1e9) {
+			return "∞";
+		}
 		return Messages.decimalFormat("#.##", input);
 	}
 

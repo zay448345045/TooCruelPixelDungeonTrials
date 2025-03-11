@@ -339,7 +339,7 @@ fun Mob.mobFirstAddedHook() {
         defenseSkill = 0
     }
     if(Modifier.LOFT.active() && Modifier.MOLES.active()) {
-        Buff.affect(this, Levitation::class.java, Float.POSITIVE_INFINITY)
+        Buff.affect(this, Levitation::class.java, 2e9f)
     }
     if(Modifier.INSOMNIA.active()) {
         Buff.affect(this, InsomniaSpeed::class.java)
