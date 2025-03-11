@@ -32,14 +32,12 @@ class DelayedDecay : Buff(), InvulnerabilityBuff {
             target.sprite.emitter().burst(ShadowParticle.UP, 10)
         }
         invulnerable = false
-        target.HP = 0
-        if(!target.isAlive) {
-            if(target is Mob) {
-                val mob = target as Mob
-                mob.EXP = 0
-            }
-            target.die(this)
+        if(target is Mob) {
+            val mob = target as Mob
+            mob.EXP = 0
         }
+        target.destroy()
+        target.sprite.die()
         spend(TICK)
         return true
     }
