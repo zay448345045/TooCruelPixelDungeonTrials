@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+## [0.7.1]
+
+> Released on 2025-03-11
+
 ### Changed
 
 - Moles can no longer destroy special tiles like Alchemy (by juh9870)
@@ -175,7 +179,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.7.0...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.7.1...HEAD
+[0.7.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.7.0...TCPD-0.7.1
 [0.7.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.6.0...TCPD-0.7.0
 [0.6.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.5.0...TCPD-0.6.0
 [0.5.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.4.0...TCPD-0.5.0
