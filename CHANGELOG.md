@@ -6,6 +6,15 @@
 
 > Released on ReleaseDate
 
+### Changed
+
+- Moles can no longer destroy special tiles like Alchemy (by juh9870)
+
+### Fixed
+
+- Mobs losing infinite levitation on game relod (by juh9870)
+- Level generation freeze with Slippery Floor (by juh9870)
+
 ## [0.7.0]
 
 > Released on 2025-03-11
