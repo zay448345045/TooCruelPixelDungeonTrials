@@ -59,7 +59,7 @@ fun Level.updateFieldOfViewHook(
     c: Char, modifiableBlocking: BooleanArray, blocking: BooleanArray?
 ): BooleanArray? {
     var blocking = blocking
-    if(c is Hero || c.alignment == Char.Alignment.ALLY) {
+    if (c is Hero || c.alignment == Char.Alignment.ALLY) {
         if (Modifier.LOFT.active()) {
             blocking = blocking ?: initBlocking(modifiableBlocking)
             for (i in blocking.indices) {
@@ -68,7 +68,7 @@ fun Level.updateFieldOfViewHook(
                 }
             }
         }
-        if(Modifier.BULKY_FRAME.active()) {
+        if (Modifier.BULKY_FRAME.active()) {
             blocking = blocking ?: initBlocking(modifiableBlocking)
             for (mob in mobs) {
                 blocking[mob.pos] = true
@@ -204,14 +204,28 @@ private fun Level.applyLoft() {
     cleanWalls()
 }
 
-fun Level.destroyCell(cell: Int) {
+fun Level.destroyWall(cell: Int) {
+    val terrain = map[cell]
+    if (terrain == Terrain.WALL ||
+        terrain == Terrain.WALL_DECO ||
+        terrain == Terrain.STATUE ||
+        terrain == Terrain.STATUE_SP ||
+        terrain == Terrain.SECRET_DOOR ||
+        terrain == Terrain.CRYSTAL_DOOR
+    ) {
+        strongDestroy(cell)
+    }
+}
+
+fun Level.strongDestroy(cell: Int, replaceWith: Int = Terrain.EMBERS) {
     if (!insideMap(cell)) return
-    Level.set(cell, Terrain.EMBERS)
+    Level.set(cell, replaceWith)
     for (o in PathFinder.NEIGHBOURS8) {
         val n = cell + o
         val terrain = map[n]
-        if (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR) {
-            destroyCell(n)
+        if (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR || terrain == Terrain.CRYSTAL_DOOR || terrain == Terrain.LOCKED_DOOR) {
+            strongDestroy(n)
         }
     }
+    destroy(cell)
 }

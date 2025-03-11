@@ -6,10 +6,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
-import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invulnerability
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
-import com.shatteredpixel.shatteredpixeldungeon.actors.hero.abilities.duelist.Challenge.SpectatorFreeze
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
@@ -267,7 +265,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
     if (this is Hero && Modifier.BARRIER_BREAKER.active()) {
         val terrain = Dungeon.level.map[step]
         if (terrain == Terrain.OPEN_DOOR || terrain == Terrain.DOOR) {
-            Dungeon.level.destroyCell(step)
+            Dungeon.level.strongDestroy(step)
 
             Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
             Sample.INSTANCE.play(Assets.Sounds.BURNING, 0.25f, 1.5f)
@@ -282,7 +280,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
             for (o in PathFinder.NEIGHBOURS8) {
                 val n = step + o
                 if (Dungeon.level.solid[n]) {
-                    Dungeon.level.destroyCell(n);
+                    Dungeon.level.destroyWall(n);
                     destruction = true
                     if (Dungeon.level.heroFOV[step]) {
                         CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
@@ -295,7 +293,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
         val terrain = Dungeon.level.map[step]
         if (Dungeon.level.solid[step] && terrain != Terrain.DOOR && terrain != Terrain.OPEN_DOOR) {
             destruction = true
-            Dungeon.level.destroyCell(step);
+            Dungeon.level.destroyWall(step);
             if (Dungeon.level.heroFOV[step]) {
                 Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
                 CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
