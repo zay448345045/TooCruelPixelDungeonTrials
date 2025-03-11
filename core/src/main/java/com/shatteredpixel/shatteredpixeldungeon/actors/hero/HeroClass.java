@@ -166,6 +166,8 @@ public enum HeroClass {
 					break;
 				}
 			}
+
+			new ScrollOfRemoveCurse().identify().collect();
 		}
 
 	}

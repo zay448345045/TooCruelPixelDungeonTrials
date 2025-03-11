@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
@@ -51,6 +52,7 @@ class Insomnia : Buff() {
                             fx = true,
                             invulnerable = true
                         )
+                        affect(wraith, AscensionChallenge.AscensionBuffBlocker::class.java)
                     }
                 }
                 GLog.n(Messages.get(this, "wakeup"))
