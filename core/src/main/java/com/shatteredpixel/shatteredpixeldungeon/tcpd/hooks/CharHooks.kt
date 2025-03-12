@@ -81,7 +81,7 @@ fun Char.beforeDamageShieldedHook(dmg: Int, src: Any?): Int {
         Buff.affect(this, BloodbagBleeding::class.java).add(max(dmg / 2f, 1f))
         return -1
     }
-    if ((Modifier.REVENGE.active() || Modifier.REVENGE_FURY.active()) && HP + shielding() <= dmg) {
+    if ((Modifier.REVENGE.active() || Modifier.REVENGE_FURY.active()) && HP + shielding() <= dmg && this is Mob) {
         if (fieldOfView == null) fieldOfView = BooleanArray(Dungeon.level.length())
         Dungeon.level.updateFieldOfView(this, fieldOfView)
     }
@@ -109,6 +109,7 @@ fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
             val rage = Modifier.REVENGE.active();
             if ((HP < 0 && rage) || fury) {
                 for (mob in Dungeon.level.mobs) {
+                    if (!fieldOfView[mob.pos]) continue
                     if (mob is NPC) continue
                     if (mob === this) continue
                     if (mob.alignment == Char.Alignment.ALLY) continue
@@ -201,26 +202,27 @@ fun Char.deathHook(src: Any?) {
 }
 
 @Suppress("NAME_SHADOWING")
-fun Char.speedHook(speed:Float):Float {
+fun Char.speedHook(speed: Float): Float {
     var speed = speed
-    for(b in buffs()) {
-        if(b is TimescaleBuff) {
+    for (b in buffs()) {
+        if (b is TimescaleBuff) {
             speed *= b.speedFactor()
         }
     }
     return speed
 }
 
-fun Char.isInvulnerableHook(effect:Class<*>): Boolean {
+fun Char.isInvulnerableHook(effect: Class<*>): Boolean {
     for (buff in buffs()) {
-        if(buff is InvulnerabilityBuff) {
-            if(buff.isInvulnerable(effect)) {
+        if (buff is InvulnerabilityBuff) {
+            if (buff.isInvulnerable(effect)) {
                 return true
             }
         }
     }
     return false
 }
+
 fun charHitAcuStatHook(attacker: Char, defender: Char, acuStat: Float): Float {
     var stat = acuStat
     for (buff in attacker.buffs()) {
@@ -300,11 +302,12 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
             }
         }
 
-        if(destruction) {
+        if (destruction) {
             FullSceneUpdater.request()
         }
     }
 }
+
 /**
  * Same as [Char.damageTakenHook], but called only for mobs.
  */
@@ -338,10 +341,10 @@ fun Mob.mobFirstAddedHook() {
         HT *= 4
         defenseSkill = 0
     }
-    if(Modifier.LOFT.active() && Modifier.MOLES.active()) {
+    if (Modifier.LOFT.active() && Modifier.MOLES.active()) {
         Buff.affect(this, Levitation::class.java, 2e9f)
     }
-    if(Modifier.INSOMNIA.active()) {
+    if (Modifier.INSOMNIA.active()) {
         Buff.affect(this, InsomniaSpeed::class.java)
     }
 }
