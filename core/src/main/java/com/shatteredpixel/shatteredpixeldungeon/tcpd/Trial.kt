@@ -152,7 +152,13 @@ class TrialGroup() : Bundlable {
     }
 
     fun compareUpdate(other: TrialGroup): Boolean {
-        if (other.version <= version) return false
+        val changed = if (other.url != url) {
+            url = other.url
+            true
+        } else {
+            false
+        }
+        if (other.version <= version) return changed
         trials = other.trials
         wantNotify = true
         if (name.isBlank()) {
