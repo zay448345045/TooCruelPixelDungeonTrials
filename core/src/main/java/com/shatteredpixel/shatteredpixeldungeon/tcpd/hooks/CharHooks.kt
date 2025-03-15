@@ -14,6 +14,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SmokeParticle
+import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
@@ -37,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Invulnerabilit
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.PathFinder
 import kotlin.math.max
@@ -184,18 +186,23 @@ fun Char.defenseProcHook(enemy: Char, damage: Int) {
  * Hook which is called when char dies.
  */
 fun Char.deathHook(src: Any?) {
-    if (this is Mob && alignment != Char.Alignment.ALLY) {
-        if (Modifier.ARROWHEAD.active()) {
-            Buff.affect(Dungeon.hero, Arrowhead::class.java).addStack()
+    if (this is Mob) {
+        if(Modifier.BOMBERMOB.active()) {
+            Bomb.igniteAt(bombermobBomb(), pos)
         }
-        if (Modifier.PATRON_SAINTS.active()) {
-            GameScene.add(Blob.seed(pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java))
-            if (Modifier.PERSISTENT_SAINTS.active()) {
-                GameScene.add(
-                    Blob.seed(
-                        Dungeon.hero.pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java
+        if(alignment != Char.Alignment.ALLY) {
+            if (Modifier.ARROWHEAD.active()) {
+                Buff.affect(Dungeon.hero, Arrowhead::class.java).addStack()
+            }
+            if (Modifier.PATRON_SAINTS.active()) {
+                GameScene.add(Blob.seed(pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java))
+                if (Modifier.PERSISTENT_SAINTS.active()) {
+                    GameScene.add(
+                        Blob.seed(
+                            Dungeon.hero.pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java
+                        )
                     )
-                )
+                }
             }
         }
     }

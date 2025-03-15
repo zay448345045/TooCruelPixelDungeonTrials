@@ -51,6 +51,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.BArray;
@@ -80,6 +81,11 @@ public class Bomb extends Item {
 	private static boolean lightingFuse = false;
 
 	private static final String AC_LIGHTTHROW = "LIGHTTHROW";
+
+	public static void igniteAt(Bomb bomb, int cell) {
+		lightingFuse = true;
+		bomb.onThrow(cell);
+	}
 
 	@Override
 	public boolean isSimilar(Item item) {
@@ -128,6 +134,10 @@ public class Bomb extends Item {
 	@Override
 	public boolean doPickUp(Hero hero, int pos) {
 		if (fuse != null) {
+			if(Modifier.BOMBERMOB.active()) {
+				GLog.n( Messages.get(Modifier.class, "bombermob_fuse") );
+				return false;
+			}
 			GLog.w( Messages.get(this, "snuff_fuse") );
 			fuse = null;
 		}
