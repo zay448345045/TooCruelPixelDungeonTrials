@@ -6,6 +6,33 @@
 
 > Released on ReleaseDate
 
+### Major additions
+
+- Trials system (by juh9870)
+
+### Added
+
+- Updated to SHPD v3.0.1 (by juh9870)
+- Cursed modifier (by juh9870)
+- Curse Magnet modifier (by juh9870)
+- Loot Paradise modifier (by juh9870)
+- Bombermob modifier (by juh9870)
+- Golden Colossus modifier (by juh9870)
+
+### Changed
+
+- Wraiths spawned by Insomnia are no longer counted for Ascension (by juh9870)
+- Certainty of Steel now band Salt Cube instead of Chalice of Blood (by juh9870)
+- Certainty of Steel now wakes affected targets from maggical sleep by electrocuting them (by juh9870)
+
+### Fixed
+
+- Certain actions taking hunger with Certainty of Steel (by juh9870)
+- Revenge Fury and Rage applying to eveyone on the floor, not just mobs in FoV (by juh9870)
+- Pandemonium not randomizing missile weapons (by juh9870)
+- Doors not visually disappearing with Barrier Breaker (by juh9870)
+- Wand duplication with Pandemonium (by juh9870)
+
 ## [0.7.1]
 
 > Released on 2025-03-11
