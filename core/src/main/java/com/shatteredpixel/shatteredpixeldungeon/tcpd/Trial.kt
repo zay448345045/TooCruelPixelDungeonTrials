@@ -9,7 +9,9 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.decodeBase58
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.encodeToBase58String
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.trimEnd
 import com.watabou.noosa.Game
 import com.watabou.utils.Bundlable
@@ -40,7 +42,7 @@ class Trial() : Bundlable {
 
     override fun restoreFromBundle(bundle: Bundle) {
         name = bundle.getString(NAME)
-        modifiers = bundle.getBooleanArray(MODIFIERS)
+        modifiers = Modifiers.decodeBits(bundle.getString(MODIFIERS))
         if (bundle.contains(LOCKED_CLASS)) {
             lockedClass = bundle.getEnum(LOCKED_CLASS, HeroClass::class.java)
         }
@@ -48,7 +50,7 @@ class Trial() : Bundlable {
 
     override fun storeInBundle(bundle: Bundle) {
         bundle.put(NAME, name)
-        bundle.put(MODIFIERS, modifiers)
+        bundle.put(MODIFIERS, Modifiers.encodeBits(modifiers))
         lockedClass?.let { bundle.put(LOCKED_CLASS, it) }
     }
 
@@ -160,7 +162,6 @@ class TrialGroup() : Bundlable {
         }
         if (other.version <= version) return changed
         trials = other.trials
-        wantNotify = true
         if (name.isBlank()) {
             name = other.name
         }
@@ -322,9 +323,7 @@ class Trials : Bundlable {
         private const val TRIALS_FILE: String = "trials.dat"
 
         private fun empty(): Trials {
-            return Trials().also {
-                it.groups.addAll(TrialGroup.DEFAULT_GROUPS)
-            }
+            return Trials()
         }
 
         var curTrial: Trial? = null

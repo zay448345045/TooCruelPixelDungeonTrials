@@ -4,24 +4,10 @@ import com.shatteredpixel.shatteredpixeldungeon.Challenges
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
-import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.ArcaneBomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb.DoubleBomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Firebomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.FlashBangBomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.FrostBomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.HolyBomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Noisemaker
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.RegrowthBomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.ShrapnelBomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.SmokeBomb
-import com.shatteredpixel.shatteredpixeldungeon.items.bombs.WoollyBomb
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.ALL_BOMBS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.assertEq
@@ -32,8 +18,6 @@ import com.watabou.utils.BArray
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 import com.watabou.utils.DeviceCompat
-import com.watabou.utils.Random
-import com.watabou.utils.Reflection
 
 enum class Modifier(
     val id: Int,
@@ -184,8 +168,18 @@ class Modifiers() : Bundlable {
 
     companion object {
         fun deserializeFromString(encoded: String): Modifiers {
-            val bits = encoded.decodeBase58().asBits()
+            val bits = decodeBits(encoded)
             return Modifiers(bits.copyOf(Modifier.entries.size))
+        }
+
+        fun encodeBits(bits: BooleanArray): String {
+            val encoded = bits.asBytes(false).trimEnd().encodeToBase58String()
+            if (encoded.all { it == '1' }) return ""
+            return encoded
+        }
+
+        fun decodeBits(encoded: String): BooleanArray {
+            return encoded.decodeBase58().asBits().trimEnd(false)
         }
 
         fun debugModeActive(): Boolean {
@@ -263,7 +257,7 @@ class Modifiers() : Bundlable {
     }
 
     fun isActionBanned(item: Item, action: String): Boolean {
-        if(item.cursed && isEnabled(Modifier.CURSE_MAGNET)) {
+        if (item.cursed && isEnabled(Modifier.CURSE_MAGNET)) {
             return action == Item.AC_DROP || action == Item.AC_THROW
         }
         return false
@@ -292,8 +286,7 @@ class Modifiers() : Bundlable {
     }
 
     fun serializeToString(): String {
-        val str = modifiers.asBytes(false).trimEnd().encodeToBase58String()
-        if (str.all { it == '1' }) return ""
+        val str = encodeBits(modifiers)
         return str
     }
 }
