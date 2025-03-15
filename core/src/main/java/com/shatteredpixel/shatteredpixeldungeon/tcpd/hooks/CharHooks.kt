@@ -19,7 +19,6 @@ import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
-import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CursingTrap
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_SOUL

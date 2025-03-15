@@ -42,7 +42,7 @@ fun Hero.heroLiveHook() {
         Buff.affect(this, Intoxication.ToxicWaterTracker::class.java)
     }
     if (Modifier.CERTAINTY_OF_STEEL.active()) {
-        if(Modifier.GOLDEN_COLOSSUS.active()) {
+        if (Modifier.GOLDEN_COLOSSUS.active()) {
             Buff.affect(this, GoldenBody::class.java)
         } else {
             Buff.affect(this, SteelBody::class.java)

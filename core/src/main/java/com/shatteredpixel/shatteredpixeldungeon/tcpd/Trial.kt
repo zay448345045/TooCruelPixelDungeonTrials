@@ -9,9 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.HeroSelectScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.decodeBase58
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.encodeToBase58String
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.trimEnd
 import com.watabou.noosa.Game
 import com.watabou.utils.Bundlable

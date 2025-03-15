@@ -5,7 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 
-class GoldenBody: NoDetachShieldBuff() {
+class GoldenBody : NoDetachShieldBuff() {
     override fun attachTo(target: Char?): Boolean {
         return super.attachTo(target).also { attached ->
             if (attached) {
@@ -28,9 +28,9 @@ class GoldenBody: NoDetachShieldBuff() {
     private fun recalculateGold() {
         val goldShield = Dungeon.gold
         val shielding = super.shielding()
-        if(goldShield > shielding) {
+        if (goldShield > shielding) {
             super.incShield(goldShield - shielding)
-        } else if(goldShield < shielding) {
+        } else if (goldShield < shielding) {
             super.decShield(shielding - goldShield)
         }
     }
@@ -66,7 +66,7 @@ class GoldenBody: NoDetachShieldBuff() {
 
     override fun decShield(amt: Int) {
         Dungeon.gold -= amt * shieldToGoldRation()
-        if(Dungeon.gold < 0) {
+        if (Dungeon.gold < 0) {
             Dungeon.gold = 0
         }
         recalculateGold()
