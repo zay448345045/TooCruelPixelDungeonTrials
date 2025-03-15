@@ -117,6 +117,8 @@ enum class Modifier(
     INSOMNIA(50),
     LOOT_PARADISE(51),
     BOMBERMOB(53),
+    CURSED(54),
+    CURSE_MAGNET(55),
     ;
 
     companion object {
@@ -258,6 +260,13 @@ class Modifiers() : Bundlable {
 
     fun isItemBlocked(item: Item): Boolean {
         return Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
+    }
+
+    fun isActionBanned(item: Item, action: String): Boolean {
+        if(item.cursed && isEnabled(Modifier.CURSE_MAGNET)) {
+            return action == Item.AC_DROP || action == Item.AC_THROW
+        }
+        return false
     }
 
     fun nMobsMult(): Float {

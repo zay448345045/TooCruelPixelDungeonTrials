@@ -64,6 +64,8 @@ public class WndUseItem extends WndInfoItem {
 				buttons.add(btn);
 				add( btn );
 
+				btn.enable(!Dungeon.tcpdData.getModifiers().isActionBanned(item, action));
+
 				if (action.equals(item.defaultAction())) {
 					btn.textColor( TITLE_COLOR );
 				}

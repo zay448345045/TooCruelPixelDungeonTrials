@@ -10,12 +10,16 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SmokeParticle
+import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CursingTrap
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_SOUL
@@ -39,6 +43,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.PathFinder
 import kotlin.math.max
@@ -187,10 +192,10 @@ fun Char.defenseProcHook(enemy: Char, damage: Int) {
  */
 fun Char.deathHook(src: Any?) {
     if (this is Mob) {
-        if(Modifier.BOMBERMOB.active()) {
+        if (Modifier.BOMBERMOB.active()) {
             Bomb.igniteAt(bombermobBomb(), pos)
         }
-        if(alignment != Char.Alignment.ALLY) {
+        if (alignment != Char.Alignment.ALLY) {
             if (Modifier.ARROWHEAD.active()) {
                 Buff.affect(Dungeon.hero, Arrowhead::class.java).addStack()
             }
@@ -202,6 +207,13 @@ fun Char.deathHook(src: Any?) {
                             Dungeon.hero.pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java
                         )
                     )
+                }
+            }
+        }
+        if (this is Statue && Modifier.CURSED.active()) {
+            Dungeon.level.heaps.get(pos)?.let {
+                for (item in it.items) {
+                    if (item is MeleeWeapon || item is Armor) item.curseIfAllowed(true)
                 }
             }
         }

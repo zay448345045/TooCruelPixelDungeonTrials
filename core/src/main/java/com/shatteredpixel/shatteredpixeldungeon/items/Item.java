@@ -156,7 +156,9 @@ public class Item implements Bundlable {
 		GameScene.cancel();
 		curUser = hero;
 		curItem = this;
-		
+
+		if(Dungeon.tcpdData.getModifiers().isActionBanned(this, action)) return;
+
 		if (action.equals( AC_DROP )) {
 			
 			if (hero.belongings.backpack.contains(this) || isEquipped(hero)) {

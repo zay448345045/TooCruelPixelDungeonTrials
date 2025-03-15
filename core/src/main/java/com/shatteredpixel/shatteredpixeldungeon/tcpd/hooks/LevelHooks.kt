@@ -5,6 +5,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
@@ -13,16 +15,19 @@ import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlam
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfStrength
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.Feeling
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CursingTrap
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_BLESS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import com.watabou.utils.Reflection
@@ -56,6 +61,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.LOOT_PARADISE.active()) {
         applyLootParadise()
+    }
+    if (Modifier.CURSED.active()) {
+        applyCursed()
     }
 }
 
@@ -236,6 +244,22 @@ private fun Level.applyLootParadise() {
     }
 
     var nItems = (this as RegularLevel)
+}
+
+fun Level.applyCursed() {
+    for(h in heaps) {
+        for(item in h.value.items) {
+            item.curseIfAllowed(true)
+        }
+    }
+
+    for(m in mobs) {
+        if(m is Mimic) {
+            for (item in m.items) {
+                item.curseIfAllowed(true)
+            }
+        }
+    }
 }
 
 fun Level.destroyWall(cell: Int) {

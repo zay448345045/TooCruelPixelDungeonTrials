@@ -81,9 +81,13 @@ import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingKn
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingSpike;
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.missiles.ThrowingStone;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Catalog;
+import com.shatteredpixel.shatteredpixeldungeon.levels.traps.CursingTrap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.ItemExtKt;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import com.watabou.utils.DeviceCompat;
 
 public enum HeroClass {
@@ -155,6 +159,11 @@ public enum HeroClass {
 			}
 		}
 
+		if(Modifier.CURSED.active()) {
+			for (Item item : hero.belongings) {
+				ItemExtKt.curseIfAllowed(item, true);
+			}
+		}
 		if(Modifiers.Companion.debugModeActive()) {
 			new PotionOfHealing().collect();
 			new ScrollOfMagicMapping().collect();
