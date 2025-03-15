@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.ChaliceOfBlood
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
@@ -81,6 +82,11 @@ enum class Modifier(
     CERTAINTY_OF_STEEL(39) {
         override fun _isItemBlocked(item: Item): Boolean {
             return item is SaltCube
+        }
+    },
+    GOLDEN_COLOSSUS(52, dependencies = arrayOf(CERTAINTY_OF_STEEL.id)) {
+        override fun _isItemBlocked(item: Item): Boolean {
+            return item is MasterThievesArmband
         }
     },
     PARADOX_LEVELGEN(40),

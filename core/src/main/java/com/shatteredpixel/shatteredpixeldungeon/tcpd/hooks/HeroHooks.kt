@@ -15,6 +15,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ControlledRandomness
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.GoldenBody
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium
@@ -41,7 +42,11 @@ fun Hero.heroLiveHook() {
         Buff.affect(this, Intoxication.ToxicWaterTracker::class.java)
     }
     if (Modifier.CERTAINTY_OF_STEEL.active()) {
-        Buff.affect(this, SteelBody::class.java)
+        if(Modifier.GOLDEN_COLOSSUS.active()) {
+            Buff.affect(this, GoldenBody::class.java)
+        } else {
+            Buff.affect(this, SteelBody::class.java)
+        }
     }
     if (Modifier.RETIERED.active()) {
         Buff.affect(this, RetieredBuff::class.java)

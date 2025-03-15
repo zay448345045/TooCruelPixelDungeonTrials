@@ -56,19 +56,8 @@ class SteelBody : NoDetachShieldBuff() {
 
             target.HP = 1
         }
-        target.buff(MagicalSleep::class.java)?.let {
-            GameScene.add(
-                Blob.seed(
-                    target.pos, 1,
-                    Electricity::class.java
-                )
-            )
 
-            // in case if the target is immune to electricity, wake them up after a while
-            if (Random.Float() < 0.1f) {
-                it.detach()
-            }
-        }
+        wakeUp(target)
 
         spend(TICK)
         return true
@@ -86,5 +75,21 @@ class SteelBody : NoDetachShieldBuff() {
 
     companion object {
         private const val PARTIAL_SHIELDING = "partialShielding"
+
+        fun wakeUp(target: Char) {
+            target.buff(MagicalSleep::class.java)?.let {
+                GameScene.add(
+                    Blob.seed(
+                        target.pos, 1,
+                        Electricity::class.java
+                    )
+                )
+
+                // in case if the target is immune to electricity, wake them up after a while
+                if (Random.Float() < 0.1f) {
+                    it.detach()
+                }
+            }
+        }
     }
 }
