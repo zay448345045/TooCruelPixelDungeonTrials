@@ -246,7 +246,7 @@ class TrialGroup() : Bundlable {
             val groups = mutableListOf<TrialGroup>()
             val names = mapOf(1 to "normal.json", 2 to "hard.json", 3 to "extreme.json")
             val url =
-                "https://raw.githubusercontent.com/juh9870/TooCruelPixelDungeonTrials/refs/heads/trials/core/src/main/assets/trials/"
+                "https://raw.githubusercontent.com/juh9870/TooCruelPixelDungeonTrials/refs/heads/main/core/src/main/assets/trials/"
             for ((id, name) in names) {
                 val file = Gdx.files.internal(Assets.TCPD.Trials.BASEPATH + name)
                 val bundle = Bundle.read(file.read())
