@@ -31,7 +31,9 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass;
 import com.shatteredpixel.shatteredpixeldungeon.journal.Journal;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndModifiers;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.windows.WndTrials;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.ui.ExitButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.IconButton;
@@ -136,13 +138,7 @@ public class HeroSelectScene extends PixelScene {
 
 				if (GamesInProgress.selectedClass == null) return;
 
-				Dungeon.hero = null;
-				Dungeon.daily = Dungeon.dailyReplay = false;
-				Dungeon.initSeed();
-				ActionIndicator.clearAction();
-				InterlevelScene.mode = InterlevelScene.Mode.DESCEND;
-
-				Game.switchScene( InterlevelScene.class );
+				ShatteredPixelDungeon.scene().addToFront(new WndTrials());
 			}
 		};
 		startBtn.icon(Icons.get(Icons.ENTER));
@@ -375,14 +371,12 @@ public class HeroSelectScene extends PixelScene {
 	private void updateOptionsColor(){
 		if (!SPDSettings.customSeed().isEmpty()){
 			btnOptions.icon().hardlight(1f, 1.5f, 0.67f);
-		} else if (SPDSettings.challenges().isChallenged()){
-			btnOptions.icon().hardlight(2f, 1.33f, 0.5f);
 		} else {
 			btnOptions.icon().resetColor();
 		}
 	}
 
-	private void setSelectedHero(HeroClass cl){
+	public void setSelectedHero(HeroClass cl){
 		GamesInProgress.selectedClass = cl;
 
 		try {
@@ -565,7 +559,7 @@ public class HeroSelectScene extends PixelScene {
 			super.onClick();
 
 			if( !cl.isUnlocked() ){
-				ShatteredPixelDungeon.scene().addToFront( new WndMessage(cl.unlockMsg()));
+				ShatteredPixelDungeon.scene().addToFront( new WndMessage(Trials.Companion.heroClassLockedMsg(cl)));
 			} else if (GamesInProgress.selectedClass == cl) {
 				Window w = new WndHeroInfo(cl);
 				if (landscape()){
@@ -749,8 +743,8 @@ public class HeroSelectScene extends PixelScene {
 			};
 			dailyButton.leftJustify = true;
 			dailyButton.icon(Icons.get(Icons.CALENDAR));
-			add(dailyButton);
-			buttons.add(dailyButton);
+//			add(dailyButton);
+//			buttons.add(dailyButton);
 
 			StyledButton challengeButton = new StyledButton(Chrome.Type.BLANK, Messages.get(WndModifiers.class, "title"), 6){
 				@Override
@@ -764,19 +758,21 @@ public class HeroSelectScene extends PixelScene {
 //						return;
 //					}
 
-					ShatteredPixelDungeon.scene().addToFront(new WndModifiers(SPDSettings.challenges(), true) {
-						public void onBackPressed() {
-							super.onBackPressed();
-							icon(Icons.get(SPDSettings.challenges().isChallenged() ? Icons.CHALLENGE_COLOR : Icons.CHALLENGE_GREY));
-							updateOptionsColor();
-						}
-					} );
+//					ShatteredPixelDungeon.scene().addToFront(new WndModifiers(SPDSettings.challenges(), true) {
+//						public void onBackPressed() {
+//							super.onBackPressed();
+//							icon(Icons.get(SPDSettings.challenges().isChallenged() ? Icons.CHALLENGE_COLOR : Icons.CHALLENGE_GREY));
+//							updateOptionsColor();
+//						}
+//					} );
+
+					ShatteredPixelDungeon.scene().addToFront(new WndTrials());
 				}
 			};
 			challengeButton.leftJustify = true;
-			challengeButton.icon(Icons.get(SPDSettings.challenges().isChallenged() ? Icons.CHALLENGE_COLOR : Icons.CHALLENGE_GREY));
-			add(challengeButton);
-			buttons.add(challengeButton);
+			challengeButton.icon(Icons.get(Icons.CHALLENGE_COLOR));
+//			add(challengeButton);
+//			buttons.add(challengeButton);
 
 			for (int i = 1; i < buttons.size(); i++){
 				ColorBlock spc = new ColorBlock(1, 1, 0xFF000000);

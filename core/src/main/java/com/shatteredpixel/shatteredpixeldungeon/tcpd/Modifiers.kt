@@ -163,7 +163,7 @@ class Modifiers() : Bundlable {
         }
 
         fun debugModeActive(): Boolean {
-           return DeviceCompat.isDebug()
+            return DeviceCompat.isDebug()
         }
 
         const val MODIFIERS = "modifiers"
@@ -171,6 +171,10 @@ class Modifiers() : Bundlable {
         init {
             doTests()
         }
+    }
+
+    fun asRaw(): BooleanArray {
+        return modifiers.copyOf()
     }
 
     fun isChallenged(): Boolean {

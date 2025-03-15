@@ -4,15 +4,20 @@ import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.AnimationState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiId
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.WidgetResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.ComponentConstructor
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.NinePatchDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
+import com.watabou.noosa.Visual
 import com.watabou.noosa.ui.Component
 
 val RED_BUTTON_MARGINS = Margins(3, 3, 1, 3);
@@ -59,20 +64,41 @@ fun Ui.iconButton(image: TextureDescriptor): InteractiveResponse<Unit> {
     return customButton { interaction ->
         val img = image(image)
 
-        if (interaction.isPointerDown) {
-            img.widget.brightness(1.2f)
-        } else {
-            img.widget.resetColor()
-        }
+        highlightTouchedVisual(interaction, img, top().style().interactionAnimationDuration)
+        dimInactiveVisual(img)
     }
+}
+
+fun <T : Visual> Ui.highlightTouchedVisual(
+    interaction: Interaction,
+    response: WidgetResponse<T>,
+    duration: Float
+) {
+    highlightTouchedVisual(
+        interaction.isPointerDown,
+        response.widget,
+        response.response.id,
+        duration
+    )
+}
+
+fun Ui.highlightTouchedVisual(held: Boolean, visual: Visual, id: UiId, duration: Float) {
+    val anim =
+        ctx().getOrPutMemory(id.with("highlight")) { AnimationState(held) }
+
+    val brightness = anim.animate(held, duration) {
+        1f + 0.2f * it
+    }
+    visual.brightness(brightness)
 }
 
 fun Ui.redButton(
     text: String,
     size: Int = 9,
-    margins: Margins = RED_BUTTON_MARGINS
+    margins: Margins = RED_BUTTON_MARGINS,
+    background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor()
 ): InteractiveResponse<Unit> {
-    return redButton(margins) {
+    return redButton(margins, background) {
         activeLabel(text, size)
     }
 }
@@ -85,45 +111,57 @@ fun Ui.redCheckbox(
 ): InteractiveResponse<Unit> {
     return redButton(margins) {
         val res = activeLabel(text, size)
-        val ui = top();
-        val space = ui.layout.getFullAvailableSpace()
-        val image = ui.painter().drawImage(
-            ui.nextAutoId(), Pos2(0, 0), if (checked) {
-                Icons.CHECKED
-            } else {
-                Icons.UNCHECKED
-            }.descriptor()
-        )
-        image.x = (space.right() - image.width - 1)
-        image.y =
-            ((res.widget.top() + (res.widget.height() - image.height) / 2) + 1)
-        PixelScene.align(image)
+        drawRedCheckbox(checked, res.response.rect)
     }
+}
+
+fun Ui.drawRedCheckbox(checked: Boolean, alignRect: Rect) {
+    val ui = top();
+    val space = ui.layout.getFullAvailableSpace()
+    val checkboxId = ui.nextAutoId();
+    val image = ui.painter().drawImage(
+        checkboxId, Pos2(0, 0), if (checked) {
+            Icons.CHECKED
+        } else {
+            Icons.UNCHECKED
+        }.descriptor()
+    )
+    image.x = (space.right() - image.width - 1)
+    image.y =
+        ((alignRect.top() + (alignRect.height() - image.height) / 2) + 1)
+    PixelScene.align(image)
+    dimInactiveVisual(WidgetResponse(image, UiResponse(Rect.ZERO, checkboxId)))
 }
 
 inline fun <T> Ui.redButton(
     margins: Margins = RED_BUTTON_MARGINS,
+    background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor(),
     crossinline content: (interaction: Interaction) -> T
 ): InteractiveResponse<T> {
     return customButton { interaction ->
-        withRedButtonBackground(this, interaction.isPointerDown, margins) {
+        withRedButtonBackground(this, interaction.isPointerDown, margins, background) {
             content(interaction)
         }
     }
 }
 
 inline fun <T> withRedButtonBackground(
-    ui: Ui, held: Boolean, margins: Margins, crossinline content: () -> T
+    ui: Ui,
+    held: Boolean,
+    margins: Margins,
+    background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor(),
+    crossinline content: () -> T
 ): T {
-    return ui.vertical(background = Chrome.Type.RED_BUTTON.descriptor()) {
+    return ui.vertical(background = background) {
         ui.margins(margins) {
             val bg = (ui.top().painter().getGroup() as NinePatchComponent).ninePatch
             if (bg != null) {
-                if (held) {
-                    bg.brightness(1.2f)
-                } else {
-                    bg.resetColor()
-                }
+                ui.highlightTouchedVisual(
+                    held,
+                    bg,
+                    ui.top().id(),
+                    ui.top().style().backgroundInteractionAnimationDuration
+                )
             }
             content()
         }.inner

@@ -6,6 +6,8 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Style
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
+import kotlin.math.ceil
+import kotlin.math.floor
 import kotlin.math.max
 
 abstract class Layout(protected var availableSpace: Rect) {
@@ -105,6 +107,22 @@ abstract class Layout(protected var availableSpace: Rect) {
         }
     }
 
+    open class StackFill(availableSpace: Rect) : Stack(availableSpace) {
+        companion object : LayoutConstructor {
+            override fun construct(availableSpace: Rect): Layout {
+                return StackFill(availableSpace)
+            }
+        }
+
+        override fun allocate(desired: Vec2, style: Style): Rect {
+            return super.allocate(availableSpace.size(), style)
+        }
+
+        override fun childContinued(): LayoutConstructor {
+            return StackFill
+        }
+    }
+
     class VerticalJustified(availableSpace: Rect) : Vertical(availableSpace) {
         companion object : LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
@@ -121,17 +139,22 @@ abstract class Layout(protected var availableSpace: Rect) {
         }
     }
 
-    class ColumnsLayout(private val columns: FloatArray, availableSpace: Rect) :
+    class ColumnsLayout(
+        private val columns: FloatArray,
+        private val spacing: Int,
+        availableSpace: Rect
+    ) :
         Layout(availableSpace) {
-        class ColumnsLayoutConstructor(private val columns: FloatArray) : LayoutConstructor {
+        class ColumnsLayoutConstructor(private val columns: FloatArray, private val spacing: Int) :
+            LayoutConstructor {
             override fun construct(availableSpace: Rect): Layout {
-                return ColumnsLayout(columns, availableSpace)
+                return ColumnsLayout(columns, spacing, availableSpace)
             }
         }
 
         companion object {
-            fun constructor(columns: FloatArray): LayoutConstructor {
-                return ColumnsLayoutConstructor(columns)
+            fun constructor(columns: FloatArray, spacing: Int): LayoutConstructor {
+                return ColumnsLayoutConstructor(columns, spacing)
             }
         }
 
@@ -140,12 +163,40 @@ abstract class Layout(protected var availableSpace: Rect) {
         private var nextRow = 0
         private val columnsSum = columns.sum()
 
-        private fun nextWidth(spacing: Int): Int {
-            return (columns[column] * (availableSpace.width() - spacing * (columns.size - 1)) / columnsSum).toInt()
+        private val columnWidths = IntArray(columns.size)
+        private val unusedSpace: Int
+
+        init {
+            if (columns.isEmpty()) {
+                throw IllegalArgumentException("Columns layout requires at least one column")
+            }
+            val totalAvailable = availableSpace.width() - spacing * (columns.size - 1)
+            for (i in columns.indices) {
+                columnWidths[i] = (columns[i] * totalAvailable / columnsSum).toInt()
+            }
+
+            unusedSpace = totalAvailable - columnWidths.sum()
+            if (unusedSpace > 0) {
+                val distributeToEach = unusedSpace / columns.size
+                if (distributeToEach > 0) {
+                    for (i in columnWidths.indices) {
+                        columnWidths[i] += distributeToEach
+                    }
+                }
+                val remaining = unusedSpace - distributeToEach * columns.size
+                if (remaining > 0) {
+                    columnWidths[0] += floor(remaining / 2f).toInt()
+                    columnWidths[columnWidths.size - 1] += ceil(remaining / 2f).toInt()
+                }
+            }
+        }
+
+        private fun nextWidth(): Int {
+            return columnWidths[column]
         }
 
         override fun allocate(desired: Vec2, style: Style): Rect {
-            val width = nextWidth(style.itemSpacing)
+            val width = nextWidth()
             val rect =
                 Rect.fromSize(cursor, Vec2(width, desired.y)).allocateIntersect(availableSpace)
             nextRow = max(nextRow, rect.bottom())
@@ -153,9 +204,9 @@ abstract class Layout(protected var availableSpace: Rect) {
             column += 1
             if (column >= columns.size) {
                 column = 0
-                cursor = Pos2(availableSpace.min.x, nextRow + style.itemSpacing)
+                cursor = Pos2(availableSpace.min.x, nextRow + spacing)
             } else {
-                cursor = Pos2(cursor.x + width + style.itemSpacing, cursor.y)
+                cursor = Pos2(cursor.x + width + spacing, cursor.y)
             }
             return rect
         }
@@ -167,7 +218,7 @@ abstract class Layout(protected var availableSpace: Rect) {
         override fun nextAvailableSpace(style: Style): Rect {
             return Rect.fromMinMax(
                 cursor,
-                Pos2(cursor.x + nextWidth(style.itemSpacing), availableSpace.max.y)
+                Pos2(cursor.x + nextWidth(), availableSpace.max.y)
             )
         }
 
