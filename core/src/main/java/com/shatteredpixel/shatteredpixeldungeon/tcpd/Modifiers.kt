@@ -105,10 +105,10 @@ enum class Modifier(
     CURSED(54),
     CURSE_MAGNET(55),
     EXTERMINATION(57),
-    POSTPAID_LOOT(58),
+    POSTPAID_LOOT(58, dependencies = arrayOf(EXTERMINATION.id)),
     MIMICS(59),
-    MIMICS_ALL(60),
-    MIMICS_GRIND(61),
+    MIMICS_ALL(60, dependencies = arrayOf(MIMICS_ALL.id)),
+    MIMICS_GRIND(61, dependencies = arrayOf(MIMICS.id)),
     ;
 
     companion object {
