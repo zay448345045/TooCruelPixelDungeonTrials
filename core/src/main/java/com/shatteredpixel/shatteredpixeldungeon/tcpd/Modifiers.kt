@@ -7,9 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube
-import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.assertEq
@@ -107,6 +105,10 @@ enum class Modifier(
     CURSED(54),
     CURSE_MAGNET(55),
     EXTERMINATION(57),
+    POSTPAID_LOOT(58),
+    MIMICS(59),
+    MIMICS_ALL(60),
+    MIMICS_GRIND(61),
     ;
 
     companion object {

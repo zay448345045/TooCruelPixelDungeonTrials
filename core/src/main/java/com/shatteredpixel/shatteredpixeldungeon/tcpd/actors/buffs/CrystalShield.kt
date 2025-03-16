@@ -16,7 +16,7 @@ import com.watabou.noosa.audio.Sample
 
 class CrystalShield : Buff() {
     init {
-        type = buffType.POSITIVE;
+        type = buffType.POSITIVE
     }
 
     companion object {

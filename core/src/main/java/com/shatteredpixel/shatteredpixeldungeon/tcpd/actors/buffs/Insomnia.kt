@@ -23,6 +23,10 @@ class InsomniaSlowdown : FlavourBuff(), TimescaleBuff {
 }
 
 class InsomniaSpeed : Buff(), TimescaleBuff {
+    init {
+        revivePersists = true
+    }
+
     override fun speedFactor(): Float {
         return 2f
     }

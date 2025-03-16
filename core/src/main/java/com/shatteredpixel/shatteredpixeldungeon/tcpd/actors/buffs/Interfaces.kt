@@ -72,6 +72,10 @@ interface InvulnerabilityBuff {
     fun isInvulnerable(effect: Class<out Any>): Boolean
 }
 
+interface OnDeathEffectBuff {
+    fun onDeathProc()
+}
+
 interface MindVisionExtBuff {
     fun revealRadius(): Int
     fun maxHeroDistance(): Int {

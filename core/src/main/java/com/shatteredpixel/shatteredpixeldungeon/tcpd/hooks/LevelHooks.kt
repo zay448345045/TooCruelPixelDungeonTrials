@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
@@ -22,15 +23,15 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster
-import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.ExterminationItemLock
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_BLESS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.utils.BArray
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
@@ -67,6 +68,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.LOOT_PARADISE.active()) {
         applyLootParadise()
+    }
+    if (Modifier.MIMICS.active()) {
+        applyMimics()
     }
     if (Modifier.CURSED.active()) {
         applyCursed()
@@ -169,19 +173,11 @@ fun dungeonObserveHook(dist: Int) {
                 if (maxHeroDistance < 0 || maxHeroDistance < heroDistance) {
                     if (radius == 1) {
                         BArray.or(
-                            level.visited,
-                            level.heroFOV,
-                            pos - 1 - level.width(),
-                            3,
-                            level.visited
+                            level.visited, level.heroFOV, pos - 1 - level.width(), 3, level.visited
                         )
                         BArray.or(level.visited, level.heroFOV, pos - 1, 3, level.visited)
                         BArray.or(
-                            level.visited,
-                            level.heroFOV,
-                            pos - 1 + level.width(),
-                            3,
-                            level.visited
+                            level.visited, level.heroFOV, pos - 1 + level.width(), 3, level.visited
                         )
                         GameScene.updateFog(pos, 2)
                         continue
@@ -198,11 +194,7 @@ fun dungeonObserveHook(dist: Int) {
                     var pos1 = l + t * Dungeon.level.width()
                     for (i in t..b) {
                         BArray.or(
-                            level.visited,
-                            level.heroFOV,
-                            pos,
-                            width,
-                            Dungeon.level.visited
+                            level.visited, level.heroFOV, pos, width, Dungeon.level.visited
                         )
                         pos1 += Dungeon.level.width()
                     }
@@ -215,23 +207,7 @@ fun dungeonObserveHook(dist: Int) {
 
 fun Level.activateTransitionHook(hero: Hero): Boolean {
     if (Modifier.EXTERMINATION.active()) {
-        var nExterminating = 0
-        for (mob in mobs) {
-            if (mob.buff(Exterminating::class.java) != null) {
-                nExterminating++
-                Buff.affect(mob, Exterminating.Reveal::class.java, Exterminating.Reveal.DURATION)
-            }
-        }
-        if (nExterminating > 0) {
-            if (nExterminating > 1) {
-                GLog.w(Messages.get(Modifier::class.java, "extermination_lock", nExterminating))
-            } else {
-                GLog.w(Messages.get(Modifier::class.java, "extermination_lock_last"))
-            }
-            Dungeon.observe()
-            GameScene.updateFog()
-            return false
-        }
+        if (!Exterminating.exterminationDone(this)) return false
     }
     return true
 }
@@ -382,8 +358,7 @@ private fun Level.applyLootParadise() {
         if (validCells.size <= i) break
         val cell = validCells[i]
 
-        val toDrop =
-            Generator.random() ?: continue
+        val toDrop = Generator.random() ?: continue
         furrowDroppedItemPos(cell)
         drop(toDrop, cell)
     }
@@ -405,22 +380,52 @@ fun Level.applyCursed() {
     }
 }
 
+fun Level.applyMimics() {
+    val allItems = Modifier.MIMICS_ALL.active()
+    val grind = Modifier.MIMICS_GRIND.active()
+    val iter = heaps.iterator()
+    while(iter.hasNext()) {
+        val h = iter.next()
+        if(h.value.type == Heap.Type.CHEST || allItems) {
+            StoredHeapData.transformHeapIntoMimic(this, h.value, extraLoot = grind, weakHolders = !grind)
+            iter.remove()
+        }
+    }
+}
 fun Level.applyExtermination() {
+    // Don't exterminate on boss levels
+    if (Dungeon.bossLevel()) return
+
+    val exterminateItemHolders = Modifier.MIMICS.active()
+
+    val requireReachable = Modifier.POSTPAID_LOOT.active()
+    if (requireReachable) {
+        PathFinder.buildDistanceMap(
+            getTransition(null).cell(), BArray.or(passable, avoid, null)
+        )
+    }
+    if (Modifier.POSTPAID_LOOT.active()) {
+        val lock = ExterminationItemLock()
+        blobs[ExterminationItemLock::class.java] = lock
+        for (h in heaps.valueList()) {
+            lock.lockItem(this, h)
+        }
+
+        for (mob in mobs.toTypedArray()) {
+            if (mob is Mimic) lock.lockMimic(this, mob)
+            if (mob is Statue) lock.lockStatue(this, mob)
+        }
+    }
     for (m in mobs) {
-        if(m is Mimic) continue
+        if (!exterminateItemHolders && (m is Mimic || m is Statue)) continue
+        if (requireReachable && PathFinder.distance[m.pos] == Integer.MAX_VALUE) continue
         Buff.affect(m, Exterminating::class.java)
     }
 }
 
 fun Level.destroyWall(cell: Int) {
     val terrain = map[cell]
-    if (terrain == Terrain.WALL ||
-        terrain == Terrain.WALL_DECO ||
-        terrain == Terrain.STATUE ||
-        terrain == Terrain.STATUE_SP ||
-        terrain == Terrain.SECRET_DOOR ||
-        terrain == Terrain.CRYSTAL_DOOR
-    ) {
+    if (terrain == Terrain.WALL || terrain == Terrain.WALL_DECO || terrain == Terrain.STATUE || terrain == Terrain.STATUE_SP || terrain == Terrain.SECRET_DOOR || terrain == Terrain.CRYSTAL_DOOR) {
         strongDestroy(cell)
     }
 }

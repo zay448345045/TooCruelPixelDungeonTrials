@@ -69,6 +69,10 @@ class Arrowhead : Buff(), DamageAmplificationBuff {
     }
 
     class MobArrowhead : Buff(), DamageAmplificationBuff {
+        init {
+            revivePersists = true
+        }
+
         override fun damageMultiplier(source: Any?): Float {
             val arrowhead = Dungeon.hero.buff(Arrowhead::class.java) ?: return 1f
             return (1 + arrowhead.stacks * 0.1f)
