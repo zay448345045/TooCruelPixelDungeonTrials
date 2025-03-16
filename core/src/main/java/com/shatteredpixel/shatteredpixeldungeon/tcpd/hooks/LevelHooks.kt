@@ -79,9 +79,18 @@ fun Level.updateFieldOfViewHook(
             }
         }
         if (Modifier.BULKY_FRAME.active()) {
+            val shrouding = Modifier.SHROUDING_PRESENCE.active()
+            var pos: Int
             blocking = blocking ?: initBlocking(modifiableBlocking)
             for (mob in mobs) {
-                blocking[mob.pos] = true
+                if(mob.alignment == Char.Alignment.ALLY) continue
+                pos = mob.pos
+                blocking[pos] = true
+                if(shrouding) {
+                    for(c in PathFinder.NEIGHBOURS8) {
+                        blocking[pos + c] = true
+                    }
+                }
             }
         }
     }

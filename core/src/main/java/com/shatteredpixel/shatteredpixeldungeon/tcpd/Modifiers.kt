@@ -97,6 +97,7 @@ enum class Modifier(
     MOLES(46),
     LOFT(47),
     BULKY_FRAME(48),
+    SHROUDING_PRESENCE(56, dependencies = arrayOf(BULKY_FRAME.id)),
     SLIDING(49),
     INSOMNIA(50),
     LOOT_PARADISE(51),
