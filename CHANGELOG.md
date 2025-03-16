@@ -6,6 +6,27 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Extermination modifier (by juh9870)
+- Postpaid Loot modifier (by juh9870)
+- Fake Dungeon modifier (by juh9870)
+- Fort Knox modifier (by juh9870)
+- Treasure Chest Party Quest modifier (by juh9870)
+- Shrouding Presence modifier (by juh9870)
+
+### Changed
+
+- Allies no longer block your vision with Bulky Frame (by juh9870)
+- Custom modifiers are now saved across game restarts (by juh9870)
+
+### Fixed
+
+- Wall destroying effects affecting diagonally adjacent doors (by juh9870)
+- Some mobs not getting affected by challenges (by juh9870)
+- Wrong buff ordering with Golden Colossus (by juh9870)
+- Crash with Loot Paradise (by juh9870)
+
 ## [0.8.0]
 
 > Released on 2025-03-16
