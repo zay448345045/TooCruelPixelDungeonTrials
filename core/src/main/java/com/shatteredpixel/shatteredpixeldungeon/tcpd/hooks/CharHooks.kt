@@ -38,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSlowdo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSpeed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvulnerabilityBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ModifiersAppliedTracker
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
@@ -348,6 +349,15 @@ fun Mob.mobFirstAddedHook() {
     if (this is NPC) {
         return
     }
+    applyModifiers()
+}
+
+fun Mob.applyModifiers() {
+    if(buff(ModifiersAppliedTracker::class.java) != null) return
+    Buff.affect(this, ModifiersAppliedTracker::class.java)
+    // buff was rejected, can't apply modifiers, wait until the better time
+    if(buff(ModifiersAppliedTracker::class.java) == null) return
+
     if (Modifier.ARROWHEAD.active()) {
         Buff.affect(this, MobArrowhead::class.java)
     }
@@ -369,6 +379,7 @@ fun Mob.mobFirstAddedHook() {
 }
 
 fun Mob.mobBeforeActHook(enemyInFOV: Boolean, justAlerted: Boolean) {
+    applyModifiers()
     if (enemyInFOV && Modifier.INSOMNIA.active()) {
         Buff.prolong(this, InsomniaSlowdown::class.java, InsomniaSlowdown.DURATION)
     }
