@@ -273,7 +273,7 @@ fun Level.destroyWall(cell: Int) {
 fun Level.strongDestroy(cell: Int, replaceWith: Int = Terrain.EMBERS) {
     if (!insideMap(cell)) return
     Level.set(cell, replaceWith)
-    for (o in PathFinder.NEIGHBOURS8) {
+    for (o in PathFinder.NEIGHBOURS4) {
         val n = cell + o
         val terrain = map[n]
         if (terrain == Terrain.DOOR || terrain == Terrain.OPEN_DOOR || terrain == Terrain.CRYSTAL_DOOR || terrain == Terrain.LOCKED_DOOR) {
