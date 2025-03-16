@@ -12,6 +12,7 @@
 
 ### Added
 
+- Crash report utility for android builds (by juh9870)
 - Extermination modifier (by juh9870)
 - Postpaid Loot modifier (by juh9870)
 - Fake Dungeon modifier (by juh9870)
