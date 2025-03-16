@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Net
 import com.shatteredpixel.shatteredpixeldungeon.Assets
 import com.shatteredpixel.shatteredpixeldungeon.GamesInProgress
+import com.shatteredpixel.shatteredpixeldungeon.SPDSettings
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
@@ -18,7 +19,7 @@ import com.watabou.utils.FileUtils
 import java.io.IOException
 import javax.net.ssl.SSLProtocolException
 
-class Trial() : Bundlable {
+open class Trial() : Bundlable {
     var name: String = ""
     var modifiers: BooleanArray = BooleanArray(0)
     var lockedClass: HeroClass? = null
@@ -98,7 +99,7 @@ class Trial() : Bundlable {
         return Modifiers(modifiers)
     }
 
-    fun setModifiers(modifiers: Modifiers) {
+    open fun setModifiers(modifiers: Modifiers) {
         this.modifiers = modifiers.asRaw()
     }
 
@@ -111,8 +112,16 @@ class Trial() : Bundlable {
         private const val MODIFIERS = "modifiers"
         private const val LOCKED_CLASS = "locked_class"
 
-        val CUSTOM = Trial("Custom")
-//        val NONE = Trial("!!!NULL TRIAL!!!")
+        val CUSTOM = object : Trial("Custom") {
+            init {
+                super.setModifiers(SPDSettings.customModifiers())
+            }
+
+            override fun setModifiers(modifiers: Modifiers) {
+                SPDSettings.customModifiers(modifiers)
+                super.setModifiers(modifiers)
+            }
+        }
 
         fun fromNetworkBundle(bundle: Bundle): Trial {
             val name = bundle.getString(NAME)
