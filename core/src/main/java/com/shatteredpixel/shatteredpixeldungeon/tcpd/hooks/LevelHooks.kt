@@ -239,8 +239,6 @@ private fun Level.applyLootParadise() {
         furrowDroppedItemPos(cell)
         drop(toDrop, cell)
     }
-
-    var nItems = (this as RegularLevel)
 }
 
 fun Level.applyCursed() {
