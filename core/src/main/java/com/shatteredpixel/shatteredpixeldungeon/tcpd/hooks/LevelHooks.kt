@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator
@@ -20,14 +21,22 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_BLESS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
+import com.watabou.utils.BArray
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import com.watabou.utils.Reflection
+import kotlin.math.max
+import kotlin.math.min
 
 fun RegularLevel.createItemsHook() {
     if (Modifier.HEAD_START.active() && Dungeon.depth == 1) {
@@ -62,10 +71,13 @@ fun Level.postCreateHook() {
     if (Modifier.CURSED.active()) {
         applyCursed()
     }
+    if (Modifier.EXTERMINATION.active()) {
+        applyExtermination()
+    }
 }
 
 @Suppress("NAME_SHADOWING")
-fun Level.updateFieldOfViewHook(
+fun Level.updateBlockingFovHook(
     c: Char, modifiableBlocking: BooleanArray, blocking: BooleanArray?
 ): BooleanArray? {
     var blocking = blocking
@@ -83,11 +95,11 @@ fun Level.updateFieldOfViewHook(
             var pos: Int
             blocking = blocking ?: initBlocking(modifiableBlocking)
             for (mob in mobs) {
-                if(mob.alignment == Char.Alignment.ALLY) continue
+                if (mob.alignment == Char.Alignment.ALLY) continue
                 pos = mob.pos
                 blocking[pos] = true
-                if(shrouding) {
-                    for(c in PathFinder.NEIGHBOURS8) {
+                if (shrouding) {
+                    for (c in PathFinder.NEIGHBOURS8) {
                         blocking[pos + c] = true
                     }
                 }
@@ -95,6 +107,133 @@ fun Level.updateFieldOfViewHook(
         }
     }
     return blocking
+}
+
+fun Level.updateHeroMindFovHook(
+    h: Hero, heroMindFov: BooleanArray
+) {
+    val shadowFov = BooleanArray(length())
+    for (mob in mobs) {
+        var heroDistance = -1
+        val pos = mob.pos
+        for (buff in mob.buffs()) {
+            if (buff is MindVisionExtBuff) {
+                var radius = buff.revealRadius()
+                if (radius <= 0) {
+                    continue
+                }
+                if (radius > ShadowCaster.MAX_DISTANCE) {
+                    radius = ShadowCaster.MAX_DISTANCE
+                }
+                val maxHeroDistance = buff.maxHeroDistance()
+                if (maxHeroDistance >= 0 && heroDistance < 0) {
+                    heroDistance = distance(pos, h.pos)
+                }
+                if (maxHeroDistance < 0 || maxHeroDistance < heroDistance) {
+                    if (radius == 1) {
+                        for (i in PathFinder.NEIGHBOURS9) {
+                            heroMindFov[pos + i] = true
+                        }
+                    } else {
+                        val w = width()
+                        val x = pos % w
+                        val y = pos / w
+                        ShadowCaster.castShadow(x, y, w, shadowFov, losBlocking, radius)
+                        BArray.or(heroMindFov, shadowFov, heroMindFov)
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun dungeonObserveHook(dist: Int) {
+    val level = Dungeon.level
+    for (mob in level.mobs) {
+        var heroDistance = -1
+        val pos = mob.pos
+        for (buff in mob.buffs()) {
+            if (buff is MindVisionExtBuff) {
+                var radius = buff.revealRadius()
+                if (radius <= 0) {
+                    continue
+                }
+                if (radius > ShadowCaster.MAX_DISTANCE) {
+                    radius = ShadowCaster.MAX_DISTANCE
+                }
+                val maxHeroDistance = buff.maxHeroDistance()
+                if (maxHeroDistance >= 0 && heroDistance < 0) {
+                    heroDistance = level.distance(pos, Dungeon.hero.pos)
+                }
+
+                if (maxHeroDistance < 0 || maxHeroDistance < heroDistance) {
+                    if (radius == 1) {
+                        BArray.or(
+                            level.visited,
+                            level.heroFOV,
+                            pos - 1 - level.width(),
+                            3,
+                            level.visited
+                        )
+                        BArray.or(level.visited, level.heroFOV, pos - 1, 3, level.visited)
+                        BArray.or(
+                            level.visited,
+                            level.heroFOV,
+                            pos - 1 + level.width(),
+                            3,
+                            level.visited
+                        )
+                        GameScene.updateFog(pos, 2)
+                        continue
+                    }
+                    val w = level.width()
+                    val x = pos % w
+                    val y = pos / w
+                    val l = max(0, (x - dist))
+                    val r = min((x + dist), (level.width() - 1))
+                    val t = max(0, (y - dist))
+                    val b = min((y + dist), (level.height() - 1))
+                    val width = r - l + 1
+
+                    var pos1 = l + t * Dungeon.level.width()
+                    for (i in t..b) {
+                        BArray.or(
+                            level.visited,
+                            level.heroFOV,
+                            pos,
+                            width,
+                            Dungeon.level.visited
+                        )
+                        pos1 += Dungeon.level.width()
+                    }
+                    GameScene.updateFog(pos, dist)
+                }
+            }
+        }
+    }
+}
+
+fun Level.activateTransitionHook(hero: Hero): Boolean {
+    if (Modifier.EXTERMINATION.active()) {
+        var nExterminating = 0
+        for (mob in mobs) {
+            if (mob.buff(Exterminating::class.java) != null) {
+                nExterminating++
+                Buff.affect(mob, Exterminating.Reveal::class.java, Exterminating.Reveal.DURATION)
+            }
+        }
+        if (nExterminating > 0) {
+            if (nExterminating > 1) {
+                GLog.w(Messages.get(Modifier::class.java, "extermination_lock", nExterminating))
+            } else {
+                GLog.w(Messages.get(Modifier::class.java, "extermination_lock_last"))
+            }
+            Dungeon.observe()
+            GameScene.updateFog()
+            return false
+        }
+    }
+    return true
 }
 
 private fun Level.initBlocking(modifiableBlocking: BooleanArray): BooleanArray {
@@ -263,6 +402,13 @@ fun Level.applyCursed() {
                 item.curseIfAllowed(true)
             }
         }
+    }
+}
+
+fun Level.applyExtermination() {
+    for (m in mobs) {
+        if(m is Mimic) continue
+        Buff.affect(m, Exterminating::class.java)
     }
 }
 

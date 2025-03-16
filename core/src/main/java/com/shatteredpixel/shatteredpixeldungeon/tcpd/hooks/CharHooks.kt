@@ -323,7 +323,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
         }
 
         if (destruction) {
-            FullSceneUpdater.request()
+            FullSceneUpdater.requestFull()
         }
     }
 }

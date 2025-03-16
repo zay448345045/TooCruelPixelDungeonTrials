@@ -98,6 +98,15 @@ public class Random {
 		return min + ((Float(max - min) + Float(max - min))/2f);
 	}
 
+	public static float InvNormalFloat( float min, float max ) {
+		float roll1 = Float(), roll2 = Float();
+		if (Math.abs(roll1-0.5f) >= Math.abs(roll2-0.5f)){
+			return min + (roll1*(max - min + 1));
+		} else {
+			return min + (roll2*(max - min + 1));
+		}
+	}
+
 	//returns a uniformly distributed int in the range [-2^31, 2^31)
 	public static synchronized int Int() {
 		return Int(true);

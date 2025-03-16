@@ -71,3 +71,10 @@ interface AttackProcBuff {
 interface InvulnerabilityBuff {
     fun isInvulnerable(effect: Class<out Any>): Boolean
 }
+
+interface MindVisionExtBuff {
+    fun revealRadius(): Int
+    fun maxHeroDistance(): Int {
+        return -1
+    }
+}
