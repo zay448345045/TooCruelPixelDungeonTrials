@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+### Fixed
+
+- Missing dependencies for Postpaid loot and mimics challenges (by juh9870)
+
 ## [0.9.0]
 
 > Released on 2025-03-16
