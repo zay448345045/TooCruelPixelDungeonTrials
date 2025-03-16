@@ -107,7 +107,7 @@ enum class Modifier(
     EXTERMINATION(57),
     POSTPAID_LOOT(58, dependencies = arrayOf(EXTERMINATION.id)),
     MIMICS(59),
-    MIMICS_ALL(60, dependencies = arrayOf(MIMICS_ALL.id)),
+    MIMICS_ALL(60, dependencies = arrayOf(MIMICS.id)),
     MIMICS_GRIND(61, dependencies = arrayOf(MIMICS.id)),
     ;
 
