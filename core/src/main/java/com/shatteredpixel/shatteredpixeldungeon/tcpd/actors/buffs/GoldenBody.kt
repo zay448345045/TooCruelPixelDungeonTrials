@@ -6,6 +6,11 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.FloatingText
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 
 class GoldenBody : NoDetachShieldBuff() {
+    init {
+        // Act after the Hero and other healing effects
+        actPriority = HERO_PRIO - 2
+    }
+
     override fun attachTo(target: Char?): Boolean {
         return super.attachTo(target).also { attached ->
             if (attached) {
