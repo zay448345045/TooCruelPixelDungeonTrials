@@ -16,10 +16,11 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.PaginatedList
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.drawRedCheckbox
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.iconButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.label
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.margins
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.redCheckbox
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.redButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.rightToLeft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.shrinkToFitLabel
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
@@ -143,7 +144,15 @@ private fun Ui.modifierBtn(modifiers: Modifiers, modifier: Modifier, editable: B
         }
         verticalJustified {
             withEnabled(editable) {
-                redCheckbox(modifiers.isEnabled(modifier), modifier.localizedName(), 9).onClick {
+                redButton {
+                    val res = shrinkToFitLabel(
+                        modifier.localizedName(),
+                        9,
+                        availableSpace = top().nextAvailableSpace()
+                            .width() - Icons.CHECKED.descriptor().size().x
+                    )
+                    drawRedCheckbox(modifiers.isEnabled(modifier), res.response.rect)
+                }.onClick {
                     modifiers.toggle(modifier)
                 }
             }

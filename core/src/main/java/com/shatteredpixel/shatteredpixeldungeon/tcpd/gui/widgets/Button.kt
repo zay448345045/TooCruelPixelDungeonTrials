@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
@@ -18,6 +19,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
 import com.shatteredpixel.shatteredpixeldungeon.ui.Button
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.watabou.noosa.Visual
+import com.watabou.noosa.audio.Sample
 import com.watabou.noosa.ui.Component
 
 val RED_BUTTON_MARGINS = Margins(3, 3, 1, 3);
@@ -57,7 +59,11 @@ class UiButton {
 }
 
 inline fun <T> Ui.customButton(crossinline block: (interaction: Interaction) -> T): InteractiveResponse<T> {
-    return UiButton().show(this, block)
+    val res = UiButton().show(this, block)
+    if(res.interaction.justPointerDown) {
+        Sample.INSTANCE.play(Assets.Sounds.CLICK)
+    }
+    return res
 }
 
 fun Ui.iconButton(image: TextureDescriptor): InteractiveResponse<Unit> {

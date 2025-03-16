@@ -79,9 +79,10 @@ fun <T : Visual> Ui.dimInactiveVisual(res: WidgetResponse<T>, active: Boolean? =
 fun Ui.shrinkToFitLabel(
     text: String,
     defaultSize: Int,
-    height: Int? = null
+    height: Int? = null,
+    availableSpace: Int? = null,
 ): WidgetResponse<RenderedTextBlock> {
-    val availableWidth = top().nextAvailableSpace().width()
+    val availableWidth = availableSpace ?: top().nextAvailableSpace().width()
     val size by useMemo(Pair(text, availableWidth)) {
         var size = defaultSize
         do {
