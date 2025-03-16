@@ -17,7 +17,7 @@ let
 in mkShell {
   buildInputs = [ android-studio android-sdk zulu17 nushell ];
   shellHook = ''
-    rm -f ./local.properties
+    echo sdk.dir=$ANDROID_HOME > ./local.properties
     export GRADLE_USER_HOME=./.gradle_home
   '';
 }
