@@ -76,6 +76,7 @@ dependencies {
     implementation "com.badlogicgames.gdx-controllers:gdx-controllers-android:$gdxControllersVersion"
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
+    implementation 'com.github.RohitSurwase.UCE-Handler:uce_handler:1.4'
 }
 
 // called every time gradle gets executed, takes the native dependencies of
