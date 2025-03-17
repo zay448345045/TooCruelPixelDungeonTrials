@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator
+import com.watabou.utils.Bundle
 
 class HoldingHeap: Buff(), OnDeathEffectBuff {
     lateinit var heap: StoredHeapData
@@ -33,5 +34,19 @@ class HoldingHeap: Buff(), OnDeathEffectBuff {
 
     override fun onDeathProc() {
         heap.restoreAtPos(Dungeon.level, target.pos)
+    }
+
+    override fun storeInBundle(bundle: Bundle) {
+        super.storeInBundle(bundle)
+        bundle.put(HEAP, heap)
+    }
+
+    override fun restoreFromBundle(bundle: Bundle) {
+        super.restoreFromBundle(bundle)
+        heap = bundle.get(HEAP) as StoredHeapData
+    }
+
+    companion object {
+        const val HEAP = "heap"
     }
 }

@@ -22,8 +22,6 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MimicSprite
 import com.shatteredpixel.shatteredpixeldungeon.sprites.StatueSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.ExterminationItemLock
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isNoneOr
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isSomeAnd
