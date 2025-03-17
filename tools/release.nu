@@ -108,8 +108,9 @@ def main [kind: string@options = "", secondaryKind?: string@mainOptions = "patch
     let changelogContent = $changelogContent | str replace -a Unreleased $versionString |
         str replace "...HEAD" $"...($tagName)" |
         str replace -a "ReleaseDate" (date now | format date "%Y-%m-%d") |
-        str replace "<!-- next-header -->" "<!-- next-header -->\n\n## [Unreleased]\n\n> Released on ReleaseDate"|
-        str replace "<!-- next-url -->" $"<!-- next-url -->\n[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/($tagName)...HEAD"
+        str replace "<!-- next-header -->" "<!-- next-header -->\n\n## [Unreleased]\n\n> Released on ReleaseDate" |
+        str replace "<!-- next-url -->" $"<!-- next-url -->\n[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/($tagName)...HEAD" |
+        str replace -a " (by juh9870)" ""
 
     let buildGradleContent = $buildGradleContent | str replace -r "appVersionName = '[^']+'" $"appVersionName = '($versionString)'" |
         str replace -r "appVersionCode = \\d+" $"appVersionCode = ($versionCode)"
