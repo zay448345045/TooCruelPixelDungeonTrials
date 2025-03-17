@@ -101,8 +101,10 @@ public class SuperNovaTracker extends Buff {
 			Sample.INSTANCE.playDelayed(Assets.Sounds.BLAST, 0.25f);
 			Sample.INSTANCE.playDelayed(Assets.Sounds.BLAST, 0.5f);
 			PixelScene.shake( 5, 2f );
+			boolean constellation = com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier.CONSTELLATION.active();
 			for (int i = 0; i < Dungeon.level.length(); i++){
 				if (fieldOfView[i] && !Dungeon.level.solid[i]){
+					if(constellation && !harmsAllies) com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.BombExtKt.constellationsBomb().explode(i); else
 					new Bomb.ConjuredBomb().explode(i); //yes, a bomb at every cell
 					//this means that something in the blast effectively takes:
 					//9x bomb dmg when fully inside

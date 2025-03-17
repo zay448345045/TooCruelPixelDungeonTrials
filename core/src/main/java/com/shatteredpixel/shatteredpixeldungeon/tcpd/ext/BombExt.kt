@@ -63,6 +63,30 @@ val BOMBERMOB_BOMBS = HashMap<Class<out Bomb>, Float>().also { chances ->
     // Shrapnel bomb is disabled for bombermobs
     chances[ShrapnelBomb::class.java] = Float.MIN_VALUE
 }
+val CONSTELLATION_BOMBS = HashMap<Class<out Bomb>, Float>().also { chances ->
+    chances[Bomb::class.java] = 4f
+
+    chances[FrostBomb::class.java] = 1f
+
+    chances[Firebomb::class.java] = 1 / 2f
+
+    chances[FlashBangBomb::class.java] = 1 / 3f
+
+    chances[RegrowthBomb::class.java] = 1 / 100f
+    chances[HolyBomb::class.java] = 1 / 4f
+
+    chances[ArcaneBomb::class.java] = 1 / 7f
+
+
+    // No annoying bombs
+    chances[SmokeBomb::class.java] = Float.MIN_VALUE
+    chances[WoollyBomb::class.java] = Float.MIN_VALUE
+    chances[ShrapnelBomb::class.java] = Float.MIN_VALUE
+
+    // does nothing
+    chances[DoubleBomb::class.java] = 1f
+    chances[Noisemaker::class.java] = Float.MIN_VALUE
+}
 
 fun randomBomb(): Bomb {
     return Reflection.newInstance(Random.chances(ALL_BOMBS))
@@ -70,4 +94,8 @@ fun randomBomb(): Bomb {
 
 fun bombermobBomb(): Bomb {
     return Reflection.newInstance(Random.chances(BOMBERMOB_BOMBS))
+}
+
+fun constellationsBomb(): Bomb {
+    return Reflection.newInstance(Random.chances(CONSTELLATION_BOMBS))
 }

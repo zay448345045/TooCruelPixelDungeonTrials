@@ -102,6 +102,7 @@ enum class Modifier(
     INSOMNIA(50),
     LOOT_PARADISE(51),
     BOMBERMOB(53),
+    CONSTELLATION(62, dependencies = arrayOf(BOMBERMOB.id)),
     CURSED(54),
     CURSE_MAGNET(55),
     EXTERMINATION(57),

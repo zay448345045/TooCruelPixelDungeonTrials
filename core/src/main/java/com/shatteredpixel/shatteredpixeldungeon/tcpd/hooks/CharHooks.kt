@@ -7,8 +7,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SuperNovaTracker
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
@@ -18,11 +18,12 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SmokeParticle
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.CursedWand
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.ExterminationItemLock
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_SOUL
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
@@ -47,8 +48,11 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
+import com.watabou.utils.DeviceCompat
 import com.watabou.utils.PathFinder
+import com.watabou.utils.Random
 import kotlin.math.max
 
 
@@ -195,13 +199,23 @@ fun Char.defenseProcHook(enemy: Char, damage: Int) {
  */
 fun Char.deathHook(src: Any?) {
     for (buff in buffs()) {
-        if(buff is OnDeathEffectBuff) {
+        if (buff is OnDeathEffectBuff) {
             buff.onDeathProc()
         }
     }
     if (this is Mob) {
         if (Modifier.BOMBERMOB.active()) {
-            Bomb.igniteAt(bombermobBomb(), pos)
+            if ((Modifier.CONSTELLATION.active() || Random.Float() < 0.01f) && !Dungeon.bossLevel()) {
+                val nova = Buff.append(
+                    Dungeon.hero,
+                    SuperNovaTracker::class.java
+                )
+                nova.pos = pos
+                nova.harmsAllies = true
+                GLog.w(Messages.get(CursedWand::class.java, "supernova"))
+            } else {
+                Bomb.igniteAt(bombermobBomb(), pos)
+            }
         }
         if (alignment != Char.Alignment.ALLY) {
             if (Modifier.ARROWHEAD.active()) {
@@ -361,10 +375,10 @@ fun Mob.mobFirstAddedHook() {
 }
 
 fun Mob.applyModifiers() {
-    if(buff(ModifiersAppliedTracker::class.java) != null) return
+    if (buff(ModifiersAppliedTracker::class.java) != null) return
     Buff.affect(this, ModifiersAppliedTracker::class.java)
     // buff was rejected, can't apply modifiers, wait until the better time
-    if(buff(ModifiersAppliedTracker::class.java) == null) return
+    if (buff(ModifiersAppliedTracker::class.java) == null) return
 
     if (Modifier.ARROWHEAD.active()) {
         Buff.affect(this, MobArrowhead::class.java)
