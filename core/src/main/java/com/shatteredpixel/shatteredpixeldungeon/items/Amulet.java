@@ -28,6 +28,8 @@ import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon;
 import com.shatteredpixel.shatteredpixeldungeon.Statistics;
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invulnerability;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
@@ -43,6 +45,7 @@ public class Amulet extends Item {
 	
 	private static final String AC_END = "END";
 	private static final String AC_DESCEND = "DESCEND";
+	private static final String AC_IMMORTAL = "IMMORTAL";
 
 	{
 		image = ItemSpriteSheet.AMULET;
@@ -64,6 +67,7 @@ public class Amulet extends Item {
 		}
 		if(Modifiers.Companion.debugModeActive()) {
 			actions.add(AC_DESCEND);
+			actions.add(AC_IMMORTAL);
 		}
 		return actions;
 	}
@@ -77,9 +81,13 @@ public class Amulet extends Item {
 			showAmuletScene( false );
 		}
 
-		if(Modifiers.Companion.debugModeActive() && action.equals(AC_DESCEND)) {
-			LevelTransition tr = Dungeon.level.getTransition(LevelTransition.Type.REGULAR_EXIT);
-			if(tr != null) Dungeon.level.activateTransition(Dungeon.hero, tr);
+		if(Modifiers.Companion.debugModeActive()) {
+			if(action.equals(AC_DESCEND)) {
+				LevelTransition tr = Dungeon.level.getTransition(LevelTransition.Type.REGULAR_EXIT);
+				if (tr != null) Dungeon.level.activateTransition(Dungeon.hero, tr);
+			} else if(action.equals(AC_IMMORTAL)) {
+				Buff.affect(hero, Invulnerability.class, 1000);
+			}
 		}
 	}
 	

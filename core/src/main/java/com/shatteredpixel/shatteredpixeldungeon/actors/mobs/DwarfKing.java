@@ -510,6 +510,7 @@ public class DwarfKing extends Mob {
 				}
 			}
 		} else if (phase == 2 && shielding() == 0) {
+			if(HP <= 0) HP = 1; // survive the hit
 			properties.remove(Property.IMMOVABLE);
 			phase = 3;
 			summonsMade = 1; //monk/warlock on 3rd summon

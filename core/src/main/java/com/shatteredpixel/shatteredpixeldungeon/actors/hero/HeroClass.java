@@ -55,6 +55,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows;
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome;
 import com.shatteredpixel.shatteredpixeldungeon.items.bags.VelvetPouch;
 import com.shatteredpixel.shatteredpixeldungeon.items.food.Food;
+import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfExperience;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfHealing;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfInvisibility;
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame;
@@ -169,7 +170,8 @@ public enum HeroClass {
 		if(Modifiers.Companion.debugModeActive()) {
 			new PotionOfHealing().collect();
 			new ScrollOfMagicMapping().collect();
-			new WarHammer().identify().collect();
+			new WarHammer().identify().upgrade(9001).collect();
+			new WandOfMagicMissile().upgrade(90001).collect();
 			Amulet amulet = new Amulet();
 			amulet.collect();
 			for (int s = 0; s < QuickSlot.SIZE; s++) {
@@ -185,6 +187,7 @@ public enum HeroClass {
 
 			new PotionOfShielding().quantity(100).identify().collect();
 			new ScrollOfRecharging().quantity(100).identify().collect();
+			new PotionOfExperience().quantity(100).identify().collect();
 		}
 
 	}
