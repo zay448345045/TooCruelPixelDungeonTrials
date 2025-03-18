@@ -3,7 +3,6 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.Actor
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
-import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.CrystalMimic
@@ -73,7 +72,7 @@ class StoredHeapData : Bundlable {
     fun restoreAtPos(level: Level, pos: Int) {
         var pos = pos
         val heapConflict =
-            level.heaps[pos].isSomeAnd { it.type != Heap.Type.HEAP || heapType.isSomeAnd { ty -> ty != Heap.Type.HEAP } }
+            heapType.isSomeAnd { ty -> ty != Heap.Type.HEAP } || level.heaps[pos].isSomeAnd { it.type != Heap.Type.HEAP }
 
         val avoidMobs = holderClass != null
         if ((holderClass == null && heapConflict) || (avoidMobs && Actor.findChar(
@@ -184,7 +183,8 @@ class StoredHeapData : Bundlable {
                 Buff.affect(mob, HoldingHeap::class.java).set(childHeap)
             }
             childHeaps.clear()
-            val holderBuff = Buff.affect(mob, HoldingHeap::class.java).set(this.withoutHolder().copy())
+            val holderBuff =
+                Buff.affect(mob, HoldingHeap::class.java).set(this.withoutHolder().copy())
             if (mob is Mimic && heapType.isNoneOr { it == Heap.Type.HEAP }) {
                 if (mob.items == null) mob.items = ArrayList()
                 if (extraMimicLoot) {
