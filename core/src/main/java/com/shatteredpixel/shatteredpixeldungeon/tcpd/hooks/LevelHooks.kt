@@ -18,6 +18,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMappi
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.Feeling
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level.set
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
@@ -51,12 +52,6 @@ fun RegularLevel.createItemsHook() {
 }
 
 fun Level.postCreateHook() {
-    // Reveal all traps if THUNDERSTRUCK modifier is active, for fairness
-    if (Modifier.THUNDERSTRUCK.active()) {
-        for (trap in traps.valueList()) {
-            trap.reveal()
-        }
-    }
     if (Modifier.SECOND_TRY.active()) {
         applySecondTry()
     }
@@ -77,6 +72,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.EXTERMINATION.active()) {
         applyExtermination()
+    }
+    if (Modifier.THUNDERSTRUCK.active()) {
+        applyThunderstruck()
     }
 }
 
@@ -322,6 +320,14 @@ private fun Level.applySecondTry() {
     }
 }
 
+private fun Level.applyThunderstruck() {
+    // Reveal all traps if THUNDERSTRUCK modifier is active, for fairness
+    for (trap in traps.valueList()) {
+        trap.reveal()
+        set(trap.pos, Terrain.TRAP, this)
+    }
+}
+
 private fun Level.applyHolyWater() {
     for (i in 0 until length()) {
         if (map[i] == Terrain.WATER) {
@@ -384,14 +390,20 @@ fun Level.applyMimics() {
     val allItems = Modifier.MIMICS_ALL.active()
     val grind = Modifier.MIMICS_GRIND.active()
     val iter = heaps.iterator()
-    while(iter.hasNext()) {
+    while (iter.hasNext()) {
         val h = iter.next()
-        if(h.value.type == Heap.Type.CHEST || allItems) {
-            StoredHeapData.transformHeapIntoMimic(this, h.value, extraLoot = grind, weakHolders = !grind)
+        if (h.value.type == Heap.Type.CHEST || allItems) {
+            StoredHeapData.transformHeapIntoMimic(
+                this,
+                h.value,
+                extraLoot = grind,
+                weakHolders = !grind
+            )
             iter.remove()
         }
     }
 }
+
 fun Level.applyExtermination() {
     // Don't exterminate on boss levels
     if (Dungeon.bossLevel()) return
