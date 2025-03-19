@@ -83,22 +83,24 @@ class RetieredBuff : Buff() {
         private val tiers: MutableMap<Class<out Any>, Int> = mutableMapOf()
 
         init {
-            pickTierSix(
-                arrayOf(
-                    Generator.Category.MIS_T2,
-                    Generator.Category.MIS_T3,
-                    Generator.Category.MIS_T4,
-                    Generator.Category.MIS_T5
+            if(!Modifier.UNTIERED.active()) {
+                pickTierSix(
+                    arrayOf(
+                        Generator.Category.MIS_T2,
+                        Generator.Category.MIS_T3,
+                        Generator.Category.MIS_T4,
+                        Generator.Category.MIS_T5
+                    )
                 )
-            )
-            pickTierSix(
-                arrayOf(
-                    Generator.Category.WEP_T2,
-                    Generator.Category.WEP_T3,
-                    Generator.Category.WEP_T4,
-                    Generator.Category.WEP_T5
+                pickTierSix(
+                    arrayOf(
+                        Generator.Category.WEP_T2,
+                        Generator.Category.WEP_T3,
+                        Generator.Category.WEP_T4,
+                        Generator.Category.WEP_T5
+                    )
                 )
-            )
+            }
         }
 
         fun tierFor(weapon: Class<out Any>, curTier: Int): Int {
