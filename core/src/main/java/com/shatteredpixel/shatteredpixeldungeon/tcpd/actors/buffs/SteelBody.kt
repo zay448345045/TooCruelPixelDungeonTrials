@@ -31,11 +31,11 @@ class SteelBody : NoDetachShieldBuff() {
     override fun act(): Boolean {
         if (target.HP > 1) {
             var addShield = (target.HP - 1).toFloat()
-            val reductionThreshold = target.HT
-            val maxShield = target.HT * 2
+            val reductionThreshold = target.HT * REDUCTION_THRESHOLD
+            val maxShield = target.HT * MAX_SHIELD
             if (shielding() > reductionThreshold) {
                 val ratio = MathUtils.clamp(
-                    (maxShield - shielding()) / reductionThreshold.toFloat(),
+                    (maxShield - shielding()) / reductionThreshold,
                     0f,
                     1f
                 )
@@ -51,7 +51,7 @@ class SteelBody : NoDetachShieldBuff() {
             }
 
             if (shielding() > maxShield) {
-                decShield(shielding() - maxShield)
+                decShield(shielding() - maxShield.toInt())
             }
 
             target.HP = 1
@@ -74,6 +74,9 @@ class SteelBody : NoDetachShieldBuff() {
     }
 
     companion object {
+        const val REDUCTION_THRESHOLD = 1f
+        const val MAX_SHIELD = 2f
+
         private const val PARTIAL_SHIELDING = "partialShielding"
 
         fun wakeUp(target: Char) {
