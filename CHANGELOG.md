@@ -6,26 +6,30 @@
 
 > Released on ReleaseDate
 
+## [0.11.0]
+
+> Released on 2025-03-19
+
 ### Added
 
-- Prison Express modifier (by juh9870)
-- Crumbled Stairs modifier (by juh9870)
-- Crooked Die modifier (by juh9870)
-- Repopulation modifier (by juh9870)
-- Resurrection modifier (by juh9870)
-- Fractal Hive modifier (by juh9870)
+- Prison Express modifier
+- Crumbled Stairs modifier
+- Crooked Die modifier
+- Repopulation modifier
+- Resurrection modifier
+- Fractal Hive modifier
 
 ### Changed
 
-- Reworked Golden Colossus to introduce shield cap (by juh9870)
+- Reworked Golden Colossus to introduce shield cap
 
 ### Fixed
 
-- Traps not getting revealed properly with thunderstruck (by juh9870)
-- Supernova not using elemental effects for bombs (by juh9870)
-- Dwarf King not spawning mobs in phase 2 (by juh9870)
-- Softlock on Dwarf King with Thunderstruck (by juh9870)
-- Tier 6 weapons not being affected by untiered (by juh9870)
+- Traps not getting revealed properly with thunderstruck
+- Supernova not using elemental effects for bombs
+- Dwarf King not spawning mobs in phase 2
+- Softlock on Dwarf King with Thunderstruck
+- Tier 6 weapons not being affected by untiered
 
 ## [0.10.0]
 
@@ -282,7 +286,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.10.0...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.11.0...HEAD
+[0.11.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.10.0...TCPD-0.11.0
 [0.10.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.9.1...TCPD-0.10.0
 [0.9.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.9.0...TCPD-0.9.1
 [0.9.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.8.0...TCPD-0.9.0
