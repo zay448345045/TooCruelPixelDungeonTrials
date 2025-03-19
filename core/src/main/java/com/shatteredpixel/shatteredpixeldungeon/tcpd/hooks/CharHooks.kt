@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SuperNovaTracker
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.KingDamager
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
@@ -55,13 +56,16 @@ import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import kotlin.math.max
 
+fun sourceIgnored(src:Any?): Boolean {
+    return src is KingDamager
+}
 
 /**
  * Hook which is called when mob takes damage, but before any damage
  * reduction/amplification is applied.
  */
 fun Char.incomingDamageHook(dmg: Int, src: Any?): Int {
-    if (dmg < 0) {
+    if (dmg < 0 || sourceIgnored(src)) {
         return dmg
     }
     return dmg
@@ -74,6 +78,9 @@ fun Char.incomingDamageHook(dmg: Int, src: Any?): Int {
  */
 @Suppress("NAME_SHADOWING")
 fun Char.damageMultiplierHook(dmg: Int, damage: Float, src: Any?): Float {
+    if(sourceIgnored(src)) {
+        return damage
+    }
     var damage = damage
     for (buff in buffs()) {
         if (buff is DamageAmplificationBuff) {
@@ -88,6 +95,9 @@ fun Char.damageMultiplierHook(dmg: Int, damage: Float, src: Any?): Float {
  * shielding and, subsequently, HP
  */
 fun Char.beforeDamageShieldedHook(dmg: Int, src: Any?): Int {
+    if(sourceIgnored(src)) {
+        return dmg
+    }
     if (CrystalShield.blockIncomingDamage(this, dmg)) {
         return -1
     }

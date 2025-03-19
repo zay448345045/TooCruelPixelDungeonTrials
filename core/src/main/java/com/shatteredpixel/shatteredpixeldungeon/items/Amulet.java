@@ -31,11 +31,13 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.AscensionChallenge;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff;
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Invulnerability;
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero;
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob;
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.AmuletScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating;
 import com.watabou.noosa.Game;
 
 import java.io.IOException;
@@ -83,6 +85,12 @@ public class Amulet extends Item {
 
 		if(Modifiers.Companion.debugModeActive()) {
 			if(action.equals(AC_DESCEND)) {
+				Buff extermination;
+				for(Mob m : Dungeon.level.mobs) {
+					if((extermination = m.buff(Exterminating.class)) != null) {
+						extermination.detach();
+					}
+				}
 				LevelTransition tr = Dungeon.level.getTransition(LevelTransition.Type.REGULAR_EXIT);
 				if (tr != null) Dungeon.level.activateTransition(Dungeon.hero, tr);
 			} else if(action.equals(AC_IMMORTAL)) {
