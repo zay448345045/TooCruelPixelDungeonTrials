@@ -6,6 +6,27 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Prison Express modifier (by juh9870)
+- Crumbled Stairs modifier (by juh9870)
+- Crooked Die modifier (by juh9870)
+- Repopulation modifier (by juh9870)
+- Resurrection modifier (by juh9870)
+- Fractal Hive modifier (by juh9870)
+
+### Changed
+
+- Reworked Golden Colossus to introduce shield cap (by juh9870)
+
+### Fixed
+
+- Traps not getting revealed properly with thunderstruck (by juh9870)
+- Supernova not using elemental effects for bombs (by juh9870)
+- Dwarf King not spawning mobs in phase 2 (by juh9870)
+- Softlock on Dwarf King with Thunderstruck (by juh9870)
+- Tier 6 weapons not being affected by untiered (by juh9870)
+
 ## [0.10.0]
 
 > Released on 2025-03-17
