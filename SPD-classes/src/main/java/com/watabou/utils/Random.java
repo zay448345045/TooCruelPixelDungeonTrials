@@ -31,6 +31,8 @@ import java.util.List;
 
 public class Random {
 
+	public static boolean crooked_die = false;
+
 	//we store a stack of random number generators, which may be seeded deliberately or randomly.
 	//top of the stack is what is currently being used to generate new numbers.
 	//the base generator is always created with no seed, and cannot be popped.
@@ -95,6 +97,7 @@ public class Random {
 	
 	//returns a triangularly distributed float in the range [min, max)
 	public static float NormalFloat( float min, float max ) {
+		if(crooked_die) return max;
 		return min + ((Float(max - min) + Float(max - min))/2f);
 	}
 
@@ -145,12 +148,14 @@ public class Random {
 	//returns a triangularly distributed int in the range [min, max]
 	//this makes results more likely as they get closer to the middle of the range
 	public static int NormalIntRange( int min, int max ) {
+		if(crooked_die) return max;
 		return min + (int)((Float() + Float()) * (max - min + 1) / 2f);
 	}
 
 	//returns an inverse triangularly distributed int in the range [min, max]
 	//this makes results more likely as they get further from the middle of the range
 	public static int InvNormalIntRange( int min, int max ){
+		if(crooked_die) return max;
 		float roll1 = Float(), roll2 = Float();
 		if (Math.abs(roll1-0.5f) >= Math.abs(roll2-0.5f)){
 			return min + (int)(roll1*(max - min + 1));

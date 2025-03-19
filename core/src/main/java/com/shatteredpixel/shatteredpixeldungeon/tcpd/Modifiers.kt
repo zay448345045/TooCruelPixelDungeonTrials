@@ -64,6 +64,7 @@ enum class Modifier(
     CRYSTAL_BLOOD(21),
     DEEPER_DANGER(22),
     HEAD_START(23),
+    PRISON_EXPRESS(66, dependencies = arrayOf(HEAD_START.id)),
     BLINDNESS(24),
     BLOODBAG(25),
     REVENGE(26),
@@ -113,6 +114,8 @@ enum class Modifier(
     REPOPULATION(63),
     RESURRECTION(64, dependencies = arrayOf(REPOPULATION.id)),
     FRACTAL_HIVE(65, dependencies = arrayOf(REPOPULATION.id)),
+    CROOKED_DIE(67),
+    CRUMBLED_STAIRS(68),
     ;
 
     companion object {
@@ -120,6 +123,14 @@ enum class Modifier(
 
         init {
             if (ALL.last().id != ALL.size - 1) {
+                val seen = mutableMapOf<Int, Modifier>()
+                for (mod in ALL) {
+                    val existing = seen[mod.id]
+                    if(existing != null) {
+                        throw IllegalStateException("Modifier id ${mod.id} is in use by both ${mod.name} and ${existing.name}")
+                    }
+                    seen[mod.id] = mod
+                }
                 throw IllegalStateException("Modifier IDs contain gaps!")
             }
         }
@@ -160,7 +171,7 @@ enum class Modifier(
         return 1f
     }
 
-    fun active() = Dungeon.tcpdData.modifiers.isEnabled(this)
+    fun active() = Dungeon.tcpdData?.modifiers?.isEnabled(this) ?: false
 }
 
 class Modifiers() : Bundlable {

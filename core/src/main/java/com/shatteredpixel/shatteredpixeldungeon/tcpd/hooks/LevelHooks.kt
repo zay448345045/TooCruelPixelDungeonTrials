@@ -1,6 +1,7 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
+import com.shatteredpixel.shatteredpixeldungeon.Statistics
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
@@ -22,9 +23,11 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Level.TIME_TO_RESPAWN
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.set
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
+import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster
+import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.ExterminationItemLock
@@ -34,6 +37,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
+import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
+import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
+import com.watabou.noosa.Game
 import com.watabou.utils.BArray
 import com.watabou.utils.GameMath
 import com.watabou.utils.PathFinder
@@ -44,12 +50,21 @@ import kotlin.math.min
 
 fun RegularLevel.createItemsHook() {
     if (Modifier.HEAD_START.active() && Dungeon.depth == 1) {
-        repeat(2) {
+        val bonus = if (Modifier.PRISON_EXPRESS.active()) {
+            1
+        } else {
+            0
+        }
+        val nUpgrades = 2 + bonus - Dungeon.LimitedDrops.UPGRADE_SCROLLS.count
+        val nStrength = 1 + bonus - Dungeon.LimitedDrops.STRENGTH_POTIONS.count
+        repeat(nUpgrades) {
             drop(ScrollOfUpgrade(), placeItemPos())
             Dungeon.LimitedDrops.UPGRADE_SCROLLS.count++
         }
-        drop(PotionOfStrength(), placeItemPos())
-        Dungeon.LimitedDrops.UPGRADE_SCROLLS.count++
+        repeat(nStrength) {
+            drop(PotionOfStrength(), placeItemPos())
+            Dungeon.LimitedDrops.STRENGTH_POTIONS.count++
+        }
     }
 }
 
@@ -205,9 +220,43 @@ fun dungeonObserveHook(dist: Int) {
     }
 }
 
-fun Level.activateTransitionHook(hero: Hero): Boolean {
+private var bypassTransitionlimitations = false
+
+fun Level.activateTransitionHook(hero: Hero, transition: LevelTransition): Boolean {
+    if (bypassTransitionlimitations) return true
     if (Modifier.EXTERMINATION.active()) {
         if (!Exterminating.exterminationDone(this)) return false
+    }
+    val crumbling = Modifier.CRUMBLED_STAIRS.active()
+    val prison = Modifier.PRISON_EXPRESS.active()
+    if(Statistics.amuletObtained) {
+        if (crumbling && transition.destDepth >= Dungeon.depth) {
+            Game.runOnRenderThread {
+                GameScene.show(
+                    WndMessage(
+                        Messages.get(
+                            Modifier::class.java,
+                            "crumbled_stairs_no_distractions"
+                        )
+                    )
+                )
+            }
+            return false
+        }
+    } else {
+        if ((crumbling || (prison && Dungeon.depth <= 6)) && transition.type == LevelTransition.Type.REGULAR_ENTRANCE) {
+            Game.runOnRenderThread {
+                GameScene.show(
+                    WndMessage(
+                        Messages.get(
+                            Hero::class.java,
+                            "leave"
+                        )
+                    )
+                )
+            }
+            return false
+        }
     }
     return true
 }
@@ -225,6 +274,16 @@ fun Level.respawnCooldownHook(cooldown: Float): Float {
     }
     return cooldown
 }
+
+fun Level.transitionNow(type: LevelTransition.Type, force: Boolean) {
+    val tr = getTransition(type)
+    if (tr != null) {
+        if (force) bypassTransitionlimitations = true
+        activateTransition(Dungeon.hero, tr)
+        bypassTransitionlimitations = false
+    }
+}
+
 
 private fun Level.initBlocking(modifiableBlocking: BooleanArray): BooleanArray {
     System.arraycopy(

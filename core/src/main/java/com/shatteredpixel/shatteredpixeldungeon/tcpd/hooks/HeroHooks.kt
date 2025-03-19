@@ -20,6 +20,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PrisonExpress
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
@@ -59,6 +60,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.INSOMNIA.active()) {
         Buff.affect(this, Insomnia::class.java)
+    }
+    if (Modifier.PRISON_EXPRESS.active()) {
+        Buff.affect(this, PrisonExpress::class.java)
     }
 }
 

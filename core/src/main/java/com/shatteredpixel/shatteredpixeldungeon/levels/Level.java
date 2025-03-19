@@ -571,7 +571,7 @@ public abstract class Level implements Bundlable {
 		if (locked){
 			return false;
 		}
-		if(!LevelHooksKt.activateTransitionHook(this, hero)) return false;
+		if(!LevelHooksKt.activateTransitionHook(this, hero, transition)) return false;
 
 		beforeTransition();
 		InterlevelScene.curTransition = transition;

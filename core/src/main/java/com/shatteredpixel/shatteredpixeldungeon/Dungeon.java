@@ -240,6 +240,8 @@ public class Dungeon {
 		tcpdData = new TCPDData(Trials.Companion.getCurTrial());
 		mobsToChampion = -1;
 
+		Random.crooked_die = Modifier.CROOKED_DIE.active();
+
 		Actor.clear();
 		Actor.resetNextID();
 
@@ -463,6 +465,7 @@ public class Dungeon {
 				|| (Dungeon.hero != null && Dungeon.hero.belongings.getItem(Amulet.class) != null)){
 			return false;
 		}
+		if(Modifier.CRUMBLED_STAIRS.active()) return false;
 		return true;
 	}
 	
@@ -827,6 +830,7 @@ public class Dungeon {
 		Statistics.restoreFromBundle( bundle );
 		Generator.restoreFromBundle( bundle );
 
+		Random.crooked_die = Modifier.CROOKED_DIE.active();
 	}
 	
 	public static Level loadLevel( int save ) throws IOException {
