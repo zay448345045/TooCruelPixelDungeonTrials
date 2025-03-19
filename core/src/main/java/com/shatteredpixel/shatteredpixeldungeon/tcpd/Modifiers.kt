@@ -116,6 +116,7 @@ enum class Modifier(
     FRACTAL_HIVE(65, dependencies = arrayOf(REPOPULATION.id)),
     CROOKED_DIE(67),
     CRUMBLED_STAIRS(68),
+    MULTICLASSING(69),
     ;
 
     companion object {

@@ -5,9 +5,16 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Actor
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroSubClass
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
+import com.shatteredpixel.shatteredpixeldungeon.items.BrokenSeal
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.CloakOfShadows
+import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.HolyTome
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.SpiritBow
+import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MagesStaff
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
@@ -24,6 +31,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PrisonExpress
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.collectOrDrop
 import com.watabou.noosa.tweeners.Delayer
 import com.watabou.noosa.tweeners.Tweener.Listener
 import com.watabou.utils.Random
@@ -134,4 +142,39 @@ fun hungerDisabled(): Boolean {
 
 fun regenerationDisabled(): Boolean {
     return Modifier.CERTAINTY_OF_STEEL.active()
+}
+
+fun Hero.subclassChoice(): Array<HeroSubClass> {
+    if(Modifier.MULTICLASSING.active()) {
+        Random.pushGenerator(Dungeon.seed)
+        val classes = ArrayList<HeroSubClass>()
+
+        for (heroClass in HeroClass.entries) {
+            if(heroClass == this.heroClass) continue
+            classes.add(Random.element(heroClass.subClasses()))
+        }
+
+        Random.shuffle(classes)
+        Random.popGenerator()
+        return classes.slice(0 until 3).toTypedArray()
+    } else {
+        return heroClass.subClasses()
+    }
+}
+
+fun Hero.subClassPicked() {
+    if(subClass == HeroSubClass.NONE || heroClass.subClasses().contains(subClass)) return
+
+    for (cl in HeroClass.entries) {
+        if(!cl.subClasses().contains(subClass)) continue
+        when(cl) {
+            HeroClass.WARRIOR -> Dungeon.level.drop(BrokenSeal().identify(), pos).sprite?.drop()
+            HeroClass.MAGE -> Dungeon.level.drop(MagesStaff().identify(), pos).sprite?.drop()
+            HeroClass.ROGUE -> Dungeon.level.drop(CloakOfShadows().identify(), pos).sprite?.drop()
+            HeroClass.HUNTRESS -> Dungeon.level.drop(SpiritBow().identify(), pos).sprite?.drop()
+            HeroClass.DUELIST -> {} // shame on her
+            HeroClass.CLERIC -> Dungeon.level.drop(HolyTome().identify(), pos).sprite?.drop()
+        }
+        break
+    }
 }
