@@ -18,6 +18,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMappi
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfUpgrade
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.Feeling
+import com.shatteredpixel.shatteredpixeldungeon.levels.Level.TIME_TO_RESPAWN
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.set
 import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
@@ -34,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtB
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.watabou.utils.BArray
+import com.watabou.utils.GameMath
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import com.watabou.utils.Reflection
@@ -208,6 +210,20 @@ fun Level.activateTransitionHook(hero: Hero): Boolean {
         if (!Exterminating.exterminationDone(this)) return false
     }
     return true
+}
+
+@Suppress("NAME_SHADOWING")
+fun Level.respawnCooldownHook(cooldown: Float): Float {
+    var cooldown = cooldown
+    if (Modifier.RESURRECTION.active()) {
+        return 1f
+    } else if (Modifier.REPOPULATION.active()) {
+        cooldown *= GameMath.gate(0f, 1.1f * mobCount().toFloat() / mobLimit() - 0.1f, 1f)
+        if (Modifier.FRACTAL_HIVE.active()) {
+            cooldown = min(cooldown, TIME_TO_RESPAWN / 2f)
+        }
+    }
+    return cooldown
 }
 
 private fun Level.initBlocking(modifiableBlocking: BooleanArray): BooleanArray {
@@ -394,10 +410,7 @@ fun Level.applyMimics() {
         val h = iter.next()
         if (h.value.type == Heap.Type.CHEST || allItems) {
             StoredHeapData.transformHeapIntoMimic(
-                this,
-                h.value,
-                extraLoot = grind,
-                weakHolders = !grind
+                this, h.value, extraLoot = grind, weakHolders = !grind
             )
             iter.remove()
         }

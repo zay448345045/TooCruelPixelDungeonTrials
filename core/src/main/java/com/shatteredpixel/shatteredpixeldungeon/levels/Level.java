@@ -143,7 +143,7 @@ public abstract class Level implements Bundlable {
 	protected int height;
 	protected int length;
 	
-	protected static final float TIME_TO_RESPAWN	= 50;
+	public static final float TIME_TO_RESPAWN	= 50;
 
 	public int version;
 	
@@ -738,6 +738,7 @@ public abstract class Level implements Bundlable {
 		} else {
 			cooldown = TIME_TO_RESPAWN;
 		}
+		cooldown = LevelHooksKt.respawnCooldownHook(this, cooldown);
 		return cooldown / DimensionalSundial.spawnMultiplierAtCurrentTime();
 	}
 

@@ -110,6 +110,9 @@ enum class Modifier(
     MIMICS(59),
     MIMICS_ALL(60, dependencies = arrayOf(MIMICS.id)),
     MIMICS_GRIND(61, dependencies = arrayOf(MIMICS.id)),
+    REPOPULATION(63),
+    RESURRECTION(64, dependencies = arrayOf(REPOPULATION.id)),
+    FRACTAL_HIVE(65, dependencies = arrayOf(REPOPULATION.id)),
     ;
 
     companion object {

@@ -39,7 +39,7 @@ public class MobSpawner extends Actor {
 	@Override
 	protected boolean act() {
 
-		if (Dungeon.level.mobCount() < Dungeon.level.mobLimit()) {
+		if (Dungeon.level.mobCount() < Dungeon.level.mobLimit() || Modifier.FRACTAL_HIVE.active()) {
 
 			if (Dungeon.level.spawnMob(12)){
 				spend(Dungeon.level.respawnCooldown());
