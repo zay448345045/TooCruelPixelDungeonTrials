@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyOverTheEdge
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
 import com.watabou.noosa.Game
 import com.watabou.utils.BArray
@@ -98,6 +99,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.THUNDERSTRUCK.active()) {
         applyThunderstruck()
+    }
+    if (Modifier.OVER_THE_EDGE.active()) {
+        applyOverTheEdge()
     }
 }
 
@@ -490,12 +494,19 @@ fun Level.applyDrought() {
     var terrain: Int
     for (i in 0 until length()) {
         terrain = map[i]
-        if ((terrain == Terrain.WATER || terrain == Terrain.GRASS || terrain == Terrain.HIGH_GRASS || terrain == Terrain.FURROWED_GRASS) &&
-            Random.Float() < chance
+        val isGrass =
+            terrain == Terrain.GRASS || terrain == Terrain.HIGH_GRASS || terrain == Terrain.FURROWED_GRASS
+
+        if ((isGrass || terrain == Terrain.WATER) && Random.Float() < chance
         ) {
-            set(i, Terrain.EMPTY, this)
+            if (isGrass) {
+                map[i] = Terrain.EMBERS
+            }
+            map[i] = Terrain.EMPTY
         }
     }
+
+    buildFlagMaps()
 }
 
 fun Level.applyMimics() {

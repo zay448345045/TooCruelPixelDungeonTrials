@@ -120,6 +120,7 @@ enum class Modifier(
     EXOTIC_GOODS(70) {
         override fun _isItemBlocked(item: Item): Boolean = item is ExoticCrystals
     },
+    OVER_THE_EDGE(72),
     ;
 
     companion object {
