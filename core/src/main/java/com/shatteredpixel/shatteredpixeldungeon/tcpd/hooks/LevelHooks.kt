@@ -486,7 +486,7 @@ fun Level.applyCursed() {
 }
 
 fun Level.applyDrought() {
-    val chance = 0.9f
+    val chance = 0.8f
     var terrain: Int
     for (i in 0 until length()) {
         terrain = map[i]

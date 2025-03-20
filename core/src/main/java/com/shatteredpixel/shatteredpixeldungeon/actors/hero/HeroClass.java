@@ -170,7 +170,7 @@ public enum HeroClass {
 		}
 		if(Modifiers.Companion.debugModeActive()) {
 			new PotionOfHealing().collect();
-			new ScrollOfMagicMapping().collect();
+			new ScrollOfMagicMapping().quantity(100).identify().collect();
 			new WarHammer().identify().upgrade(9001).collect();
 			new WandOfMagicMissile().upgrade(90001).collect();
 			Amulet amulet = new Amulet();

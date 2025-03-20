@@ -35,7 +35,11 @@ enum class Modifier(
     BARREN_LAND(3, locString = "no_herbalism") {
         override fun _isItemBlocked(item: Item): Boolean = item is Dewdrop
     },
-    DROUGHT(71),
+    DROUGHT(71) {
+        override fun _nGrassMult(): Float = 0.5f
+
+        override fun _nWaterMult(): Float = 0.5f
+    },
     SWARM_INTELLIGENCE(4, locString = "swarm_intelligence"),
     DARKNESS(5, locString = "darkness"),
     FORBIDDEN_RUNES(6, locString = "no_scrolls"),
