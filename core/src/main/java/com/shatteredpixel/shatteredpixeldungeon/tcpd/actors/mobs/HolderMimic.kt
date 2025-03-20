@@ -273,6 +273,16 @@ class StoredHeapData : Bundlable {
         return data
     }
 
+    fun applyToEveryItem(cb: (Item) -> Unit) {
+        for (item in items) {
+            cb(item)
+        }
+
+        for (childHeap in childHeaps) {
+            childHeap.applyToEveryItem(cb)
+        }
+    }
+
     fun copy(): StoredHeapData {
         val b = Bundle()
         storeInBundle(b)

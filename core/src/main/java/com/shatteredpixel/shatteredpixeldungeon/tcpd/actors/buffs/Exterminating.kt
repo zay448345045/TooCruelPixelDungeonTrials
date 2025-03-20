@@ -59,7 +59,7 @@ class Exterminating : Buff() {
                     return // still not done
                 }
             }
-            if (findBlob<ExterminationItemLock>(level)?.unlockAll(level) == true) {
+            if (level.findBlob<ExterminationItemLock>()?.unlockAll(level) == true) {
                 GLog.p(Messages.get(Modifier::class.java, "extermination_complete"))
                 Sample.INSTANCE.play(Assets.Sounds.LEVELUP, 0.5f, 1.5f)
             }

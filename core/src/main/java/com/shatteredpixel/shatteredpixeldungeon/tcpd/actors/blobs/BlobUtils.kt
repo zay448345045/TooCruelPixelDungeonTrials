@@ -17,4 +17,4 @@ fun Blob.evolveUnchanged(off: IntArray) {
     }
 }
 
-inline fun <reified T : Blob> findBlob(level: Level): T? = level.blobs[T::class.java] as T?
+inline fun <reified T : Blob> Level.findBlob(): T? = blobs[T::class.java] as T?

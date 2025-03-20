@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
+import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator
@@ -19,6 +20,12 @@ class HoldingHeap :
             heap.mergeInto(this.heap)
         }
         return this
+    }
+
+    fun applyToEveryItem(cb: (Item) -> Unit) {
+        if (this::heap.isInitialized) {
+            heap.applyToEveryItem(cb)
+        }
     }
 
     override fun icon(): Int {

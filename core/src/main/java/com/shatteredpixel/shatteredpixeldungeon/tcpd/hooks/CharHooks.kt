@@ -12,15 +12,12 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.KingDamager
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.effects.CellEmitter
 import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SmokeParticle
-import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.CursedWand
-import com.shatteredpixel.shatteredpixeldungeon.items.weapon.melee.MeleeWeapon
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
@@ -48,7 +45,6 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.PathFinder
@@ -263,13 +259,6 @@ fun Char.deathHook(src: Any?) {
                             PatronSaintsBlob::class.java,
                         ),
                     )
-                }
-            }
-        }
-        if (this is Statue && Modifier.CURSED.active()) {
-            Dungeon.level.heaps.get(pos)?.let {
-                for (item in it.items) {
-                    if (item is MeleeWeapon || item is Armor) item.curseIfAllowed(true)
                 }
             }
         }

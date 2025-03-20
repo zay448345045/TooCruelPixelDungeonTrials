@@ -37,7 +37,7 @@ class PatronSaints :
         icon.hardlight(0xFFA500)
     }
 
-    fun stacks(): Int = findBlob<PatronSaintsBlob>(Dungeon.level)?.stacksAt(target.pos) ?: 0
+    fun stacks(): Int = Dungeon.level.findBlob<PatronSaintsBlob>()?.stacksAt(target.pos) ?: 0
 
     override fun damageMultiplier(source: Any?): Float = 1 - min(sqrt(stacks() / 9.8765f), 0.90f)
 

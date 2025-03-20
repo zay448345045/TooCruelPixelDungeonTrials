@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator
@@ -33,7 +34,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.ExterminationItemLock
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PATRON_SEED_BLESS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBlob
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.findBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
@@ -81,11 +84,11 @@ fun Level.postCreateHook() {
     if (Modifier.LOOT_PARADISE.active()) {
         applyLootParadise()
     }
-    if (Modifier.MIMICS.active()) {
-        applyMimics()
-    }
     if (Modifier.CURSED.active()) {
         applyCursed()
+    }
+    if (Modifier.MIMICS.active()) {
+        applyMimics()
     }
     if (Modifier.EXTERMINATION.active()) {
         applyExtermination()
@@ -327,7 +330,7 @@ fun Level.placeDuplicatorTraps(trap: Class<out Trap>) {
         val pos = cells[i]
         val t = setTrap(Reflection.newInstance(trap), pos)
         val old = map[pos]
-        Level.set(pos, Terrain.TRAP, this)
+        set(pos, Terrain.TRAP, this)
         t.reveal()
         GameScene.updateMap(pos)
         if (Dungeon.level.heroFOV[pos]) {
@@ -368,6 +371,7 @@ private fun Level.isValidDuplicatorTrapPos(pos: Int): Boolean {
         Terrain.EMPTY, Terrain.GRASS, Terrain.HIGH_GRASS, Terrain.EMBERS,
         Terrain.EMPTY_DECO, Terrain.EMPTY_SP, Terrain.INACTIVE_TRAP, Terrain.WATER,
         -> true
+
         else -> false
     }
 }
@@ -391,10 +395,10 @@ private fun Level.applySecondTry() {
     var barricades = 0
     for (i in 0 until length()) {
         if (map[i] == Terrain.LOCKED_DOOR) {
-            Level.set(i, Terrain.DOOR, this)
+            set(i, Terrain.DOOR, this)
         }
         if (map[i] == Terrain.BARRICADE) {
-            Level.set(i, Terrain.EMBERS, this)
+            set(i, Terrain.EMBERS, this)
             barricades++
         }
     }
@@ -471,18 +475,8 @@ private fun Level.applyLootParadise() {
 }
 
 fun Level.applyCursed() {
-    for (h in heaps) {
-        for (item in h.value.items) {
-            item.curseIfAllowed(true)
-        }
-    }
-
-    for (m in mobs) {
-        if (m is Mimic) {
-            for (item in m.items) {
-                item.curseIfAllowed(true)
-            }
-        }
+    applyToEveryItem {
+        it.curseIfAllowed(true)
     }
 }
 
@@ -536,6 +530,37 @@ fun Level.applyExtermination() {
     }
 }
 
+inline fun Level.applyToEveryItem(crossinline cb: (Item) -> Unit) {
+    for (h in heaps) {
+        for (item in h.value.items) {
+            cb(item)
+        }
+    }
+
+    val boxedCb = { item: Item -> cb(item) }
+
+    for (mob in mobs) {
+        if (mob is Mimic) {
+            mob.items?.let {
+                for (item in it) {
+                    cb(item)
+                }
+            }
+        }
+        if (mob is Statue) {
+            mob.weapon?.let { cb(it) }
+
+            if (mob is ArmoredStatue) {
+                mob.armor?.let { cb(it) }
+            }
+        }
+        for (heap in mob.buffs(HoldingHeap::class.java)) {
+            heap.applyToEveryItem(boxedCb)
+        }
+    }
+    findBlob<ExterminationItemLock>()?.applyToEveryItem(boxedCb)
+}
+
 fun Level.destroyWall(cell: Int) {
     val terrain = map[cell]
     if (terrain == Terrain.WALL ||
@@ -554,7 +579,7 @@ fun Level.strongDestroy(
     replaceWith: Int = Terrain.EMBERS,
 ) {
     if (!insideMap(cell)) return
-    Level.set(cell, replaceWith)
+    set(cell, replaceWith)
     for (o in PathFinder.NEIGHBOURS4) {
         val n = cell + o
         val terrain = map[n]

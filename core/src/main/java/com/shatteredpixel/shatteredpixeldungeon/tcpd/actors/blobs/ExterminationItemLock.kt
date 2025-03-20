@@ -9,6 +9,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
 import com.shatteredpixel.shatteredpixeldungeon.effects.BlobEmitter
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
+import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
@@ -68,6 +69,12 @@ class ExterminationItemLock :
             }
         }
         return true
+    }
+
+    fun applyToEveryItem(cb: (Item) -> Unit) {
+        for (heap in originalHeaps.values) {
+            heap.applyToEveryItem(cb)
+        }
     }
 
     fun lockItem(
