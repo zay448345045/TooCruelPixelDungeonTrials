@@ -12,11 +12,10 @@ let
       platform-tools
       platforms-android-34
       emulator
-      ktlint
     ]);
 
 in mkShell {
-  buildInputs = [ android-studio android-sdk zulu17 nushell ];
+  buildInputs = [ android-studio android-sdk zulu17 nushell ktlint ];
   shellHook = ''
     echo sdk.dir=$ANDROID_HOME > ./local.properties
     export GRADLE_USER_HOME=./.gradle_home
