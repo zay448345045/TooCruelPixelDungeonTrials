@@ -52,7 +52,7 @@ public abstract class RegularPainter extends Painter {
 	private int waterSmoothness;
 	
 	public RegularPainter setWater(float fill, int smoothness){
-		if(Modifier.SLIDING.active()) fill *= 1.5f;
+		fill *= Dungeon.tcpdData.getModifiers().nWaterMult();
 		waterFill = fill;
 		waterSmoothness = smoothness;
 		return this;
@@ -62,6 +62,7 @@ public abstract class RegularPainter extends Painter {
 	private int grassSmoothness;
 	
 	public RegularPainter setGrass(float fill, int smoothness){
+		fill *= Dungeon.tcpdData.getModifiers().nGrassMult();
 		grassFill = fill;
 		grassSmoothness = smoothness;
 		return this;
@@ -72,8 +73,7 @@ public abstract class RegularPainter extends Painter {
 	private float[] trapChances;
 	
 	public RegularPainter setTraps(int num, Class<?>[] classes, float[] chances){
-		if(Modifier.EXTREME_CAUTION.active()) num *= 4;
-		nTraps = num;
+		nTraps = Math.round(num * Dungeon.tcpdData.getModifiers().nTrapsMult());
 		trapClasses = (Class<? extends Trap>[]) classes;
 		trapChances = chances;
 		return this;

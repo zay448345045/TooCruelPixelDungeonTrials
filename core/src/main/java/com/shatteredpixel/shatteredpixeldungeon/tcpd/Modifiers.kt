@@ -35,6 +35,7 @@ enum class Modifier(
     BARREN_LAND(3, locString = "no_herbalism") {
         override fun _isItemBlocked(item: Item): Boolean = item is Dewdrop
     },
+    DROUGHT(71),
     SWARM_INTELLIGENCE(4, locString = "swarm_intelligence"),
     DARKNESS(5, locString = "darkness"),
     FORBIDDEN_RUNES(6, locString = "no_scrolls"),
@@ -67,7 +68,9 @@ enum class Modifier(
     PREPARED_ENEMIES(28),
     REPEATER(29),
     DUPLICATOR(30),
-    EXTREME_CAUTION(31),
+    EXTREME_CAUTION(31) {
+        override fun _nTrapsMult(): Float = 4f
+    },
     PATRON_SAINTS(33),
     PERSISTENT_SAINTS(34, dependencies = arrayOf(PATRON_SAINTS.id)),
     HOLY_WATER(35),
@@ -90,7 +93,9 @@ enum class Modifier(
     LOFT(47),
     BULKY_FRAME(48),
     SHROUDING_PRESENCE(56, dependencies = arrayOf(BULKY_FRAME.id)),
-    SLIDING(49),
+    SLIDING(49) {
+        override fun _nWaterMult(): Float = 1.5f
+    },
     INSOMNIA(50),
     LOOT_PARADISE(51),
     BOMBERMOB(53),
@@ -158,6 +163,15 @@ enum class Modifier(
 
     @Suppress("FunctionName")
     open fun _nMobsMult(): Float = 1f
+
+    @Suppress("FunctionName")
+    open fun _nWaterMult(): Float = 1f
+
+    @Suppress("FunctionName")
+    open fun _nGrassMult(): Float = 1f
+
+    @Suppress("FunctionName")
+    open fun _nTrapsMult(): Float = 1f
 
     fun active() = Dungeon.tcpdData?.modifiers?.isEnabled(this) ?: false
 }
@@ -264,6 +278,36 @@ class Modifiers() : Bundlable {
         for (modifier in Modifier.entries) {
             if (modifiers[modifier.id]) {
                 mult *= modifier._nMobsMult()
+            }
+        }
+        return mult
+    }
+
+    fun nWaterMult(): Float {
+        var mult = 1f
+        for (modifier in Modifier.entries) {
+            if (modifiers[modifier.id]) {
+                mult *= modifier._nWaterMult()
+            }
+        }
+        return mult
+    }
+
+    fun nGrassMult(): Float {
+        var mult = 1f
+        for (modifier in Modifier.entries) {
+            if (modifiers[modifier.id]) {
+                mult *= modifier._nGrassMult()
+            }
+        }
+        return mult
+    }
+
+    fun nTrapsMult(): Float {
+        var mult = 1f
+        for (modifier in Modifier.entries) {
+            if (modifiers[modifier.id]) {
+                mult *= modifier._nTrapsMult()
             }
         }
         return mult

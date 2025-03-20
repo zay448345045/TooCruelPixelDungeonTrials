@@ -72,6 +72,9 @@ fun RegularLevel.createItemsHook() {
 }
 
 fun Level.postCreateHook() {
+    if (Modifier.DROUGHT.active()) {
+        applyDrought()
+    }
     if (Modifier.SECOND_TRY.active()) {
         applySecondTry()
     }
@@ -86,9 +89,6 @@ fun Level.postCreateHook() {
     }
     if (Modifier.CURSED.active()) {
         applyCursed()
-    }
-    if (Modifier.EXOTIC_GOODS.active()) {
-        applyExoticGoods()
     }
     if (Modifier.MIMICS.active()) {
         applyMimics()
@@ -431,7 +431,7 @@ private fun Level.applyThunderstruck() {
     // Reveal all traps if THUNDERSTRUCK modifier is active, for fairness
     for (trap in traps.valueList()) {
         trap.reveal()
-        if(map[trap.pos] == Terrain.SECRET_TRAP) {
+        if (map[trap.pos] == Terrain.SECRET_TRAP) {
             set(trap.pos, Terrain.TRAP, this)
         }
     }
@@ -485,7 +485,17 @@ fun Level.applyCursed() {
     }
 }
 
-fun Level.applyExoticGoods() {
+fun Level.applyDrought() {
+    val chance = 0.9f
+    var terrain: Int
+    for (i in 0 until length()) {
+        terrain = map[i]
+        if ((terrain == Terrain.WATER || terrain == Terrain.GRASS || terrain == Terrain.HIGH_GRASS || terrain == Terrain.FURROWED_GRASS) &&
+            Random.Float() < chance
+        ) {
+            set(i, Terrain.EMPTY, this)
+        }
+    }
 }
 
 fun Level.applyMimics() {
