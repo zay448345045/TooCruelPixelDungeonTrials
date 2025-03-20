@@ -5,6 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband
+import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ExoticCrystals
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
@@ -107,6 +108,9 @@ enum class Modifier(
     CROOKED_DIE(67),
     CRUMBLED_STAIRS(68),
     MULTICLASSING(69),
+    EXOTIC_GOODS(70) {
+        override fun _isItemBlocked(item: Item): Boolean = item is ExoticCrystals
+    },
     ;
 
     companion object {

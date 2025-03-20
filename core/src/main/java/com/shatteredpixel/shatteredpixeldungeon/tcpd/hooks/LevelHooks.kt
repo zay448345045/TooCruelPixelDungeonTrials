@@ -87,6 +87,9 @@ fun Level.postCreateHook() {
     if (Modifier.CURSED.active()) {
         applyCursed()
     }
+    if (Modifier.EXOTIC_GOODS.active()) {
+        applyExoticGoods()
+    }
     if (Modifier.MIMICS.active()) {
         applyMimics()
     }
@@ -478,6 +481,9 @@ fun Level.applyCursed() {
     applyToEveryItem {
         it.curseIfAllowed(true)
     }
+}
+
+fun Level.applyExoticGoods() {
 }
 
 fun Level.applyMimics() {

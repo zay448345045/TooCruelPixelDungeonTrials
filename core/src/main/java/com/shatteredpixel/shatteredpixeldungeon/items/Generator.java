@@ -203,6 +203,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Starflower;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Stormvine;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Sungrass;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.GeneratorHooksKt;
 import com.watabou.utils.Bundle;
 import com.watabou.utils.GameMath;
 import com.watabou.utils.Random;
@@ -690,6 +691,9 @@ public class Generator {
 	}
 	
 	public static Item random( Category cat ) {
+		return GeneratorHooksKt.transformGeneratedItem(randomRaw(cat));
+	}
+	private static Item randomRaw( Category cat ) {
 		switch (cat) {
 			case ARMOR:
 				return randomArmor();
@@ -737,6 +741,9 @@ public class Generator {
 	//overrides any deck systems and always uses default probs
 	// except for artifacts, which must always use a deck
 	public static Item randomUsingDefaults( Category cat ){
+		return GeneratorHooksKt.transformGeneratedItem(randomUsingDefaultsRaw(cat));
+	}
+	private static Item randomUsingDefaultsRaw( Category cat ){
 		if (cat == Category.WEAPON){
 			return randomWeapon(true);
 		} else if (cat == Category.MISSILE){
@@ -763,7 +770,7 @@ public class Generator {
 	}
 	
 	public static Item random( Class<? extends Item> cl ) {
-		return Reflection.newInstance(cl).random();
+		return GeneratorHooksKt.transformGeneratedItem(Reflection.newInstance(cl).random());
 	}
 
 	public static Armor randomArmor(){

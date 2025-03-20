@@ -23,6 +23,7 @@ package com.shatteredpixel.shatteredpixeldungeon.items.trinkets;
 
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 
 public class ExoticCrystals extends Trinket {
 
@@ -46,6 +47,7 @@ public class ExoticCrystals extends Trinket {
 	}
 
 	public static float consumableExoticChance(){
+		if(Modifier.EXOTIC_GOODS.active()) return 1f;
 		return consumableExoticChance(trinketLevel(ExoticCrystals.class));
 	}
 
