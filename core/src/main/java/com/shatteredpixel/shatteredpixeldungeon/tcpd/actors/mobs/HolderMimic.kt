@@ -180,11 +180,11 @@ class StoredHeapData : Bundlable {
                 }
             }
             for (childHeap in childHeaps) {
-                Buff.affect(mob, HoldingHeap::class.java).set(childHeap)
+                Buff.append(mob, HoldingHeap::class.java).set(childHeap)
             }
             childHeaps.clear()
             val holderBuff =
-                Buff.affect(mob, HoldingHeap::class.java).set(this.withoutHolder().copy())
+                Buff.append(mob, HoldingHeap::class.java).set(this.withoutHolder().copy())
             if (mob is Mimic && heapType.isNoneOr { it == Heap.Type.HEAP }) {
                 if (mob.items == null) mob.items = ArrayList()
                 if (extraMimicLoot) {
@@ -225,6 +225,29 @@ class StoredHeapData : Bundlable {
         }
     }
 
+    /**
+     * Merges this heap data into another one
+     *
+     * This heap data will be cleared after the merge
+     */
+    fun mergeInto(into: StoredHeapData) {
+        if (isPlainContainer() && into.isPlainContainer() && heapType == into.heapType) {
+            into.items.addAll(this.items)
+        } else {
+            into.childHeaps.add(this.copy())
+        }
+        clear()
+    }
+
+    /**
+     * Indicates whether this heap is a plain container, i.e. it has no holder
+     * class, no child heaps, and the container type doesn't have special
+     * opening restrictions
+     */
+    fun isPlainContainer(): Boolean {
+       return holderClass == null && childHeaps.isEmpty() && heapType.isNoneOr { it == Heap.Type.HEAP || it == Heap.Type.CHEST || it == Heap.Type.SKELETON }
+    }
+
     fun withoutHolder(): StoredHeapData {
         if (holderClass == null) {
             return this
@@ -240,6 +263,13 @@ class StoredHeapData : Bundlable {
         val b = Bundle()
         storeInBundle(b)
         return StoredHeapData().also { it.restoreFromBundle(b) }
+    }
+
+    fun clear() {
+        items.clear()
+        childHeaps.clear()
+        holderClass = null
+        heapType = null
     }
 
     @Suppress("UNCHECKED_CAST")

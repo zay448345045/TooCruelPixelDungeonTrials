@@ -11,7 +11,11 @@ class HoldingHeap: Buff(), OnDeathEffectBuff {
     lateinit var heap: StoredHeapData
 
     fun set(heap: StoredHeapData): HoldingHeap {
-        this.heap = heap
+        if(!this::heap.isInitialized) {
+            this.heap = heap
+        } else {
+            heap.mergeInto(this.heap)
+        }
         return this
     }
 
