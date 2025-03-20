@@ -431,7 +431,9 @@ private fun Level.applyThunderstruck() {
     // Reveal all traps if THUNDERSTRUCK modifier is active, for fairness
     for (trap in traps.valueList()) {
         trap.reveal()
-        set(trap.pos, Terrain.TRAP, this)
+        if(map[trap.pos] == Terrain.SECRET_TRAP) {
+            set(trap.pos, Terrain.TRAP, this)
+        }
     }
 }
 
