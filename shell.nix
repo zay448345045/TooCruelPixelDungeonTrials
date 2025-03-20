@@ -12,6 +12,7 @@ let
       platform-tools
       platforms-android-34
       emulator
+      ktlint
     ]);
 
 in mkShell {

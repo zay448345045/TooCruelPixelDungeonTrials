@@ -22,7 +22,7 @@ import com.watabou.utils.DeviceCompat
 enum class Modifier(
     val id: Int,
     locString: String? = null,
-    val dependencies: Array<Int> = emptyArray()
+    val dependencies: Array<Int> = emptyArray(),
 ) {
     // Vanilla challenges
     CHAMPION_ENEMIES(7, locString = "champion_enemies"),
@@ -32,9 +32,7 @@ enum class Modifier(
     FAITH_ARMOR(1, locString = "no_armor"),
     PHARMACOPHOBIA(2, locString = "no_healing"),
     BARREN_LAND(3, locString = "no_herbalism") {
-        override fun _isItemBlocked(item: Item): Boolean {
-            return item is Dewdrop
-        }
+        override fun _isItemBlocked(item: Item): Boolean = item is Dewdrop
     },
     SWARM_INTELLIGENCE(4, locString = "swarm_intelligence"),
     DARKNESS(5, locString = "darkness"),
@@ -44,17 +42,13 @@ enum class Modifier(
     CARDINAL_DISABILITY(9),
     RACING_THE_DEATH(10),
     HORDE(11) {
-        override fun _nMobsMult(): Float {
-            return 2f
-        }
+        override fun _nMobsMult(): Float = 2f
     },
     INVASION(12),
     GREAT_MIGRATION(13, dependencies = arrayOf(INVASION.id)),
     MUTAGEN(14),
     EVOLUTION(15, dependencies = arrayOf(MUTAGEN.id)) {
-        override fun _isItemBlocked(item: Item): Boolean {
-            return item is RatSkull
-        }
+        override fun _isItemBlocked(item: Item): Boolean = item is RatSkull
     },
     ROTTEN_LUCK(16),
     ARROWHEAD(17),
@@ -80,14 +74,10 @@ enum class Modifier(
     PLAGUE(37),
     TOXIC_WATER(38),
     CERTAINTY_OF_STEEL(39) {
-        override fun _isItemBlocked(item: Item): Boolean {
-            return item is SaltCube
-        }
+        override fun _isItemBlocked(item: Item): Boolean = item is SaltCube
     },
     GOLDEN_COLOSSUS(52, dependencies = arrayOf(CERTAINTY_OF_STEEL.id)) {
-        override fun _isItemBlocked(item: Item): Boolean {
-            return item is MasterThievesArmband
-        }
+        override fun _isItemBlocked(item: Item): Boolean = item is MasterThievesArmband
     },
     PARADOX_LEVELGEN(40),
     RETIERED(41),
@@ -127,7 +117,7 @@ enum class Modifier(
                 val seen = mutableMapOf<Int, Modifier>()
                 for (mod in ALL) {
                     val existing = seen[mod.id]
-                    if(existing != null) {
+                    if (existing != null) {
                         throw IllegalStateException("Modifier id ${mod.id} is in use by both ${mod.name} and ${existing.name}")
                     }
                     seen[mod.id] = mod
@@ -136,8 +126,8 @@ enum class Modifier(
             }
         }
 
-        fun fromVanilla(challengeId: Int): Modifier {
-            return when (challengeId) {
+        fun fromVanilla(challengeId: Int): Modifier =
+            when (challengeId) {
                 Challenges.NO_FOOD -> ON_DIET
                 Challenges.NO_ARMOR -> FAITH_ARMOR
                 Challenges.NO_HEALING -> PHARMACOPHOBIA
@@ -149,28 +139,21 @@ enum class Modifier(
                 Challenges.STRONGER_BOSSES -> STRONGER_BOSSES
                 else -> throw IllegalArgumentException("Unknown vanilla challenge id: $challengeId")
             }
-        }
     }
 
     private val localizationKey = locString ?: name.lowercase()
     private val localizationClass =
         if (locString == null) Modifier::class.java else Challenges::class.java
 
-    fun localizedName(): String {
-        return Messages.get(localizationClass, localizationKey)
-    }
+    fun localizedName(): String = Messages.get(localizationClass, localizationKey)
 
-    fun localizedDesc(): String {
-        return Messages.get(localizationClass, localizationKey + "_desc")
-    }
+    fun localizedDesc(): String = Messages.get(localizationClass, localizationKey + "_desc")
 
-    open fun _isItemBlocked(item: Item): Boolean {
-        return false
-    }
+    @Suppress("FunctionName")
+    open fun _isItemBlocked(item: Item): Boolean = false
 
-    open fun _nMobsMult(): Float {
-        return 1f
-    }
+    @Suppress("FunctionName")
+    open fun _nMobsMult(): Float = 1f
 
     fun active() = Dungeon.tcpdData?.modifiers?.isEnabled(this) ?: false
 }
@@ -200,13 +183,9 @@ class Modifiers() : Bundlable {
             return encoded
         }
 
-        fun decodeBits(encoded: String): BooleanArray {
-            return encoded.decodeBase58().asBits().trimEnd(false)
-        }
+        fun decodeBits(encoded: String): BooleanArray = encoded.decodeBase58().asBits().trimEnd(false)
 
-        fun debugModeActive(): Boolean {
-            return DeviceCompat.isDebug()
-        }
+        fun debugModeActive(): Boolean = DeviceCompat.isDebug()
 
         const val MODIFIERS = "modifiers"
 
@@ -215,25 +194,15 @@ class Modifiers() : Bundlable {
         }
     }
 
-    fun asRaw(): BooleanArray {
-        return modifiers.copyOf()
-    }
+    fun asRaw(): BooleanArray = modifiers.copyOf()
 
-    fun isChallenged(): Boolean {
-        return modifiers.any { it }
-    }
+    fun isChallenged(): Boolean = modifiers.any { it }
 
-    fun activeChallengesCount(): Int {
-        return modifiers.count { it }
-    }
+    fun activeChallengesCount(): Int = modifiers.count { it }
 
-    fun isEnabled(modifier: Modifier): Boolean {
-        return modifiers[modifier.id]
-    }
+    fun isEnabled(modifier: Modifier): Boolean = modifiers[modifier.id]
 
-    fun isVanillaEnabled(challengeId: Int): Boolean {
-        return isEnabled(Modifier.fromVanilla(challengeId))
-    }
+    fun isVanillaEnabled(challengeId: Int): Boolean = isEnabled(Modifier.fromVanilla(challengeId))
 
     fun enable(modifier: Modifier) {
         modifiers[modifier.id] = true
@@ -274,11 +243,12 @@ class Modifiers() : Bundlable {
         BArray.setFalse(modifiers)
     }
 
-    fun isItemBlocked(item: Item): Boolean {
-        return Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
-    }
+    fun isItemBlocked(item: Item): Boolean = Modifier.entries.any { modifiers[it.id] && it._isItemBlocked(item) }
 
-    fun isActionBanned(item: Item, action: String): Boolean {
+    fun isActionBanned(
+        item: Item,
+        action: String,
+    ): Boolean {
         if (item.cursed && isEnabled(Modifier.CURSE_MAGNET)) {
             return action == Item.AC_DROP || action == Item.AC_THROW
         }
@@ -295,9 +265,7 @@ class Modifiers() : Bundlable {
         return mult
     }
 
-    fun scalingDepthBonus(): Int {
-        return if (isEnabled(Modifier.DEEPER_DANGER)) 10 else 0
-    }
+    fun scalingDepthBonus(): Int = if (isEnabled(Modifier.DEEPER_DANGER)) 10 else 0
 
     override fun restoreFromBundle(bundle: Bundle) {
         bundle.getBooleanArray(MODIFIERS).copyInto(modifiers)
@@ -314,24 +282,25 @@ class Modifiers() : Bundlable {
 }
 
 private fun doTests() {
-    val mods = booleanArrayOf(
-        true,
-        false,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false
-    )
+    val mods =
+        booleanArrayOf(
+            true,
+            false,
+            true,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+            false,
+        )
     val newMods = booleanArrayOf(true, false, true)
 
     val ogBytes = mods.asBytes(false).trimEnd()

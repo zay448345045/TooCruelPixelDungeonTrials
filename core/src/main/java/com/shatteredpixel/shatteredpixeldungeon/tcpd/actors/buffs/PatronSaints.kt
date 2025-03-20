@@ -11,12 +11,13 @@ import kotlin.math.min
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class PatronSaints : Buff(), AttackAmplificationBuff, DamageAmplificationBuff {
-    var lastShownStacks = 0;
+class PatronSaints :
+    Buff(),
+    AttackAmplificationBuff,
+    DamageAmplificationBuff {
+    var lastShownStacks = 0
 
-    override fun icon(): Int {
-        return BuffIndicator.LIGHT
-    }
+    override fun icon(): Int = BuffIndicator.LIGHT
 
     override fun act(): Boolean {
         val stacks = stacks()
@@ -36,17 +37,11 @@ class PatronSaints : Buff(), AttackAmplificationBuff, DamageAmplificationBuff {
         icon.hardlight(0xFFA500)
     }
 
-    fun stacks(): Int {
-        return findBlob<PatronSaintsBlob>(Dungeon.level)?.stacksAt(target.pos) ?: 0
-    }
+    fun stacks(): Int = findBlob<PatronSaintsBlob>(Dungeon.level)?.stacksAt(target.pos) ?: 0
 
-    override fun damageMultiplier(source: Any?): Float {
-        return 1 - min(sqrt(stacks() / 9.8765f), 0.90f)
-    }
+    override fun damageMultiplier(source: Any?): Float = 1 - min(sqrt(stacks() / 9.8765f), 0.90f)
 
-    override fun attackMultiplier(): Float {
-        return 1.3f.pow(stacks())
-    }
+    override fun attackMultiplier(): Float = 1.3f.pow(stacks())
 
     override fun fx(on: Boolean) {
         if (on) {
@@ -55,20 +50,19 @@ class PatronSaints : Buff(), AttackAmplificationBuff, DamageAmplificationBuff {
                 PatronSaints::class.java,
                 0xFFA500,
                 0.5f + (1.5f * lastShownStacks) / 8,
-                true
+                true,
             )
         } else {
             target.sprite.clearCustomAura(PatronSaints::class.java)
         }
     }
 
-    override fun desc(): String {
-        return Messages.get(
+    override fun desc(): String =
+        Messages.get(
             this,
             "desc",
             stacks(),
             Messages.decimalFormat("##", (attackMultiplier() - 1) * 100.0),
             Messages.decimalFormat("##", (1 - damageMultiplier(null)) * 100.0),
         )
-    }
 }

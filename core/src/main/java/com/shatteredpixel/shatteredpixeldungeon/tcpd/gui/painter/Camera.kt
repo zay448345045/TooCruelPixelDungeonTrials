@@ -5,9 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.watabou.noosa.Camera
 
-fun Camera.rect(): Rect {
-    return Rect.fromSize(Pos2(x, y), Vec2(width, height))
-}
+fun Camera.rect(): Rect = Rect.fromSize(Pos2(x, y), Vec2(width, height))
 
 fun Camera.withClip(rect: Rect?): Camera? {
     val newRect = camera.rect().intersection(rect) ?: return null

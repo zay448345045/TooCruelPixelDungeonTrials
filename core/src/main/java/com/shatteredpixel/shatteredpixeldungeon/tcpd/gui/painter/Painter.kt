@@ -28,7 +28,10 @@ class Painter internal constructor(
     private val cache: PaintCache,
 ) {
     companion object {
-        fun create(group: Group?, cache: PaintCache): Painter {
+        fun create(
+            group: Group?,
+            cache: PaintCache,
+        ): Painter {
             cache.restart()
             return Painter(group, cache)
         }
@@ -42,7 +45,11 @@ class Painter internal constructor(
      *
      * @param clip The new clip rect.
      */
-    fun clipped(id: UiId, clip: Rect?, component: ComponentConstructor? = null): Painter {
+    fun clipped(
+        id: UiId,
+        clip: Rect?,
+        component: ComponentConstructor? = null,
+    ): Painter {
         // We are already inside non-visible area.
         if (this.group == null) {
             return this
@@ -63,7 +70,10 @@ class Painter internal constructor(
     /**
      * Same as [clipped], but without clipping.
      */
-    fun withComponent(id: UiId, component: ComponentConstructor): Painter {
+    fun withComponent(
+        id: UiId,
+        component: ComponentConstructor,
+    ): Painter {
         if (this.group == null) {
             return this
         }
@@ -74,42 +84,51 @@ class Painter internal constructor(
         return Painter(group, cache)
     }
 
-    fun drawRect(id: UiId, rect: Rect, color: Int): ColorBlock {
-        return add(id, VisualElement.ColoredRect(rect, color)) as ColorBlock
-    }
+    fun drawRect(
+        id: UiId,
+        rect: Rect,
+        color: Int,
+    ): ColorBlock = add(id, VisualElement.ColoredRect(rect, color)) as ColorBlock
 
-    fun drawNinePatch(id: UiId, rect: Rect, descriptor: NinePatchDescriptor): NinePatch {
-        return add(id, VisualElement.NinePatch(rect, descriptor)) as NinePatch
-    }
+    fun drawNinePatch(
+        id: UiId,
+        rect: Rect,
+        descriptor: NinePatchDescriptor,
+    ): NinePatch = add(id, VisualElement.NinePatch(rect, descriptor)) as NinePatch
 
-    fun drawSizedImage(id: UiId, rect: Rect, texture: TextureDescriptor): Image {
-        return add(id, VisualElement.SizedImage(rect, texture)) as Image
-    }
+    fun drawSizedImage(
+        id: UiId,
+        rect: Rect,
+        texture: TextureDescriptor,
+    ): Image = add(id, VisualElement.SizedImage(rect, texture)) as Image
 
-    fun drawImage(id: UiId, pos: Pos2, texture: TextureDescriptor): Image {
-        return add(id, VisualElement.NativeImage(pos, texture)) as Image
-    }
+    fun drawImage(
+        id: UiId,
+        pos: Pos2,
+        texture: TextureDescriptor,
+    ): Image = add(id, VisualElement.NativeImage(pos, texture)) as Image
 
     fun drawText(
         id: UiId,
         rect: Rect,
         text: String,
         size: Int,
-        multiline: Boolean
-    ): RenderedTextBlock {
-        return add(id, VisualElement.Text(rect, text, size, multiline)) as RenderedTextBlock
-    }
+        multiline: Boolean,
+    ): RenderedTextBlock = add(id, VisualElement.Text(rect, text, size, multiline)) as RenderedTextBlock
 
-    fun drawComponent(id: UiId, rect: Rect, component: ComponentConstructor): Component {
-        return add(id, VisualElement.Component(rect, component)) as Component
-    }
+    fun drawComponent(
+        id: UiId,
+        rect: Rect,
+        component: ComponentConstructor,
+    ): Component = add(id, VisualElement.Component(rect, component)) as Component
 
-    fun getGroup(): Group? {
-        return group
-    }
+    fun getGroup(): Group? = group
 
-    private fun add(id: UiId, element: VisualElement): Gizmo {
-        val gizmo = cache.get(id, element);
+    private fun add(
+        id: UiId,
+        element: VisualElement,
+    ): Gizmo {
+        val gizmo = cache.get(id, element)
 
         group?.addToFront(gizmo)
         if (gizmo is Component) {
@@ -122,30 +141,56 @@ class Painter internal constructor(
 }
 
 internal sealed class VisualElement {
-    data class ColoredRect(val rect: Rect, val color: Int) : VisualElement()
-    data class NinePatch(val rect: Rect, val descriptor: NinePatchDescriptor) : VisualElement()
+    data class ColoredRect(
+        val rect: Rect,
+        val color: Int,
+    ) : VisualElement()
 
-    data class SizedImage(val rect: Rect, val texture: TextureDescriptor) : VisualElement()
-    data class NativeImage(val pos: Pos2, val texture: TextureDescriptor) : VisualElement()
-    data class Component(val rect: Rect, val component: ComponentConstructor) : VisualElement()
-    data class Text(val rect: Rect, val text: String, val size: Int, val multiline: Boolean) :
-        VisualElement()
+    data class NinePatch(
+        val rect: Rect,
+        val descriptor: NinePatchDescriptor,
+    ) : VisualElement()
 
-    data class Group(val component: ComponentConstructor?) : VisualElement()
+    data class SizedImage(
+        val rect: Rect,
+        val texture: TextureDescriptor,
+    ) : VisualElement()
+
+    data class NativeImage(
+        val pos: Pos2,
+        val texture: TextureDescriptor,
+    ) : VisualElement()
+
+    data class Component(
+        val rect: Rect,
+        val component: ComponentConstructor,
+    ) : VisualElement()
+
+    data class Text(
+        val rect: Rect,
+        val text: String,
+        val size: Int,
+        val multiline: Boolean,
+    ) : VisualElement()
+
+    data class Group(
+        val component: ComponentConstructor?,
+    ) : VisualElement()
 
     fun asGizmo(cached: Pair<VisualElement, Gizmo>?): Gizmo {
         when (this) {
             is ColoredRect -> {
-                val block = if (cached?.first is ColoredRect && cached.second is ColorBlock) {
-                    val old = cached.first as ColoredRect
-                    if (old.color == color) {
-                        return cached.second as ColorBlock
+                val block =
+                    if (cached?.first is ColoredRect && cached.second is ColorBlock) {
+                        val old = cached.first as ColoredRect
+                        if (old.color == color) {
+                            return cached.second as ColorBlock
+                        } else {
+                            null
+                        }
                     } else {
                         null
-                    }
-                } else {
-                    null
-                } ?: ColorBlock(rect.width().toFloat(), rect.height().toFloat(), color)
+                    } ?: ColorBlock(rect.width().toFloat(), rect.height().toFloat(), color)
 
                 block.x = rect.min.x.toFloat()
                 block.y = rect.min.y.toFloat()
@@ -154,15 +199,16 @@ internal sealed class VisualElement {
             }
 
             is SizedImage -> {
-                val image = if (cached?.second is Image) {
-                    val image = cached.second as Image
+                val image =
+                    if (cached?.second is Image) {
+                        val image = cached.second as Image
 
-                    texture.update(image)
-                    image.resetColor()
-                    image
-                } else {
-                    texture.asImage()
-                }
+                        texture.update(image)
+                        image.resetColor()
+                        image
+                    } else {
+                        texture.asImage()
+                    }
                 image.width = rect.width().toFloat()
                 image.height = rect.height().toFloat()
                 image.x = rect.min.x.toFloat()
@@ -172,15 +218,16 @@ internal sealed class VisualElement {
             }
 
             is NativeImage -> {
-                val image = if (cached?.second is Image) {
-                    val image = cached.second as Image
+                val image =
+                    if (cached?.second is Image) {
+                        val image = cached.second as Image
 
-                    texture.update(image)
-                    image.resetColor()
-                    image
-                } else {
-                    texture.asImage()
-                }
+                        texture.update(image)
+                        image.resetColor()
+                        image
+                    } else {
+                        texture.asImage()
+                    }
                 image.x = pos.x.toFloat()
                 image.y = pos.y.toFloat()
                 image.scale.set(1f)
@@ -220,7 +267,7 @@ internal sealed class VisualElement {
                     rect.min.x.toFloat(),
                     rect.min.y.toFloat(),
                     rect.width().toFloat(),
-                    rect.height().toFloat()
+                    rect.height().toFloat(),
                 )
                 return comp
             }
@@ -275,24 +322,35 @@ internal sealed class VisualElement {
 private val TextureSizeCache = LRUCache<TextureDescriptor, Vec2>(256)
 
 sealed interface TextureDescriptor {
-    class ByName(val name: String) : TextureDescriptor
-    class SmartTexture(val texture: com.watabou.gltextures.SmartTexture) : TextureDescriptor
-    class Pixmap(val pixmap: com.badlogic.gdx.graphics.Pixmap) : TextureDescriptor
-    class Icon(val icon: Icons) : TextureDescriptor
-    class HeroClass(
-        val heroClass: com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass,
-        val armorTier: Int
+    class ByName(
+        val name: String,
     ) : TextureDescriptor
 
-    fun asImage(): Image {
-        return when (this) {
+    class SmartTexture(
+        val texture: com.watabou.gltextures.SmartTexture,
+    ) : TextureDescriptor
+
+    class Pixmap(
+        val pixmap: com.badlogic.gdx.graphics.Pixmap,
+    ) : TextureDescriptor
+
+    class Icon(
+        val icon: Icons,
+    ) : TextureDescriptor
+
+    class HeroClass(
+        val heroClass: com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass,
+        val armorTier: Int,
+    ) : TextureDescriptor
+
+    fun asImage(): Image =
+        when (this) {
             is ByName -> Image(TextureCache.get(name))
             is SmartTexture -> Image(TextureCache.get(texture))
             is Pixmap -> Image(TextureCache.get(pixmap))
             is Icon -> Icons.get(icon)
             is HeroClass -> HeroSprite.avatar(heroClass, armorTier)
         }
-    }
 
     fun update(image: Image) {
         when (this) {
@@ -304,25 +362,32 @@ sealed interface TextureDescriptor {
         }
     }
 
-    fun size(): Vec2 {
-        return TextureSizeCache.getOrPut(this) {
+    fun size(): Vec2 =
+        TextureSizeCache.getOrPut(this) {
             val image = asImage()
             Vec2(image.width.roundToInt(), image.height.roundToInt())
         }
-    }
 }
 
 sealed interface NinePatchDescriptor {
-    data class Chrome(val type: com.shatteredpixel.shatteredpixeldungeon.Chrome.Type) :
-        NinePatchDescriptor
+    data class Chrome(
+        val type: com.shatteredpixel.shatteredpixeldungeon.Chrome.Type,
+    ) : NinePatchDescriptor
 
-    data class FlatColor(val color: UInt) : NinePatchDescriptor
-    data class TextureId(val key: Any, val margins: Margins) : NinePatchDescriptor
-    data class Gradient(val colors: IntArray) : NinePatchDescriptor {
+    data class FlatColor(
+        val color: UInt,
+    ) : NinePatchDescriptor
+
+    data class TextureId(
+        val key: Any,
+        val margins: Margins,
+    ) : NinePatchDescriptor
+
+    data class Gradient(
+        val colors: IntArray,
+    ) : NinePatchDescriptor {
         companion object {
-            fun colors(vararg colors: Int): Gradient {
-                return Gradient(colors)
-            }
+            fun colors(vararg colors: Int): Gradient = Gradient(colors)
         }
 
         override fun equals(other: Any?): Boolean {
@@ -332,52 +397,48 @@ sealed interface NinePatchDescriptor {
             return colors.contentEquals(other.colors)
         }
 
-        override fun hashCode(): Int {
-            return colors.contentHashCode()
-        }
+        override fun hashCode(): Int = colors.contentHashCode()
     }
 
-    fun get(): NinePatch {
-        return when (this) {
-            is Chrome -> com.shatteredpixel.shatteredpixeldungeon.Chrome.get(type)
+    fun get(): NinePatch =
+        when (this) {
+            is Chrome ->
+                com.shatteredpixel.shatteredpixeldungeon.Chrome
+                    .get(type)
             is FlatColor -> NinePatch(TextureCache.createSolid(color.toInt()), 0)
             is Gradient -> NinePatch(TextureCache.createGradient(*colors), 0)
-            is TextureId -> NinePatch(
-                TextureCache.get(key),
-                margins.left,
-                margins.top,
-                margins.right,
-                margins.bottom
-            )
+            is TextureId ->
+                NinePatch(
+                    TextureCache.get(key),
+                    margins.left,
+                    margins.top,
+                    margins.right,
+                    margins.bottom,
+                )
         }
-    }
 
-    fun margins(): Margins {
-        return when (this) {
+    fun margins(): Margins =
+        when (this) {
             is Chrome -> type.margins()
             is FlatColor -> Margins.same(0)
             is Gradient -> Margins.same(0)
             is TextureId -> margins
         }
-    }
 }
 
 interface ComponentConstructor {
     fun construct(): Component
+
     fun componentClass(): Class<out Component>
+
     fun clearChildren(comp: Component) {
         comp.clear()
     }
 }
 
-fun Chrome.Type.descriptor(): NinePatchDescriptor {
-    return NinePatchDescriptor.Chrome(this)
-}
+fun Chrome.Type.descriptor(): NinePatchDescriptor = NinePatchDescriptor.Chrome(this)
 
-fun Icons.descriptor(): TextureDescriptor {
-    return TextureDescriptor.Icon(this)
-}
+fun Icons.descriptor(): TextureDescriptor = TextureDescriptor.Icon(this)
 
-fun TextureCache.get(obj: TextureDescriptor): SmartTexture {
+fun TextureCache.get(obj: TextureDescriptor): SmartTexture =
     throw Error("Do not use TextureCache.get directly with TextureDescriptor. Use `asKey` first.")
-}

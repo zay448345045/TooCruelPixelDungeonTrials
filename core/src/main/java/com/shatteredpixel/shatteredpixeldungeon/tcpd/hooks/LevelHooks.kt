@@ -37,7 +37,6 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
-import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
 import com.watabou.noosa.Game
 import com.watabou.utils.BArray
@@ -50,11 +49,12 @@ import kotlin.math.min
 
 fun RegularLevel.createItemsHook() {
     if (Modifier.HEAD_START.active() && Dungeon.depth == 1) {
-        val bonus = if (Modifier.PRISON_EXPRESS.active()) {
-            1
-        } else {
-            0
-        }
+        val bonus =
+            if (Modifier.PRISON_EXPRESS.active()) {
+                1
+            } else {
+                0
+            }
         val nUpgrades = 2 + bonus - Dungeon.LimitedDrops.UPGRADE_SCROLLS.count
         val nStrength = 1 + bonus - Dungeon.LimitedDrops.STRENGTH_POTIONS.count
         repeat(nUpgrades) {
@@ -97,7 +97,9 @@ fun Level.postCreateHook() {
 
 @Suppress("NAME_SHADOWING")
 fun Level.updateBlockingFovHook(
-    c: Char, modifiableBlocking: BooleanArray, blocking: BooleanArray?
+    c: Char,
+    modifiableBlocking: BooleanArray,
+    blocking: BooleanArray?,
 ): BooleanArray? {
     var blocking = blocking
     if (c is Hero || c.alignment == Char.Alignment.ALLY) {
@@ -129,7 +131,8 @@ fun Level.updateBlockingFovHook(
 }
 
 fun Level.updateHeroMindFovHook(
-    h: Hero, heroMindFov: BooleanArray
+    h: Hero,
+    heroMindFov: BooleanArray,
 ) {
     val shadowFov = BooleanArray(length())
     for (mob in mobs) {
@@ -188,11 +191,19 @@ fun dungeonObserveHook(dist: Int) {
                 if (maxHeroDistance < 0 || maxHeroDistance < heroDistance) {
                     if (radius == 1) {
                         BArray.or(
-                            level.visited, level.heroFOV, pos - 1 - level.width(), 3, level.visited
+                            level.visited,
+                            level.heroFOV,
+                            pos - 1 - level.width(),
+                            3,
+                            level.visited,
                         )
                         BArray.or(level.visited, level.heroFOV, pos - 1, 3, level.visited)
                         BArray.or(
-                            level.visited, level.heroFOV, pos - 1 + level.width(), 3, level.visited
+                            level.visited,
+                            level.heroFOV,
+                            pos - 1 + level.width(),
+                            3,
+                            level.visited,
                         )
                         GameScene.updateFog(pos, 2)
                         continue
@@ -209,7 +220,11 @@ fun dungeonObserveHook(dist: Int) {
                     var pos1 = l + t * Dungeon.level.width()
                     for (i in t..b) {
                         BArray.or(
-                            level.visited, level.heroFOV, pos, width, Dungeon.level.visited
+                            level.visited,
+                            level.heroFOV,
+                            pos,
+                            width,
+                            Dungeon.level.visited,
                         )
                         pos1 += Dungeon.level.width()
                     }
@@ -222,23 +237,26 @@ fun dungeonObserveHook(dist: Int) {
 
 private var bypassTransitionlimitations = false
 
-fun Level.activateTransitionHook(hero: Hero, transition: LevelTransition): Boolean {
+fun Level.activateTransitionHook(
+    hero: Hero,
+    transition: LevelTransition,
+): Boolean {
     if (bypassTransitionlimitations) return true
     if (Modifier.EXTERMINATION.active()) {
         if (!Exterminating.exterminationDone(this)) return false
     }
     val crumbling = Modifier.CRUMBLED_STAIRS.active()
     val prison = Modifier.PRISON_EXPRESS.active()
-    if(Statistics.amuletObtained) {
+    if (Statistics.amuletObtained) {
         if (crumbling && transition.destDepth >= Dungeon.depth) {
             Game.runOnRenderThread {
                 GameScene.show(
                     WndMessage(
                         Messages.get(
                             Modifier::class.java,
-                            "crumbled_stairs_no_distractions"
-                        )
-                    )
+                            "crumbled_stairs_no_distractions",
+                        ),
+                    ),
                 )
             }
             return false
@@ -250,9 +268,9 @@ fun Level.activateTransitionHook(hero: Hero, transition: LevelTransition): Boole
                     WndMessage(
                         Messages.get(
                             Hero::class.java,
-                            "leave"
-                        )
-                    )
+                            "leave",
+                        ),
+                    ),
                 )
             }
             return false
@@ -275,7 +293,10 @@ fun Level.respawnCooldownHook(cooldown: Float): Float {
     return cooldown
 }
 
-fun Level.transitionNow(type: LevelTransition.Type, force: Boolean) {
+fun Level.transitionNow(
+    type: LevelTransition.Type,
+    force: Boolean,
+) {
     val tr = getTransition(type)
     if (tr != null) {
         if (force) bypassTransitionlimitations = true
@@ -284,21 +305,23 @@ fun Level.transitionNow(type: LevelTransition.Type, force: Boolean) {
     }
 }
 
-
 private fun Level.initBlocking(modifiableBlocking: BooleanArray): BooleanArray {
     System.arraycopy(
-        Dungeon.level.losBlocking, 0, modifiableBlocking, 0, modifiableBlocking.size
+        Dungeon.level.losBlocking,
+        0,
+        modifiableBlocking,
+        0,
+        modifiableBlocking.size,
     )
 
     return modifiableBlocking
 }
 
-
 fun Level.placeDuplicatorTraps(trap: Class<out Trap>) {
     if (trap.isAnonymousClass) return
     val cells = randomDuplicatorTrapCells()
     Random.shuffle(cells)
-    val nTraps = 2;
+    val nTraps = 2
 
     for (i in 0 until minOf(nTraps, cells.size)) {
         val pos = cells[i]
@@ -342,7 +365,9 @@ fun Level.randomDuplicatorTrapCells(): List<Int> {
 private fun Level.isValidDuplicatorTrapPos(pos: Int): Boolean {
     if (pos < 0 || pos >= length()) return false
     return when (map[pos]) {
-        Terrain.EMPTY, Terrain.GRASS, Terrain.HIGH_GRASS, Terrain.EMBERS, Terrain.EMPTY_DECO, Terrain.EMPTY_SP, Terrain.INACTIVE_TRAP, Terrain.WATER -> true
+        Terrain.EMPTY, Terrain.GRASS, Terrain.HIGH_GRASS, Terrain.EMBERS,
+        Terrain.EMPTY_DECO, Terrain.EMPTY_SP, Terrain.INACTIVE_TRAP, Terrain.WATER,
+        -> true
         else -> false
     }
 }
@@ -469,7 +494,10 @@ fun Level.applyMimics() {
         val h = iter.next()
         if (h.value.type == Heap.Type.CHEST || allItems) {
             StoredHeapData.transformHeapIntoMimic(
-                this, h.value, extraLoot = grind, weakHolders = !grind
+                this,
+                h.value,
+                extraLoot = grind,
+                weakHolders = !grind,
             )
             iter.remove()
         }
@@ -485,7 +513,8 @@ fun Level.applyExtermination() {
     val requireReachable = Modifier.POSTPAID_LOOT.active()
     if (requireReachable) {
         PathFinder.buildDistanceMap(
-            getTransition(null).cell(), BArray.or(passable, avoid, null)
+            getTransition(null).cell(),
+            BArray.or(passable, avoid, null),
         )
     }
     if (Modifier.POSTPAID_LOOT.active()) {
@@ -509,12 +538,21 @@ fun Level.applyExtermination() {
 
 fun Level.destroyWall(cell: Int) {
     val terrain = map[cell]
-    if (terrain == Terrain.WALL || terrain == Terrain.WALL_DECO || terrain == Terrain.STATUE || terrain == Terrain.STATUE_SP || terrain == Terrain.SECRET_DOOR || terrain == Terrain.CRYSTAL_DOOR) {
+    if (terrain == Terrain.WALL ||
+        terrain == Terrain.WALL_DECO ||
+        terrain == Terrain.STATUE ||
+        terrain == Terrain.STATUE_SP ||
+        terrain == Terrain.SECRET_DOOR ||
+        terrain == Terrain.CRYSTAL_DOOR
+    ) {
         strongDestroy(cell)
     }
 }
 
-fun Level.strongDestroy(cell: Int, replaceWith: Int = Terrain.EMBERS) {
+fun Level.strongDestroy(
+    cell: Int,
+    replaceWith: Int = Terrain.EMBERS,
+) {
     if (!insideMap(cell)) return
     Level.set(cell, replaceWith)
     for (o in PathFinder.NEIGHBOURS4) {
@@ -526,7 +564,6 @@ fun Level.strongDestroy(cell: Int, replaceWith: Int = Terrain.EMBERS) {
     }
     destroy(cell)
 }
-
 
 fun Level.defaultNItems(): Int {
     // drops 3/4/5 items 60%/30%/10% of the time

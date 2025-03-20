@@ -11,17 +11,22 @@ fun Ui.spacer(size: Vec2): UiResponse {
     return UiResponse(rect, top().nextAutoId())
 }
 
-fun Ui.colorBlock(size: Vec2, color: UInt): WidgetResponse<ColorBlock> {
+fun Ui.colorBlock(
+    size: Vec2,
+    color: UInt,
+): WidgetResponse<ColorBlock> {
     val rect = top().allocateSize(size)
     val id = top().nextAutoId()
     val block = top().painter().drawRect(id, rect, color.toInt())
     return WidgetResponse(block, UiResponse(rect, id))
 }
 
-fun Ui.hSeparator(height: Int, color: UInt): WidgetResponse<ColorBlock> {
-    return colorBlock(Vec2(top().nextAvailableSpace().width(), height), color)
-}
+fun Ui.hSeparator(
+    height: Int,
+    color: UInt,
+): WidgetResponse<ColorBlock> = colorBlock(Vec2(top().nextAvailableSpace().width(), height), color)
 
-fun Ui.vSeparator(width: Int, color: UInt): WidgetResponse<ColorBlock> {
-    return colorBlock(Vec2(width, top().nextAvailableSpace().height()), color)
-}
+fun Ui.vSeparator(
+    width: Int,
+    color: UInt,
+): WidgetResponse<ColorBlock> = colorBlock(Vec2(width, top().nextAvailableSpace().height()), color)

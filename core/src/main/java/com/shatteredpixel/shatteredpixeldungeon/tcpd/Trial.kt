@@ -64,9 +64,7 @@ open class Trial() : Bundlable {
         return true
     }
 
-    fun copy(): Trial {
-        return Trial(name, modifiers.copyOf(), lockedClass)
-    }
+    fun copy(): Trial = Trial(name, modifiers.copyOf(), lockedClass)
 
     fun isValid(): Boolean {
         valid?.let { return it }
@@ -88,7 +86,7 @@ open class Trial() : Bundlable {
             return null
         }
 
-        return Messages.get(Trial::class.java, "error_${errorCause}")
+        return Messages.get(Trial::class.java, "error_$errorCause")
     }
 
     fun getModifiers(): Modifiers? {
@@ -103,39 +101,41 @@ open class Trial() : Bundlable {
         this.modifiers = modifiers.asRaw()
     }
 
-    override fun hashCode(): Int {
-        return arrayOf(name, modifiers, lockedClass).contentDeepHashCode()
-    }
+    override fun hashCode(): Int = arrayOf(name, modifiers, lockedClass).contentDeepHashCode()
 
     companion object {
         private const val NAME = "name"
         private const val MODIFIERS = "modifiers"
         private const val LOCKED_CLASS = "locked_class"
 
-        val CUSTOM = object : Trial("Custom") {
-            init {
-                super.setModifiers(SPDSettings.customModifiers())
-            }
+        val CUSTOM =
+            object : Trial("Custom") {
+                init {
+                    super.setModifiers(SPDSettings.customModifiers())
+                }
 
-            override fun setModifiers(modifiers: Modifiers) {
-                SPDSettings.customModifiers(modifiers)
-                super.setModifiers(modifiers)
+                override fun setModifiers(modifiers: Modifiers) {
+                    SPDSettings.customModifiers(modifiers)
+                    super.setModifiers(modifiers)
+                }
             }
-        }
 
         fun fromNetworkBundle(bundle: Bundle): Trial {
             val name = bundle.getString(NAME)
             val modifiersCode = bundle.getString(MODIFIERS)
             val decoded = modifiersCode.decodeBase58().asBits().trimEnd()
 
-            val lockedClass = if (bundle.contains(LOCKED_CLASS)) {
-                bundle.getEnum(LOCKED_CLASS, HeroClass::class.java)
-            } else {
-                null
-            }
+            val lockedClass =
+                if (bundle.contains(LOCKED_CLASS)) {
+                    bundle.getEnum(LOCKED_CLASS, HeroClass::class.java)
+                } else {
+                    null
+                }
 
             return Trial(
-                name, decoded, lockedClass
+                name,
+                decoded,
+                lockedClass,
             )
         }
     }
@@ -153,7 +153,9 @@ class TrialGroup() : Bundlable {
     var updateError: String? = null
 
     constructor(
-        name: String, version: Int, trials: List<Trial> = listOf()
+        name: String,
+        version: Int,
+        trials: List<Trial> = listOf(),
     ) : this() {
         this.name = name
         this.version = version
@@ -161,12 +163,13 @@ class TrialGroup() : Bundlable {
     }
 
     fun compareUpdate(other: TrialGroup): Boolean {
-        val changed = if (other.url != url) {
-            url = other.url
-            true
-        } else {
-            false
-        }
+        val changed =
+            if (other.url != url) {
+                url = other.url
+                true
+            } else {
+                false
+            }
         if (other.version <= version) return changed
         trials = other.trials
         if (name.isBlank()) {
@@ -197,8 +200,8 @@ class TrialGroup() : Bundlable {
         }
     }
 
-    fun nameOrTrimmedUrl(): String {
-        return name.ifBlank {
+    fun nameOrTrimmedUrl(): String =
+        name.ifBlank {
             var url = url
             if (url.startsWith("https://")) {
                 url = url.substring(8)
@@ -211,7 +214,6 @@ class TrialGroup() : Bundlable {
                 url
             }
         }
-    }
 
     override fun restoreFromBundle(bundle: Bundle) {
         name = bundle.getString(NAME)
@@ -237,11 +239,12 @@ class TrialGroup() : Bundlable {
     override fun storeInBundle(bundle: Bundle) {
         bundle.put(NAME, name)
         bundle.put(URL, url)
-        val trialsBundles = Array(trials.size) { i ->
-            val b = Bundle()
-            trials[i].storeInBundle(b)
-            b
-        }
+        val trialsBundles =
+            Array(trials.size) { i ->
+                val b = Bundle()
+                trials[i].storeInBundle(b)
+                b
+            }
         bundle.put(TRIALS, trialsBundles)
         bundle.put(VERSION, version)
         if (internalId != null) bundle.put(INTERNAL_ID, internalId!!)
@@ -256,32 +259,36 @@ class TrialGroup() : Bundlable {
         private const val VERSION = "version"
         private const val WANT_NOTIFY = "want_notify"
 
-        val DEFAULT_GROUPS: List<TrialGroup> = run {
-            val groups = mutableListOf<TrialGroup>()
-            val names = mapOf(1 to "normal.json", 2 to "hard.json", 3 to "extreme.json")
-            val url =
-                "https://raw.githubusercontent.com/juh9870/TooCruelPixelDungeonTrials/refs/heads/main/core/src/main/assets/trials/"
-            for ((id, name) in names) {
-                val file = Gdx.files.internal(Assets.TCPD.Trials.BASEPATH + name)
-                val bundle = Bundle.read(file.read())
-                val group = fromNetworkBundle(bundle)
-                group.url = url + name
-                group.internalId = id
-                groups.add(group)
+        val DEFAULT_GROUPS: List<TrialGroup> =
+            run {
+                val groups = mutableListOf<TrialGroup>()
+                val names = mapOf(1 to "normal.json", 2 to "hard.json", 3 to "extreme.json")
+                val url =
+                    "https://raw.githubusercontent.com/juh9870/TooCruelPixelDungeonTrials/refs/heads/main/core/src/main/assets/trials/"
+                for ((id, name) in names) {
+                    val file = Gdx.files.internal(Assets.TCPD.Trials.BASEPATH + name)
+                    val bundle = Bundle.read(file.read())
+                    val group = fromNetworkBundle(bundle)
+                    group.url = url + name
+                    group.internalId = id
+                    groups.add(group)
+                }
+                groups
             }
-            groups
-        }
 
         fun fromNetworkBundle(bundle: Bundle): TrialGroup {
             val name = bundle.getString(NAME)
             var version = bundle.getInt(VERSION)
             if (version < 0) version = 0
-            val trials = bundle.getBundleArray(TRIALS).map { trial ->
-                Trial.fromNetworkBundle(trial)
-            }
+            val trials =
+                bundle.getBundleArray(TRIALS).map { trial ->
+                    Trial.fromNetworkBundle(trial)
+                }
 
             return TrialGroup(
-                name = name, version = version, trials = trials
+                name = name,
+                version = version,
+                trials = trials,
             )
         }
     }
@@ -290,9 +297,7 @@ class TrialGroup() : Bundlable {
 class Trials : Bundlable {
     private val groups = mutableListOf<TrialGroup>()
 
-    fun getGroups(): List<TrialGroup> {
-        return groups
-    }
+    fun getGroups(): List<TrialGroup> = groups
 
     fun removeGroup(group: TrialGroup) {
         groups.remove(group)
@@ -329,9 +334,7 @@ class Trials : Bundlable {
 
         private const val TRIALS_FILE: String = "trials.dat"
 
-        private fun empty(): Trials {
-            return Trials()
-        }
+        private fun empty(): Trials = Trials()
 
         var curTrial: Trial? = null
             set(value) {
@@ -385,9 +388,11 @@ class Trials : Bundlable {
             }
 
             for (group in internals.values) {
-                trials.groups.add(group.copyData().also { g ->
-                    g.markUpdated()
-                })
+                trials.groups.add(
+                    group.copyData().also { g ->
+                        g.markUpdated()
+                    },
+                )
                 anyUpdated = true
             }
 
@@ -422,15 +427,14 @@ class Trials : Bundlable {
             return locked == null || locked == cl
         }
 
-        fun heroClassLockedMsg(wantClass: HeroClass): String {
-            return Messages.get(
+        fun heroClassLockedMsg(wantClass: HeroClass): String =
+            Messages.get(
                 Trials::class.java,
                 "hero_class_locked",
                 curTrial!!.name,
                 curTrial!!.lockedClass!!.title(),
-                wantClass.title()
+                wantClass.title(),
             )
-        }
 
         fun checkForUpdates() {
             for (group in load().groups) {
@@ -442,53 +446,57 @@ class Trials : Bundlable {
                 httpGet.url = group.url
                 httpGet.setHeader("Accept", "application/json")
 
-                Gdx.net.sendHttpRequest(httpGet, object : Net.HttpResponseListener {
-                    override fun handleHttpResponse(httpResponse: Net.HttpResponse?) {
-                        group.isUpdating = false
-                        if (httpResponse == null) {
-                            group.updateError = "Missing response"
-                            return
-                        }
-                        val responseString = httpResponse.resultAsString
-                        val bundle = try {
-                            Bundle.read(responseString.byteInputStream())
-                        } catch (e: Exception) {
-                            if (responseString.contains("<html>", ignoreCase = true)) {
-                                group.updateError = "Got HTML response, not JSON"
-                            } else {
-                                group.updateError = "Bad response body:\n${e.message}"
+                Gdx.net.sendHttpRequest(
+                    httpGet,
+                    object : Net.HttpResponseListener {
+                        override fun handleHttpResponse(httpResponse: Net.HttpResponse?) {
+                            group.isUpdating = false
+                            if (httpResponse == null) {
+                                group.updateError = "Missing response"
+                                return
                             }
-                            Game.reportException(e)
-                            return
+                            val responseString = httpResponse.resultAsString
+                            val bundle =
+                                try {
+                                    Bundle.read(responseString.byteInputStream())
+                                } catch (e: Exception) {
+                                    if (responseString.contains("<html>", ignoreCase = true)) {
+                                        group.updateError = "Got HTML response, not JSON"
+                                    } else {
+                                        group.updateError = "Bad response body:\n${e.message}"
+                                    }
+                                    Game.reportException(e)
+                                    return
+                                }
+
+                            try {
+                                val newGroup = TrialGroup.fromNetworkBundle(bundle)
+                                group.updateError = null
+
+                                if (group.compareUpdate(newGroup)) save()
+                            } catch (e: Exception) {
+                                group.updateError = "Bad group structure:\n${e.message}"
+                                Game.reportException(e)
+                                return
+                            }
                         }
 
-                        try {
-                            val newGroup = TrialGroup.fromNetworkBundle(bundle)
-                            group.updateError = null
-
-                            if (group.compareUpdate(newGroup)) save()
-                        } catch (e: Exception) {
-                            group.updateError = "Bad group structure:\n${e.message}"
-                            Game.reportException(e)
-                            return
+                        override fun failed(t: Throwable?) {
+                            group.isUpdating = false
+                            if (t is SSLProtocolException) {
+                                group.updateError =
+                                    "Update failed due to SSL error\nYour device may not support the required encryption"
+                            } else {
+                                group.updateError = "Update failed:\n${t?.message}"
+                            }
+                            Game.reportException(t)
                         }
-                    }
 
-                    override fun failed(t: Throwable?) {
-                        group.isUpdating = false
-                        if (t is SSLProtocolException) {
-                            group.updateError =
-                                "Update failed due to SSL error\nYour device may not support the required encryption"
-                        } else {
-                            group.updateError = "Update failed:\n${t?.message}"
+                        override fun cancelled() {
+                            group.isUpdating = false
                         }
-                        Game.reportException(t)
-                    }
-
-                    override fun cancelled() {
-                        group.isUpdating = false
-                    }
-                })
+                    },
+                )
             }
         }
     }

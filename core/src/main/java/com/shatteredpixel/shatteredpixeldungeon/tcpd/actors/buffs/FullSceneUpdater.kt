@@ -10,6 +10,7 @@ class FullSceneUpdater : Buff() {
         // act before everything, so even the VFX update properly
         actPriority = VFX_PRIO + 1
     }
+
     var walls = false
     var fog = false
 
@@ -17,14 +18,19 @@ class FullSceneUpdater : Buff() {
         fun requestFog() {
             request(walls = false, fog = true)
         }
+
         fun requestFull() {
             request(walls = true, fog = true)
         }
-        private fun request(walls: Boolean, fog: Boolean) {
+
+        private fun request(
+            walls: Boolean,
+            fog: Boolean,
+        ) {
             if (Dungeon.hero == null) {
                 return
             }
-            val buff = affect(Dungeon.hero, FullSceneUpdater::class.java);
+            val buff = affect(Dungeon.hero, FullSceneUpdater::class.java)
             buff.walls = buff.walls || walls
             buff.fog = buff.fog || fog
             buff.timeToNow()
@@ -36,11 +42,11 @@ class FullSceneUpdater : Buff() {
     }
 
     override fun act(): Boolean {
-        if(walls) {
+        if (walls) {
             Dungeon.level.buildFlagMaps()
             Dungeon.level.cleanWalls()
         }
-        if(fog) {
+        if (fog) {
             Dungeon.observe(Dungeon.level.length())
             GameScene.updateMap()
         }

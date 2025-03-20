@@ -4,7 +4,9 @@ import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
 
-class TCPDData(trial: Trial) : Bundlable {
+class TCPDData(
+    trial: Trial,
+) : Bundlable {
     var modifiers: Modifiers
     var trial: Trial? = null
 
@@ -15,21 +17,18 @@ class TCPDData(trial: Trial) : Bundlable {
         if (trial != Trial.CUSTOM) this.trial = trial
     }
 
-    fun asInfoData(): TCPDGameInfoData {
-        return TCPDGameInfoData().also {
+    fun asInfoData(): TCPDGameInfoData =
+        TCPDGameInfoData().also {
             it.modifiers = modifiers
             it.trials = trial
         }
-    }
 
     fun restoreFromInfoData(data: TCPDGameInfoData) {
         modifiers = data.modifiers
         trial = data.trials
     }
 
-    fun isChallenged(): Boolean {
-        return modifiers.isChallenged()
-    }
+    fun isChallenged(): Boolean = modifiers.isChallenged()
 
     override fun restoreFromBundle(bundle: Bundle) {
         modifiers = bundle.get(MODIFIERS) as Modifiers
@@ -53,13 +52,9 @@ class TCPDGameInfoData : Bundlable {
     lateinit var modifiers: Modifiers
     var trials: Trial? = null
 
-    fun modifiersBtnString(): String {
-        return trials?.name ?: Messages.get(Trials::class.java, "custom")
-    }
+    fun modifiersBtnString(): String = trials?.name ?: Messages.get(Trials::class.java, "custom")
 
-    fun isChallenged(): Boolean {
-        return modifiers.isChallenged()
-    }
+    fun isChallenged(): Boolean = modifiers.isChallenged()
 
     override fun restoreFromBundle(bundle: Bundle) {
         modifiers = bundle.get(MODIFIERS) as Modifiers

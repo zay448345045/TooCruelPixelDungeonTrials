@@ -17,9 +17,12 @@ data class WithLayout(
     val layout: LayoutConstructor?,
     val background: NinePatchDescriptor? = null,
 ) {
-    fun createPainter(ui: Ui, id: UiId): Pair<Painter, NinePatchComponent?> {
+    fun createPainter(
+        ui: Ui,
+        id: UiId,
+    ): Pair<Painter, NinePatchComponent?> {
         val painter = ui.top().painter().withComponent(id, NinePatchComponent.Companion)
-        val group = painter.getGroup();
+        val group = painter.getGroup()
         if (group != null) {
             (group as NinePatchComponent).setNinePatch(background!!)
             return Pair(painter, group)
@@ -27,111 +30,118 @@ data class WithLayout(
         return Pair(painter, null)
     }
 
-    inline fun <T> show(ui: Ui, crossinline block: () -> T): InnerResponse<T> {
+    inline fun <T> show(
+        ui: Ui,
+        crossinline block: () -> T,
+    ): InnerResponse<T> {
         val id = ui.top().nextAutoId().with("linear")
-        val (painter, ninePatch) = if (background != null) {
-            createPainter(ui, id)
-        } else {
-            Pair(ui.top().painter(), null)
-        }
+        val (painter, ninePatch) =
+            if (background != null) {
+                createPainter(ui, id)
+            } else {
+                Pair(ui.top().painter(), null)
+            }
 
         val margins = ninePatch?.ninePatch?.margins() ?: Margins.ZERO
 
-        val res = ui.withLayout(
-            margins = margins, layout = layout, block = block, painter = painter, id = id,
-        )
+        val res =
+            ui.withLayout(
+                margins = margins,
+                layout = layout,
+                block = block,
+                painter = painter,
+                id = id,
+            )
 
         return res
     }
 }
 
 inline fun <T> Ui.vertical(
-    background: NinePatchDescriptor? = null, crossinline block: () -> T
-): InnerResponse<T> {
-    return WithLayout(
+    background: NinePatchDescriptor? = null,
+    crossinline block: () -> T,
+): InnerResponse<T> =
+    WithLayout(
         layout = Layout.Vertical,
         background = background,
     ).show(
-        this, block
+        this,
+        block,
     )
-}
 
 inline fun <T> Ui.verticalJustified(
-    background: NinePatchDescriptor? = null, crossinline block: () -> T
-): InnerResponse<T> {
-    return WithLayout(
+    background: NinePatchDescriptor? = null,
+    crossinline block: () -> T,
+): InnerResponse<T> =
+    WithLayout(
         layout = Layout.VerticalJustified,
         background = background,
     ).show(
-        this, block
+        this,
+        block,
     )
-}
 
 inline fun <T> Ui.horizontal(
-    background: NinePatchDescriptor? = null, crossinline block: () -> T
-): InnerResponse<T> {
-    return WithLayout(
+    background: NinePatchDescriptor? = null,
+    crossinline block: () -> T,
+): InnerResponse<T> =
+    WithLayout(
         layout = Layout.Horizontal,
         background = background,
     ).show(this, block)
-}
 
 inline fun <T> Ui.stack(
-    background: NinePatchDescriptor? = null, crossinline block: () -> T
-): InnerResponse<T> {
-    return WithLayout(
+    background: NinePatchDescriptor? = null,
+    crossinline block: () -> T,
+): InnerResponse<T> =
+    WithLayout(
         layout = Layout.Stack,
         background = background,
     ).show(this, block)
-}
 
 inline fun <T> Ui.stackJustified(
-    background: NinePatchDescriptor? = null, crossinline block: () -> T
-): InnerResponse<T> {
-    return WithLayout(
+    background: NinePatchDescriptor? = null,
+    crossinline block: () -> T,
+): InnerResponse<T> =
+    WithLayout(
         layout = Layout.StackJustified,
         background = background,
     ).show(this, block)
-}
 
 inline fun <T> Ui.stackFill(
-    background: NinePatchDescriptor? = null, crossinline block: () -> T
-): InnerResponse<T> {
-    return WithLayout(
+    background: NinePatchDescriptor? = null,
+    crossinline block: () -> T,
+): InnerResponse<T> =
+    WithLayout(
         layout = Layout.StackFill,
         background = background,
     ).show(this, block)
-}
 
 inline fun <T> Ui.rightToLeft(
-    background: NinePatchDescriptor? = null, crossinline block: () -> T
-): InnerResponse<T> {
-    return WithLayout(
+    background: NinePatchDescriptor? = null,
+    crossinline block: () -> T,
+): InnerResponse<T> =
+    WithLayout(
         layout = Layout.RightToLeft,
         background = background,
     ).show(this, block)
-}
 
 inline fun <T> Ui.columns(
     sizes: FloatArray,
     spacing: Int? = null,
-    background: NinePatchDescriptor? = null, crossinline block: () -> T
-): InnerResponse<T> {
-    return WithLayout(
+    background: NinePatchDescriptor? = null,
+    crossinline block: () -> T,
+): InnerResponse<T> =
+    WithLayout(
         layout = Layout.ColumnsLayout.constructor(sizes, spacing ?: top().style().itemSpacing),
         background = background,
     ).show(this, block)
-}
 
 class NinePatchComponent : Component() {
     companion object : ComponentConstructor {
-        override fun construct(): Component {
-            return NinePatchComponent()
-        }
+        override fun construct(): Component = NinePatchComponent()
 
-        override fun componentClass(): Class<out Component> {
-            return NinePatchComponent::class.java
-        }
+        override fun componentClass(): Class<out Component> = NinePatchComponent::class.java
     }
 
     var descriptor: NinePatchDescriptor? = null

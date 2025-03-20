@@ -37,7 +37,9 @@ class Exterminating : Buff() {
         processExtermination(Dungeon.level)
     }
 
-    class Reveal : FlavourBuff(), MindVisionExtBuff {
+    class Reveal :
+        FlavourBuff(),
+        MindVisionExtBuff {
         companion object {
             val DURATION = TICK * 2f
         }
@@ -47,26 +49,24 @@ class Exterminating : Buff() {
             super.detach()
         }
 
-        override fun revealRadius(): Int {
-            return 1
-        }
+        override fun revealRadius(): Int = 1
     }
 
     companion object {
         fun processExtermination(level: Level) {
             for (mob in level.mobs) {
-                if(mob.isAlive && mob.buff(Exterminating::class.java) != null) {
+                if (mob.isAlive && mob.buff(Exterminating::class.java) != null) {
                     return // still not done
                 }
             }
-            if(findBlob<ExterminationItemLock>(level)?.unlockAll(level) == true) {
+            if (findBlob<ExterminationItemLock>(level)?.unlockAll(level) == true) {
                 GLog.p(Messages.get(Modifier::class.java, "extermination_complete"))
                 Sample.INSTANCE.play(Assets.Sounds.LEVELUP, 0.5f, 1.5f)
             }
         }
 
         fun exterminationDone(level: Level): Boolean {
-            if(!Modifier.EXTERMINATION.active()) return true
+            if (!Modifier.EXTERMINATION.active()) return true
             var nExterminating = 0
             for (mob in level.mobs) {
                 if (mob.isAlive && mob.buff(Exterminating::class.java) != null) {

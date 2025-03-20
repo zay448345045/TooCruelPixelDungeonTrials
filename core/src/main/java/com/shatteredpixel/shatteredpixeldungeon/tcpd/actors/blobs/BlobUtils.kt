@@ -5,7 +5,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 
 fun Blob.evolveUnchanged(off: IntArray) {
-    var cell: Int;
+    var cell: Int
     for (i in area.top - 1..area.bottom) {
         for (j in area.left - 1..area.right) {
             cell = j + i * Dungeon.level.width()
@@ -17,6 +17,4 @@ fun Blob.evolveUnchanged(off: IntArray) {
     }
 }
 
-inline fun <reified T : Blob> findBlob(level: Level): T? {
-    return level.blobs[T::class.java] as T?
-}
+inline fun <reified T : Blob> findBlob(level: Level): T? = level.blobs[T::class.java] as T?

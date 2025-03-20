@@ -6,7 +6,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 import com.watabou.noosa.NinePatch
 import com.watabou.noosa.ui.Component
 
-abstract class TcpdComponent(chrome: NinePatch = Chrome.get(Chrome.Type.WINDOW)) : Component() {
+abstract class TcpdComponent(
+    chrome: NinePatch = Chrome.get(Chrome.Type.WINDOW),
+) : Component() {
     private val ctx = Context()
     private var inUpdate = false
     private var firstUpdate = true
@@ -29,20 +31,21 @@ abstract class TcpdComponent(chrome: NinePatch = Chrome.get(Chrome.Type.WINDOW))
         if (!isUpdating() && !firstUpdate) return
         firstUpdate = false
         inUpdate = true
-        val res = ctx.update(
-            Rect.fromSize(
-                Pos2(
-                    this.x.toInt(),
-                    this.y.toInt(),
+        val res =
+            ctx.update(
+                Rect.fromSize(
+                    Pos2(
+                        this.x.toInt(),
+                        this.y.toInt(),
+                    ),
+                    Vec2(
+                        this.width.toInt(),
+                        this.height.toInt(),
+                    ),
                 ),
-                Vec2(
-                    this.width.toInt(), this.height.toInt()
-                )
-
-            )
-        ) {
-            drawUi()
-        }
+            ) {
+                drawUi()
+            }
 
         val size = res.response.rect.size()
         setSize(size.x.toFloat(), size.y.toFloat())
@@ -52,7 +55,5 @@ abstract class TcpdComponent(chrome: NinePatch = Chrome.get(Chrome.Type.WINDOW))
 
     abstract fun Ui.drawUi()
 
-    protected open fun isUpdating(): Boolean {
-        return true
-    }
+    protected open fun isUpdating(): Boolean = true
 }

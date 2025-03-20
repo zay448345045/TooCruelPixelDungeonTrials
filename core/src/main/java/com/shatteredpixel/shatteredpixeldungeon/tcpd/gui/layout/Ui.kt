@@ -8,32 +8,31 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.context.Context
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.watabou.noosa.ui.Component
 
-class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
+class Ui(
+    private val ctx: Context,
+    availableSpace: Rect,
+    painter: Painter,
+) {
     private val stack: MutableList<UiStackItem>
 
     init {
-        val rootUi = UiStackItem(
-            layout = Layout.Stack(availableSpace),
-            painter = painter,
-            id = UiId.ROOT,
-            margins = Margins.ZERO,
-            enabled = true,
-        )
+        val rootUi =
+            UiStackItem(
+                layout = Layout.Stack(availableSpace),
+                painter = painter,
+                id = UiId.ROOT,
+                margins = Margins.ZERO,
+                enabled = true,
+            )
 
         stack = mutableListOf(rootUi)
     }
 
-    fun top(): UiStackItem {
-        return stack.last()
-    }
+    fun top(): UiStackItem = stack.last()
 
-    fun ctx(): Context {
-        return ctx
-    }
+    fun ctx(): Context = ctx
 
-    fun stackSize(): Int {
-        return stack.size
-    }
+    fun stackSize(): Int = stack.size
 
     fun pushLayout(
         availableSpace: Rect? = null,
@@ -46,18 +45,21 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
     ): UiId {
         val parent = stack.last()
         val m = margins ?: Margins.ZERO
-        val item = UiStackItem(
-            layout = (layout ?: parent.layout.childContinued()).construct(
-                availableSpace ?: parent.layout.nextAvailableSpace(style ?: parent.style())
-                    .shrink(m)
-            ),
-            id = id ?: parent.nextAutoId().with("pushLayout"),
-            painter = painter,
-            style = style,
-            margins = m,
-            parent = parent,
-            enabled = enabled && parent.isEnabled()
-        )
+        val item =
+            UiStackItem(
+                layout =
+                    (layout ?: parent.layout.childContinued()).construct(
+                        availableSpace ?: parent.layout
+                            .nextAvailableSpace(style ?: parent.style())
+                            .shrink(m),
+                    ),
+                id = id ?: parent.nextAutoId().with("pushLayout"),
+                painter = painter,
+                style = style,
+                margins = m,
+                parent = parent,
+                enabled = enabled && parent.isEnabled(),
+            )
         stack.add(item)
         return item.id
     }
@@ -70,7 +72,7 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         painter: Painter? = null,
         style: Style? = null,
         enabled: Boolean = true,
-        crossinline block: () -> T
+        crossinline block: () -> T,
     ): InnerResponse<T> {
         val layoutId = pushLayout(availableSpace, layout, margins, id, painter, style, enabled)
         val inner = block()
@@ -78,13 +80,15 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
         return InnerResponse(inner, response)
     }
 
-    inline fun <T> withEnabled(enabled: Boolean, crossinline block: () -> T): InnerResponse<T> {
-        return withLayout(enabled = enabled, block = block)
-    }
+    inline fun <T> withEnabled(
+        enabled: Boolean,
+        crossinline block: () -> T,
+    ): InnerResponse<T> = withLayout(enabled = enabled, block = block)
 
-    inline fun <T> withId(id: UiId, crossinline block: () -> T): InnerResponse<T> {
-        return withLayout(id = id, block = block)
-    }
+    inline fun <T> withId(
+        id: UiId,
+        crossinline block: () -> T,
+    ): InnerResponse<T> = withLayout(id = id, block = block)
 
     fun popLayout(id: UiId): UiResponse {
         val removed = stack.removeLast()
@@ -103,7 +107,7 @@ class Ui(private val ctx: Context, availableSpace: Rect, painter: Painter) {
                     rect.left().toFloat(),
                     rect.top().toFloat(),
                     rect.width().toFloat(),
-                    rect.height().toFloat()
+                    rect.height().toFloat(),
                 )
             }
         }
@@ -151,9 +155,7 @@ class UiStackItem(
     /**
      * Returns the id of this UI
      */
-    fun id(): UiId {
-        return id
-    }
+    fun id(): UiId = id
 
     /**
      * Returns the automatic ID for the next placed element.
@@ -185,21 +187,17 @@ class UiStackItem(
         return rect
     }
 
-    fun nextAvailableSpace(): Rect {
-        return layout.nextAvailableSpace(style())
-    }
+    fun nextAvailableSpace(): Rect = layout.nextAvailableSpace(style())
 
     fun setDisabled() {
         enabled = false
     }
 
-    fun isEnabled(): Boolean {
-        return enabled
-    }
+    fun isEnabled(): Boolean = enabled
 }
 
-//@JvmInline
-//value class UiId(internal val id: Int) {
+// @JvmInline
+// value class UiId(internal val id: Int) {
 //    fun next(): UiId {
 //        return with(1)
 //    }
@@ -207,23 +205,32 @@ class UiStackItem(
 //    fun with(id: Any): UiId {
 //        return UiId(Pair(this.id, id).hashCode())
 //    }
-//}
+// }
 
 @JvmInline
-value class UiId(internal val id: String) {
+value class UiId(
+    internal val id: String,
+) {
     companion object {
         val ROOT = UiId("root")
     }
 
-    fun next(): UiId {
-        return with(1)
-    }
+    fun next(): UiId = with(1)
 
-    fun with(id: Any): UiId {
-        return UiId(this.id + "." + id.toString())
-    }
+    fun with(id: Any): UiId = UiId(this.id + "." + id.toString())
 }
 
-data class UiResponse(val rect: Rect, val id: UiId)
-data class InnerResponse<T>(val inner: T, val response: UiResponse)
-data class WidgetResponse<T>(val widget: T, val response: UiResponse)
+data class UiResponse(
+    val rect: Rect,
+    val id: UiId,
+)
+
+data class InnerResponse<T>(
+    val inner: T,
+    val response: UiResponse,
+)
+
+data class WidgetResponse<T>(
+    val widget: T,
+    val response: UiResponse,
+)

@@ -8,8 +8,10 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator
 import com.watabou.utils.Bundle
 
-
-class Arrowhead : Buff(), DamageAmplificationBuff {
+class Arrowhead :
+    Buff(),
+    DamageAmplificationBuff {
+    @Suppress("PrivatePropertyName")
     private val COOLDOWN = (if (Modifier.THUNDERSTRUCK.active()) 420 else 20).toFloat()
     private var stacks = 0
 
@@ -27,19 +29,16 @@ class Arrowhead : Buff(), DamageAmplificationBuff {
         return true
     }
 
-    override fun icon(): Int {
-        return BuffIndicator.FURY
-    }
+    override fun icon(): Int = BuffIndicator.FURY
 
-    override fun desc(): String {
-        return Messages.get(
+    override fun desc(): String =
+        Messages.get(
             this,
             "desc",
             stacks,
             Math.round(stacks * 100 * 0.3f),
-            Math.round(stacks * 100 * 0.1f)
+            Math.round(stacks * 100 * 0.1f),
         )
-    }
 
     override fun damageMultiplier(source: Any?): Float {
         if (source is Hunger) return 1f
@@ -68,7 +67,9 @@ class Arrowhead : Buff(), DamageAmplificationBuff {
         stacks = bundle.getInt(STACKS)
     }
 
-    class MobArrowhead : Buff(), DamageAmplificationBuff {
+    class MobArrowhead :
+        Buff(),
+        DamageAmplificationBuff {
         init {
             revivePersists = true
         }

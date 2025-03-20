@@ -4,15 +4,20 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.InnerResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
 
-class Margins(val margins: Margins) {
-    inline fun <T> show(ui: Ui, crossinline block: () -> T): InnerResponse<T> {
-        return ui.withLayout(
+class Margins(
+    val margins: Margins,
+) {
+    inline fun <T> show(
+        ui: Ui,
+        crossinline block: () -> T,
+    ): InnerResponse<T> =
+        ui.withLayout(
             margins = margins,
-            block = block
+            block = block,
         )
-    }
 }
 
-inline fun <T> Ui.margins(margins: Margins, crossinline block: () -> T): InnerResponse<T> {
-    return Margins(margins).show(this, block)
-}
+inline fun <T> Ui.margins(
+    margins: Margins,
+    crossinline block: () -> T,
+): InnerResponse<T> = Margins(margins).show(this, block)

@@ -1,6 +1,5 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.utils
 
-
 fun ByteArray.asBits(): BooleanArray {
     val result = BooleanArray(this.size * 8)
 
@@ -51,14 +50,17 @@ fun BooleanArray.asBytes(padValue: Boolean): ByteArray {
 
     for (i in result.indices) {
         val index = i * 8
-        val b = ((if (paddedBooleans[index + 0]) 1 shl 7 else 0) +
-                (if (paddedBooleans[index + 1]) 1 shl 6 else 0) +
-                (if (paddedBooleans[index + 2]) 1 shl 5 else 0) +
-                (if (paddedBooleans[index + 3]) 1 shl 4 else 0) +
-                (if (paddedBooleans[index + 4]) 1 shl 3 else 0) +
-                (if (paddedBooleans[index + 5]) 1 shl 2 else 0) +
-                (if (paddedBooleans[index + 6]) 1 shl 1 else 0) +
-                (if (paddedBooleans[index + 7]) 1 else 0)).toByte()
+        val b =
+            (
+                (if (paddedBooleans[index + 0]) 1 shl 7 else 0) +
+                    (if (paddedBooleans[index + 1]) 1 shl 6 else 0) +
+                    (if (paddedBooleans[index + 2]) 1 shl 5 else 0) +
+                    (if (paddedBooleans[index + 3]) 1 shl 4 else 0) +
+                    (if (paddedBooleans[index + 4]) 1 shl 3 else 0) +
+                    (if (paddedBooleans[index + 5]) 1 shl 2 else 0) +
+                    (if (paddedBooleans[index + 6]) 1 shl 1 else 0) +
+                    (if (paddedBooleans[index + 7]) 1 else 0)
+            ).toByte()
         result[i] = b
     }
 

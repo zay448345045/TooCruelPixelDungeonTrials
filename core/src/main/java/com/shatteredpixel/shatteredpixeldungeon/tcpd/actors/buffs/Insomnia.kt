@@ -12,24 +12,24 @@ import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.Random
 
-class InsomniaSlowdown : FlavourBuff(), TimescaleBuff {
-    override fun speedFactor(): Float {
-        return 0.5f
-    }
+class InsomniaSlowdown :
+    FlavourBuff(),
+    TimescaleBuff {
+    override fun speedFactor(): Float = 0.5f
 
     companion object {
-        var DURATION: Float = 5f
+        const val DURATION: Float = 5f
     }
 }
 
-class InsomniaSpeed : Buff(), TimescaleBuff {
+class InsomniaSpeed :
+    Buff(),
+    TimescaleBuff {
     init {
         revivePersists = true
     }
 
-    override fun speedFactor(): Float {
-        return 2f
-    }
+    override fun speedFactor(): Float = 2f
 
     override fun act(): Boolean {
         if (target is Mob) {
@@ -54,7 +54,7 @@ class Insomnia : Buff() {
                         affect(wraith, DelayedDecay::class.java).set(
                             delay = Random.IntRange(2, 6) * TICK,
                             fx = true,
-                            invulnerable = true
+                            invulnerable = true,
                         )
                         affect(wraith, AscensionChallenge.AscensionBuffBlocker::class.java)
                     }

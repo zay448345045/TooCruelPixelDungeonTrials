@@ -26,7 +26,10 @@ class PaintCache {
         }
     }
 
-    internal fun get(id: UiId, element: VisualElement): Gizmo {
+    internal fun get(
+        id: UiId,
+        element: VisualElement,
+    ): Gizmo {
         val cached = cache.get(id)
         val gizmo = element.asGizmo(cached)
         if (gizmo != cached?.second) {

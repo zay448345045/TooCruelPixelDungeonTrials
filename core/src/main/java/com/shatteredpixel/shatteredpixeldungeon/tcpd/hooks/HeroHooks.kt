@@ -31,11 +31,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PrisonExpress
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.collectOrDrop
 import com.watabou.noosa.tweeners.Delayer
 import com.watabou.noosa.tweeners.Tweener.Listener
 import com.watabou.utils.Random
-
 
 fun Hero.heroLiveHook() {
     if (Modifier.RACING_THE_DEATH.active()) {
@@ -96,22 +94,27 @@ fun Hero.moveHook(step: Int): Int {
             if (clearWater) {
                 Level.set(curStep, Terrain.EMPTY)
             }
-            sprite.parent.add(object : Delayer(
-                (Dungeon.level.distance(
-                    pos,
-                    nextStep
-                ) - 1) * CharSprite.DEFAULT_MOVE_INTERVAL
-            ) {
-                init {
-                    listener = Listener {
-                        if (clearWater) {
-                            GameScene.updateMap(curStep)
-                            CellEmitter.get(curStep).burst(Speck.factory(Speck.STEAM), 5)
-                        }
-                        GameScene.ripple(curStep)
+            sprite.parent.add(
+                object : Delayer(
+                    (
+                        Dungeon.level.distance(
+                            pos,
+                            nextStep,
+                        ) - 1
+                    ) * CharSprite.DEFAULT_MOVE_INTERVAL,
+                ) {
+                    init {
+                        listener =
+                            Listener {
+                                if (clearWater) {
+                                    GameScene.updateMap(curStep)
+                                    CellEmitter.get(curStep).burst(Speck.factory(Speck.STEAM), 5)
+                                }
+                                GameScene.ripple(curStep)
+                            }
                     }
-                }
-            })
+                },
+            )
             step = nextStep
             tilesSlid++
         } while (true)
@@ -126,8 +129,11 @@ fun Hero.moveHook(step: Int): Int {
     return step
 }
 
-fun Hero.wandProcHook(target: Char, wand: Wand, chargesUsed: Int) {
-
+fun Hero.wandProcHook(
+    target: Char,
+    wand: Wand,
+    chargesUsed: Int,
+) {
 }
 
 fun Hero.wandUsedHook(wand: Wand) {
@@ -136,21 +142,17 @@ fun Hero.wandUsedHook(wand: Wand) {
     }
 }
 
-fun hungerDisabled(): Boolean {
-    return Modifier.CERTAINTY_OF_STEEL.active()
-}
+fun hungerDisabled(): Boolean = Modifier.CERTAINTY_OF_STEEL.active()
 
-fun regenerationDisabled(): Boolean {
-    return Modifier.CERTAINTY_OF_STEEL.active()
-}
+fun regenerationDisabled(): Boolean = Modifier.CERTAINTY_OF_STEEL.active()
 
 fun Hero.subclassChoice(): Array<HeroSubClass> {
-    if(Modifier.MULTICLASSING.active()) {
+    if (Modifier.MULTICLASSING.active()) {
         Random.pushGenerator(Dungeon.seed)
         val classes = ArrayList<HeroSubClass>()
 
         for (heroClass in HeroClass.entries) {
-            if(heroClass == this.heroClass) continue
+            if (heroClass == this.heroClass) continue
             classes.add(Random.element(heroClass.subClasses()))
         }
 
@@ -163,17 +165,37 @@ fun Hero.subclassChoice(): Array<HeroSubClass> {
 }
 
 fun Hero.subClassPicked() {
-    if(subClass == HeroSubClass.NONE || heroClass.subClasses().contains(subClass)) return
+    if (subClass == HeroSubClass.NONE || heroClass.subClasses().contains(subClass)) return
 
     for (cl in HeroClass.entries) {
-        if(!cl.subClasses().contains(subClass)) continue
-        when(cl) {
-            HeroClass.WARRIOR -> Dungeon.level.drop(BrokenSeal().identify(), pos).sprite?.drop()
-            HeroClass.MAGE -> Dungeon.level.drop(MagesStaff().identify(), pos).sprite?.drop()
-            HeroClass.ROGUE -> Dungeon.level.drop(CloakOfShadows().identify(), pos).sprite?.drop()
-            HeroClass.HUNTRESS -> Dungeon.level.drop(SpiritBow().identify(), pos).sprite?.drop()
+        if (!cl.subClasses().contains(subClass)) continue
+        when (cl) {
+            HeroClass.WARRIOR ->
+                Dungeon.level
+                    .drop(BrokenSeal().identify(), pos)
+                    .sprite
+                    ?.drop()
+            HeroClass.MAGE ->
+                Dungeon.level
+                    .drop(MagesStaff().identify(), pos)
+                    .sprite
+                    ?.drop()
+            HeroClass.ROGUE ->
+                Dungeon.level
+                    .drop(CloakOfShadows().identify(), pos)
+                    .sprite
+                    ?.drop()
+            HeroClass.HUNTRESS ->
+                Dungeon.level
+                    .drop(SpiritBow().identify(), pos)
+                    .sprite
+                    ?.drop()
             HeroClass.DUELIST -> {} // shame on her
-            HeroClass.CLERIC -> Dungeon.level.drop(HolyTome().identify(), pos).sprite?.drop()
+            HeroClass.CLERIC ->
+                Dungeon.level
+                    .drop(HolyTome().identify(), pos)
+                    .sprite
+                    ?.drop()
         }
         break
     }

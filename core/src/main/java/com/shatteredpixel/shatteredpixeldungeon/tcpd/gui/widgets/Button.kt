@@ -22,79 +22,89 @@ import com.watabou.noosa.Visual
 import com.watabou.noosa.audio.Sample
 import com.watabou.noosa.ui.Component
 
-val RED_BUTTON_MARGINS = Margins(3, 3, 1, 3);
+val RED_BUTTON_MARGINS = Margins(3, 3, 1, 3)
 
 class UiButton {
     @PublishedApi
-    internal fun createPainter(ui: Ui, id: UiId): Pair<Painter, Interaction> {
-        val painter = ui.top().painter().withComponent(id, UiButtonComponent.Companion);
+    internal fun createPainter(
+        ui: Ui,
+        id: UiId,
+    ): Pair<Painter, Interaction> {
+        val painter = ui.top().painter().withComponent(id, UiButtonComponent.Companion)
         val group = painter.getGroup()
-        val interaction = if (group == null) {
-            Interaction.NONE
-        } else {
-            val btn = (group as UiButtonComponent)
-            btn.active = ui.top().isEnabled()
-            if (!btn.isActive) {
-                btn.resetInputs()
+        val interaction =
+            if (group == null) {
                 Interaction.NONE
             } else {
-                btn.resetInputs()
+                val btn = (group as UiButtonComponent)
+                btn.active = ui.top().isEnabled()
+                if (!btn.isActive) {
+                    btn.resetInputs()
+                    Interaction.NONE
+                } else {
+                    btn.resetInputs()
+                }
             }
-        }
         return Pair(painter, interaction)
     }
 
     inline fun <T> show(
         ui: Ui,
-        crossinline block: (interaction: Interaction) -> T
+        crossinline block: (interaction: Interaction) -> T,
     ): InteractiveResponse<T> {
         val id = ui.top().nextAutoId().with("button")
         val (painter, interaction) = createPainter(ui, id)
 
-        val response = ui.withLayout(painter = painter, id = id) {
-            block(interaction)
-        }
+        val response =
+            ui.withLayout(painter = painter, id = id) {
+                block(interaction)
+            }
         return InteractiveResponse(interaction, response.response, response.inner)
     }
 }
 
 inline fun <T> Ui.customButton(crossinline block: (interaction: Interaction) -> T): InteractiveResponse<T> {
     val res = UiButton().show(this, block)
-    if(res.interaction.justPointerDown) {
+    if (res.interaction.justPointerDown) {
         Sample.INSTANCE.play(Assets.Sounds.CLICK)
     }
     return res
 }
 
-fun Ui.iconButton(image: TextureDescriptor): InteractiveResponse<Unit> {
-    return customButton { interaction ->
+fun Ui.iconButton(image: TextureDescriptor): InteractiveResponse<Unit> =
+    customButton { interaction ->
         val img = image(image)
 
         highlightTouchedVisual(interaction, img, top().style().interactionAnimationDuration)
         dimInactiveVisual(img)
     }
-}
 
 fun <T : Visual> Ui.highlightTouchedVisual(
     interaction: Interaction,
     response: WidgetResponse<T>,
-    duration: Float
+    duration: Float,
 ) {
     highlightTouchedVisual(
         interaction.isPointerDown,
         response.widget,
         response.response.id,
-        duration
+        duration,
     )
 }
 
-fun Ui.highlightTouchedVisual(held: Boolean, visual: Visual, id: UiId, duration: Float) {
+fun Ui.highlightTouchedVisual(
+    held: Boolean,
+    visual: Visual,
+    id: UiId,
+    duration: Float,
+) {
     val anim =
         ctx().getOrPutMemory(id.with("highlight")) { AnimationState(held) }
 
-    val brightness = anim.animate(held, duration) {
-        1f + 0.2f * it
-    }
+    val brightness =
+        anim.animate(held, duration) {
+            1f + 0.2f * it
+        }
     visual.brightness(brightness)
 }
 
@@ -102,36 +112,40 @@ fun Ui.redButton(
     text: String,
     size: Int = 9,
     margins: Margins = RED_BUTTON_MARGINS,
-    background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor()
-): InteractiveResponse<Unit> {
-    return redButton(margins, background) {
+    background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor(),
+): InteractiveResponse<Unit> =
+    redButton(margins, background) {
         activeLabel(text, size)
     }
-}
 
 fun Ui.redCheckbox(
     checked: Boolean,
     text: String,
     size: Int = 9,
-    margins: Margins = RED_BUTTON_MARGINS
-): InteractiveResponse<Unit> {
-    return redButton(margins) {
+    margins: Margins = RED_BUTTON_MARGINS,
+): InteractiveResponse<Unit> =
+    redButton(margins) {
         val res = activeLabel(text, size)
         drawRedCheckbox(checked, res.response.rect)
     }
-}
 
-fun Ui.drawRedCheckbox(checked: Boolean, alignRect: Rect) {
-    val ui = top();
+fun Ui.drawRedCheckbox(
+    checked: Boolean,
+    alignRect: Rect,
+) {
+    val ui = top()
     val space = ui.layout.getFullAvailableSpace()
-    val checkboxId = ui.nextAutoId();
-    val image = ui.painter().drawImage(
-        checkboxId, Pos2(0, 0), if (checked) {
-            Icons.CHECKED
-        } else {
-            Icons.UNCHECKED
-        }.descriptor()
-    )
+    val checkboxId = ui.nextAutoId()
+    val image =
+        ui.painter().drawImage(
+            checkboxId,
+            Pos2(0, 0),
+            if (checked) {
+                Icons.CHECKED
+            } else {
+                Icons.UNCHECKED
+            }.descriptor(),
+        )
     image.x = (space.right() - image.width - 1)
     image.y =
         ((alignRect.top() + (alignRect.height() - image.height) / 2) + 1)
@@ -142,37 +156,37 @@ fun Ui.drawRedCheckbox(checked: Boolean, alignRect: Rect) {
 inline fun <T> Ui.redButton(
     margins: Margins = RED_BUTTON_MARGINS,
     background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor(),
-    crossinline content: (interaction: Interaction) -> T
-): InteractiveResponse<T> {
-    return customButton { interaction ->
+    crossinline content: (interaction: Interaction) -> T,
+): InteractiveResponse<T> =
+    customButton { interaction ->
         withRedButtonBackground(this, interaction.isPointerDown, margins, background) {
             content(interaction)
         }
     }
-}
 
 inline fun <T> withRedButtonBackground(
     ui: Ui,
     held: Boolean,
     margins: Margins,
     background: NinePatchDescriptor = Chrome.Type.RED_BUTTON.descriptor(),
-    crossinline content: () -> T
-): T {
-    return ui.vertical(background = background) {
-        ui.margins(margins) {
-            val bg = (ui.top().painter().getGroup() as NinePatchComponent).ninePatch
-            if (bg != null) {
-                ui.highlightTouchedVisual(
-                    held,
-                    bg,
-                    ui.top().id(),
-                    ui.top().style().backgroundInteractionAnimationDuration
-                )
-            }
-            content()
+    crossinline content: () -> T,
+): T =
+    ui
+        .vertical(background = background) {
+            ui
+                .margins(margins) {
+                    val bg = (ui.top().painter().getGroup() as NinePatchComponent).ninePatch
+                    if (bg != null) {
+                        ui.highlightTouchedVisual(
+                            held,
+                            bg,
+                            ui.top().id(),
+                            ui.top().style().backgroundInteractionAnimationDuration,
+                        )
+                    }
+                    content()
+                }.inner
         }.inner
-    }.inner
-}
 
 data class Interaction(
     val justClicked: Boolean,
@@ -183,46 +197,40 @@ data class Interaction(
     val isPointerDown: Boolean,
 ) {
     companion object {
-        val NONE = Interaction(
-            justClicked = false,
-            justRightClicked = false,
-            justMiddleClicked = false,
-            justPointerDown = false,
-            justPointerUp = false,
-            isPointerDown = false,
-        )
+        val NONE =
+            Interaction(
+                justClicked = false,
+                justRightClicked = false,
+                justMiddleClicked = false,
+                justPointerDown = false,
+                justPointerUp = false,
+                isPointerDown = false,
+            )
     }
 }
 
 data class InteractiveResponse<T>(
-    val interaction: Interaction, val response: UiResponse, val inner: T
+    val interaction: Interaction,
+    val response: UiResponse,
+    val inner: T,
 ) {
-    fun clicked(): Boolean {
-        return interaction.justClicked
-    }
+    fun clicked(): Boolean = interaction.justClicked
 
-    inline fun <T> onClick(block: () -> T): T? {
-        return if (clicked()) {
+    inline fun <T> onClick(block: () -> T): T? =
+        if (clicked()) {
             block()
         } else {
             null
         }
-    }
 
-    fun isPointerDown(): Boolean {
-        return interaction.isPointerDown
-    }
+    fun isPointerDown(): Boolean = interaction.isPointerDown
 }
 
 private class UiButtonComponent : Button() {
     companion object : ComponentConstructor {
-        override fun construct(): Component {
-            return UiButtonComponent()
-        }
+        override fun construct(): Component = UiButtonComponent()
 
-        override fun componentClass(): Class<out Component> {
-            return UiButtonComponent::class.java
-        }
+        override fun componentClass(): Class<out Component> = UiButtonComponent::class.java
     }
 
     private var interaction = Interaction.NONE

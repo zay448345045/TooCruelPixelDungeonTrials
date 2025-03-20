@@ -17,7 +17,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.PityRandom
 import com.watabou.utils.Bundle
 import com.watabou.utils.DeviceCompat
 
-class Pandemonium : Buff(), AttackProcBuff {
+class Pandemonium :
+    Buff(),
+    AttackProcBuff {
     private var weaponRandom =
         PityRandom(if (DeviceCompat.isDebug()) 1f else WEP_CHANCE_BASE, WEP_CHANCE_INCREMENT)
     private var wandRandom =
@@ -75,7 +77,10 @@ class Pandemonium : Buff(), AttackProcBuff {
         }
     }
 
-    override fun attackProc(enemy: Char, damage: Int) {
+    override fun attackProc(
+        enemy: Char,
+        damage: Int,
+    ) {
         val hero = target as Hero
 
         if (weaponRandom.roll()) {
@@ -90,7 +95,8 @@ class Pandemonium : Buff(), AttackProcBuff {
                 )
             } else {
                 reroll(
-                    hero.belongings.weapon(), hero.belongings.secondWep()
+                    hero.belongings.weapon(),
+                    hero.belongings.secondWep(),
                 )
             }
         }
@@ -132,9 +138,7 @@ class Pandemonium : Buff(), AttackProcBuff {
         private const val WAND_REROLL_CHANCE = "wand_reroll_chance"
         private const val MISSILE_REROLL_CHANCE = "missile_reroll_chance"
 
-        fun rerollMissile(weapon: MissileWeapon): MissileWeapon {
-            return Dungeon.hero.buff(Pandemonium::class.java)?.missileUsed(weapon) ?: weapon
-        }
+        fun rerollMissile(weapon: MissileWeapon): MissileWeapon = Dungeon.hero.buff(Pandemonium::class.java)?.missileUsed(weapon) ?: weapon
 
         fun spiritBowUsed(bow: SpiritBow) {
             Dungeon.hero.buff(Pandemonium::class.java)?.spiritBowUsed(bow)

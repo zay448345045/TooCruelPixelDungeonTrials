@@ -17,8 +17,8 @@ class SteelBody : NoDetachShieldBuff() {
 
     var partialShielding = 0f
 
-    override fun attachTo(target: Char?): Boolean {
-        return super.attachTo(target).also { attached ->
+    override fun attachTo(target: Char?): Boolean =
+        super.attachTo(target).also { attached ->
             if (attached) {
                 if (this.target.HP == this.target.HP && shielding() == 0) {
                     this.target.HP = 1
@@ -26,7 +26,6 @@ class SteelBody : NoDetachShieldBuff() {
                 }
             }
         }
-    }
 
     override fun act(): Boolean {
         if (target.HP > 1) {
@@ -34,11 +33,12 @@ class SteelBody : NoDetachShieldBuff() {
             val reductionThreshold = target.HT * REDUCTION_THRESHOLD
             val maxShield = target.HT * MAX_SHIELD
             if (shielding() > reductionThreshold) {
-                val ratio = MathUtils.clamp(
-                    (maxShield - shielding()) / reductionThreshold,
-                    0f,
-                    1f
-                )
+                val ratio =
+                    MathUtils.clamp(
+                        (maxShield - shielding()) / reductionThreshold,
+                        0f,
+                        1f,
+                    )
                 addShield *= ratio
             }
 
@@ -83,9 +83,10 @@ class SteelBody : NoDetachShieldBuff() {
             target.buff(MagicalSleep::class.java)?.let {
                 GameScene.add(
                     Blob.seed(
-                        target.pos, 1,
-                        Electricity::class.java
-                    )
+                        target.pos,
+                        1,
+                        Electricity::class.java,
+                    ),
                 )
 
                 // in case if the target is immune to electricity, wake them up after a while

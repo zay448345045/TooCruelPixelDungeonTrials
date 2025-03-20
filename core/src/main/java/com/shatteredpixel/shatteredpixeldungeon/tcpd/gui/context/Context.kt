@@ -10,7 +10,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.Painter
 import com.watabou.noosa.Group
 
 @OptIn(DirectMemoryAccess::class)
-class Context(val rootGroup: Group = Group()) {
+class Context(
+    val rootGroup: Group = Group(),
+) {
     val paintCache: PaintCache = PaintCache()
     var mode: ContextMode = ContextMode.DYNAMIC
 
@@ -20,7 +22,10 @@ class Context(val rootGroup: Group = Group()) {
     /**
      * Call this function once to create static UI.
      */
-    inline fun <T> once(maxSize: Rect, block: Ui.() -> T): InnerResponse<T> {
+    inline fun <T> once(
+        maxSize: Rect,
+        block: Ui.() -> T,
+    ): InnerResponse<T> {
         mode = ContextMode.STATIC
         return drawUi(maxSize, block)
     }
@@ -28,7 +33,10 @@ class Context(val rootGroup: Group = Group()) {
     /**
      * Call this function every frame to update the UI.
      */
-    inline fun <T> update(maxSize: Rect, block: Ui.() -> T): InnerResponse<T> {
+    inline fun <T> update(
+        maxSize: Rect,
+        block: Ui.() -> T,
+    ): InnerResponse<T> {
         rootGroup.clear()
         mode = ContextMode.DYNAMIC
         updateMemory()
@@ -37,7 +45,7 @@ class Context(val rootGroup: Group = Group()) {
     }
 
     inline fun <reified T : Any> getMemory(id: UiId): T? {
-        val value = memory.get(id);
+        val value = memory.get(id)
         if (value != null && value !is T) {
             throw IllegalStateException("Memory value type mismatch: expected ${T::class}, got ${value::class}. Id: $id")
         }
@@ -45,8 +53,11 @@ class Context(val rootGroup: Group = Group()) {
         return value as T?
     }
 
-    inline fun <reified T : Any> getOrPutMemory(id: UiId, crossinline defaultValue: () -> T): T {
-        val value = memory.getOrPut(id, defaultValue);
+    inline fun <reified T : Any> getOrPutMemory(
+        id: UiId,
+        crossinline defaultValue: () -> T,
+    ): T {
+        val value = memory.getOrPut(id, defaultValue)
         if (value !is T) {
             throw IllegalStateException("Memory value type mismatch: expected ${T::class}, got ${value::class}. Id: $id")
         }
@@ -69,7 +80,10 @@ class Context(val rootGroup: Group = Group()) {
     }
 
     @PublishedApi
-    internal inline fun <T> drawUi(maxSize: Rect, block: Ui.() -> T): InnerResponse<T> {
+    internal inline fun <T> drawUi(
+        maxSize: Rect,
+        block: Ui.() -> T,
+    ): InnerResponse<T> {
         val ui = Ui(this, maxSize, Painter.create(rootGroup, paintCache))
         val inner = ui.run(block)
 
@@ -81,14 +95,14 @@ class Context(val rootGroup: Group = Group()) {
 
         return InnerResponse(
             inner,
-            UiResponse(allocated ?: Rect.ZERO, ui.top().id())
+            UiResponse(allocated ?: Rect.ZERO, ui.top().id()),
         )
     }
 }
 
 enum class ContextMode {
     STATIC,
-    DYNAMIC
+    DYNAMIC,
 }
 
 @RequiresOptIn(message = "Direct memory access is discouraged", level = RequiresOptIn.Level.ERROR)
@@ -136,7 +150,10 @@ class TwoFrameMap<K, V> {
         return curr
     }
 
-    inline fun getOrPut(id: K, defaultValue: () -> V): V {
+    inline fun getOrPut(
+        id: K,
+        defaultValue: () -> V,
+    ): V {
         val value = get(id)
         if (value != null) {
             return value
@@ -146,21 +163,18 @@ class TwoFrameMap<K, V> {
         return new
     }
 
-    fun set(id: K, value: V) {
+    fun set(
+        id: K,
+        value: V,
+    ) {
         curr[id] = value
     }
 
-    fun values(): Collection<V> {
-        return curr.values
-    }
+    fun values(): Collection<V> = curr.values
 
-    fun keys(): Set<K> {
-        return curr.keys
-    }
+    fun keys(): Set<K> = curr.keys
 
-    fun entries(): Set<Map.Entry<K, V>> {
-        return curr.entries
-    }
+    fun entries(): Set<Map.Entry<K, V>> = curr.entries
 
     fun clear() {
         curr.clear()

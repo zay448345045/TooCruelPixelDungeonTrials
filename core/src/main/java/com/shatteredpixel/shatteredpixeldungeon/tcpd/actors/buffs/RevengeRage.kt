@@ -7,8 +7,9 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.BuffIndicator
 import com.watabou.utils.Bundle
 import kotlin.math.min
 
-
-class RevengeRage : Buff(), AttackAmplificationBuff {
+class RevengeRage :
+    Buff(),
+    AttackAmplificationBuff {
     private var boost = 0
 
     fun add(amount: Int) {
@@ -20,21 +21,13 @@ class RevengeRage : Buff(), AttackAmplificationBuff {
         type = buffType.POSITIVE
     }
 
-    override fun flatAttackBonusPostMult(): Float {
-        return boost.toFloat()
-    }
+    override fun flatAttackBonusPostMult(): Float = boost.toFloat()
 
-    override fun icon(): Int {
-        return BuffIndicator.FURY
-    }
+    override fun icon(): Int = BuffIndicator.FURY
 
-    override fun toString(): String {
-        return Messages.get(this, "name")
-    }
+    override fun toString(): String = Messages.get(this, "name")
 
-    override fun desc(): String {
-        return Messages.get(this, "desc", boost)
-    }
+    override fun desc(): String = Messages.get(this, "desc", boost)
 
     override fun fx(on: Boolean) {
         if (on) {

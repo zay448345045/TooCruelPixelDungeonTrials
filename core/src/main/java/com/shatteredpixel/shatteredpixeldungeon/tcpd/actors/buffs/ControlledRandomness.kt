@@ -7,7 +7,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.transmuteInventoryItem
 import com.watabou.utils.Bundle
 import com.watabou.utils.Random
 
-class ControlledRandomness : Buff(), DefenseProcBuff {
+class ControlledRandomness :
+    Buff(),
+    DefenseProcBuff {
     private var rerollChance = CHANCE_BASE
 
     override fun attachTo(target: Char?): Boolean {
@@ -17,7 +19,10 @@ class ControlledRandomness : Buff(), DefenseProcBuff {
         return super.attachTo(target)
     }
 
-    override fun defenseProc(enemy: Char, damage: Int) {
+    override fun defenseProc(
+        enemy: Char,
+        damage: Int,
+    ) {
         if (Random.Float() < rerollChance) {
             rerollChance = CHANCE_BASE
             val hero = target as Hero

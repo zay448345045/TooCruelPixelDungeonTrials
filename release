@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
+ktlint
 ./tools/tinychange merge
 ./tools/release.nu "$@"

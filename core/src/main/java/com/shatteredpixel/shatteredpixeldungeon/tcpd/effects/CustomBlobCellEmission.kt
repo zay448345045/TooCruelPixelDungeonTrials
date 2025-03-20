@@ -11,6 +11,6 @@ interface CustomBlobCellEmission {
         cellX: Int,
         cellY: Int,
         cell: Int,
-        tileSize: Float
+        tileSize: Float,
     )
 }

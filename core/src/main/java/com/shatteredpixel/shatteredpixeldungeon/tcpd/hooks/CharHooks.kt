@@ -51,20 +51,20 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
-import com.watabou.utils.DeviceCompat
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import kotlin.math.max
 
-fun sourceIgnored(src:Any?): Boolean {
-    return src is KingDamager
-}
+fun sourceIgnored(src: Any?): Boolean = src is KingDamager
 
 /**
  * Hook which is called when mob takes damage, but before any damage
  * reduction/amplification is applied.
  */
-fun Char.incomingDamageHook(dmg: Int, src: Any?): Int {
+fun Char.incomingDamageHook(
+    dmg: Int,
+    src: Any?,
+): Int {
     if (dmg < 0 || sourceIgnored(src)) {
         return dmg
     }
@@ -77,8 +77,12 @@ fun Char.incomingDamageHook(dmg: Int, src: Any?): Int {
  * This is called before the champion damage multiplier is applied
  */
 @Suppress("NAME_SHADOWING")
-fun Char.damageMultiplierHook(dmg: Int, damage: Float, src: Any?): Float {
-    if(sourceIgnored(src)) {
+fun Char.damageMultiplierHook(
+    dmg: Int,
+    damage: Float,
+    src: Any?,
+): Float {
+    if (sourceIgnored(src)) {
         return damage
     }
     var damage = damage
@@ -94,8 +98,11 @@ fun Char.damageMultiplierHook(dmg: Int, damage: Float, src: Any?): Float {
  * Hook which is called right before the damage is applied to the char's
  * shielding and, subsequently, HP
  */
-fun Char.beforeDamageShieldedHook(dmg: Int, src: Any?): Int {
-    if(sourceIgnored(src)) {
+fun Char.beforeDamageShieldedHook(
+    dmg: Int,
+    src: Any?,
+): Int {
+    if (sourceIgnored(src)) {
         return dmg
     }
     if (CrystalShield.blockIncomingDamage(this, dmg)) {
@@ -116,11 +123,17 @@ fun Char.beforeDamageShieldedHook(dmg: Int, src: Any?): Int {
  * Hook which is called when char takes damage, after all damage
  * reduction/amplification is applied, and HP was reduced.
  */
-fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
+fun Char.damageTakenHook(
+    dmg: Int,
+    shielded: Int,
+    src: Any?,
+) {
     if (this is Mob) {
         if (HP <= 0) {
-            if (Modifier.CRYSTAL_BLOOD.active() && buff(CrystalShield.DeathMarker::class.java) == null && !properties().contains(
-                    Char.Property.BOSS
+            if (Modifier.CRYSTAL_BLOOD.active() &&
+                buff(CrystalShield.DeathMarker::class.java) == null &&
+                !properties().contains(
+                    Char.Property.BOSS,
                 )
             ) {
                 HP = 1
@@ -129,8 +142,8 @@ fun Char.damageTakenHook(dmg: Int, shielded: Int, src: Any?) {
             }
         }
         if (!isAlive() && alignment != Char.Alignment.ALLY) {
-            val fury = Modifier.REVENGE_FURY.active();
-            val rage = Modifier.REVENGE.active();
+            val fury = Modifier.REVENGE_FURY.active()
+            val rage = Modifier.REVENGE.active()
             if ((HP < 0 && rage) || fury) {
                 for (mob in Dungeon.level.mobs) {
                     if (!fieldOfView[mob.pos]) continue
@@ -177,7 +190,10 @@ fun Char.attackDamageMultiplierHook(enemy: Char): Float {
 /**
  * Hook which is called when char attacks, but before the the damage is passed to enemy's defense proc
  */
-fun Char.attackDamageBeforeApplyHook(enemy: Char, damage: Float): Float {
+fun Char.attackDamageBeforeApplyHook(
+    enemy: Char,
+    damage: Float,
+): Float {
     var bonus = 0f
     for (buff in buffs()) {
         if (buff is AttackAmplificationBuff) {
@@ -187,7 +203,10 @@ fun Char.attackDamageBeforeApplyHook(enemy: Char, damage: Float): Float {
     return damage + bonus
 }
 
-fun Char.attackProcHook(enemy: Char, damage: Int) {
+fun Char.attackProcHook(
+    enemy: Char,
+    damage: Int,
+) {
     for (buff in buffs()) {
         if (buff is AttackProcBuff) {
             buff.attackProc(enemy, damage)
@@ -195,8 +214,10 @@ fun Char.attackProcHook(enemy: Char, damage: Int) {
     }
 }
 
-
-fun Char.defenseProcHook(enemy: Char, damage: Int) {
+fun Char.defenseProcHook(
+    enemy: Char,
+    damage: Int,
+) {
     for (buff in buffs()) {
         if (buff is DefenseProcBuff) {
             buff.defenseProc(enemy, damage)
@@ -216,10 +237,11 @@ fun Char.deathHook(src: Any?) {
     if (this is Mob) {
         if (Modifier.BOMBERMOB.active()) {
             if ((Modifier.CONSTELLATION.active() || Random.Float() < 0.01f) && !Dungeon.bossLevel()) {
-                val nova = Buff.append(
-                    Dungeon.hero,
-                    SuperNovaTracker::class.java
-                )
+                val nova =
+                    Buff.append(
+                        Dungeon.hero,
+                        SuperNovaTracker::class.java,
+                    )
                 nova.pos = pos
                 nova.harmsAllies = true
                 GLog.w(Messages.get(CursedWand::class.java, "supernova"))
@@ -236,8 +258,10 @@ fun Char.deathHook(src: Any?) {
                 if (Modifier.PERSISTENT_SAINTS.active()) {
                     GameScene.add(
                         Blob.seed(
-                            Dungeon.hero.pos, PATRON_SEED_SOUL, PatronSaintsBlob::class.java
-                        )
+                            Dungeon.hero.pos,
+                            PATRON_SEED_SOUL,
+                            PatronSaintsBlob::class.java,
+                        ),
                     )
                 }
             }
@@ -274,7 +298,11 @@ fun Char.isInvulnerableHook(effect: Class<*>): Boolean {
     return false
 }
 
-fun charHitAcuStatHook(attacker: Char, defender: Char, acuStat: Float): Float {
+fun charHitAcuStatHook(
+    attacker: Char,
+    defender: Char,
+    acuStat: Float,
+): Float {
     var stat = acuStat
     for (buff in attacker.buffs()) {
         if (buff is AtkSkillChangeBuff) {
@@ -284,7 +312,11 @@ fun charHitAcuStatHook(attacker: Char, defender: Char, acuStat: Float): Float {
     return stat
 }
 
-fun charHitDefStatHook(attacker: Char, defender: Char, defStat: Float): Float {
+fun charHitDefStatHook(
+    attacker: Char,
+    defender: Char,
+    defStat: Float,
+): Float {
     var stat = defStat
     for (buff in defender.buffs()) {
         if (buff is DefSkillChangeBuff) {
@@ -294,7 +326,11 @@ fun charHitDefStatHook(attacker: Char, defender: Char, defStat: Float): Float {
     return stat
 }
 
-fun charHitAcuRollHook(attacker: Char, defender: Char, acuRoll: Float): Float {
+fun charHitAcuRollHook(
+    attacker: Char,
+    defender: Char,
+    acuRoll: Float,
+): Float {
     var roll = acuRoll
     for (buff in attacker.buffs()) {
         if (buff is AtkSkillChangeBuff) {
@@ -304,7 +340,11 @@ fun charHitAcuRollHook(attacker: Char, defender: Char, acuRoll: Float): Float {
     return roll
 }
 
-fun charHitDefRollHook(attacker: Char, defender: Char, defRoll: Float): Float {
+fun charHitDefRollHook(
+    attacker: Char,
+    defender: Char,
+    defRoll: Float,
+): Float {
     var roll = defRoll
     for (buff in defender.buffs()) {
         if (buff is DefSkillChangeBuff) {
@@ -314,7 +354,10 @@ fun charHitDefRollHook(attacker: Char, defender: Char, defRoll: Float): Float {
     return roll
 }
 
-fun Char.moveHook(step: Int, travelling: Boolean) {
+fun Char.moveHook(
+    step: Int,
+    travelling: Boolean,
+) {
     if (this is Hero && Modifier.BARRIER_BREAKER.active()) {
         val terrain = Dungeon.level.map[step]
         if (terrain == Terrain.OPEN_DOOR || terrain == Terrain.DOOR) {
@@ -334,7 +377,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
             for (o in PathFinder.NEIGHBOURS8) {
                 val n = step + o
                 if (Dungeon.level.solid[n]) {
-                    Dungeon.level.destroyWall(n);
+                    Dungeon.level.destroyWall(n)
                     destruction = true
                     if (Dungeon.level.heroFOV[step]) {
                         CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
@@ -347,7 +390,7 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
         val terrain = Dungeon.level.map[step]
         if (Dungeon.level.solid[step] && terrain != Terrain.DOOR && terrain != Terrain.OPEN_DOOR) {
             destruction = true
-            Dungeon.level.destroyWall(step);
+            Dungeon.level.destroyWall(step)
             if (Dungeon.level.heroFOV[step]) {
                 Sample.INSTANCE.play(Assets.Sounds.ROCKS, 0.25f, 1.5f)
                 CellEmitter.center(pos).burst(SmokeParticle.FACTORY, 5)
@@ -363,7 +406,10 @@ fun Char.moveHook(step: Int, travelling: Boolean) {
 /**
  * Same as [Char.damageTakenHook], but called only for mobs.
  */
-fun Mob.mobIncomingDamageHook(dmg: Int, src: Any?): Int {
+fun Mob.mobIncomingDamageHook(
+    dmg: Int,
+    src: Any?,
+): Int {
     if (Modifier.CARDINAL_DISABILITY.active()) {
         if (alignment == Char.Alignment.ENEMY) {
             val selfPos = Dungeon.level.cellToPoint(pos)
@@ -410,7 +456,10 @@ fun Mob.applyModifiers() {
     }
 }
 
-fun Mob.mobBeforeActHook(enemyInFOV: Boolean, justAlerted: Boolean) {
+fun Mob.mobBeforeActHook(
+    enemyInFOV: Boolean,
+    justAlerted: Boolean,
+) {
     applyModifiers()
     if (enemyInFOV && Modifier.INSOMNIA.active()) {
         Buff.prolong(this, InsomniaSlowdown::class.java, InsomniaSlowdown.DURATION)

@@ -16,8 +16,8 @@ class GoldenBody : NoDetachShieldBuff() {
         actPriority = HERO_PRIO - 2
     }
 
-    override fun attachTo(target: Char?): Boolean {
-        return super.attachTo(target).also { attached ->
+    override fun attachTo(target: Char?): Boolean =
+        super.attachTo(target).also { attached ->
             if (attached) {
                 if (this.target.HP == this.target.HP && shielding() == 0) {
                     this.target.HP = 1
@@ -25,7 +25,6 @@ class GoldenBody : NoDetachShieldBuff() {
                 }
             }
         }
-    }
 
     // https://www.desmos.com/calculator/t14jd9rcyd
     // Approach double of HT with shield, but never reach it
@@ -42,18 +41,14 @@ class GoldenBody : NoDetachShieldBuff() {
     private fun shieldToGold(shield: Int): Int {
         if (shield == 0) return 0
         val max = target.HT * ASIMPT_LIMIT - 1
-        if(shield > max) return shieldToGold(max)
+        if (shield > max) return shieldToGold(max)
         val s = ASIMPT_LIMIT * target.HT
         return (-dungeonScaling() * s * ln(2.0 * s / (shield.toDouble() + s) - 1.0)).toInt()
     }
 
-    private fun healingToGoldRatio(): Int {
-        return Dungeon.scalingDepth() / 5 + 1
-    }
+    private fun healingToGoldRatio(): Int = Dungeon.scalingDepth() / 5 + 1
 
-    private fun dungeonScaling(): Double {
-        return CURVE * (1.0 + Dungeon.scalingDepth() / 50.0)
-    }
+    private fun dungeonScaling(): Double = CURVE * (1.0 + Dungeon.scalingDepth() / 50.0)
 
     private fun recalculate() {
         val goldShield = shielding()
@@ -71,13 +66,13 @@ class GoldenBody : NoDetachShieldBuff() {
             val addGold = (target.HP - 1) * healingToGoldRatio()
             target.HP = 1
             // Only give gold if the shield is less than the HT
-            if(shielding() < target.HT) {
+            if (shielding() < target.HT) {
                 Dungeon.gold += addGold
 
                 target.sprite?.showStatusWithIcon(
                     CharSprite.NEUTRAL,
                     addGold.toString(),
-                    FloatingText.GOLD
+                    FloatingText.GOLD,
                 )
             }
         }
@@ -120,9 +115,7 @@ class GoldenBody : NoDetachShieldBuff() {
         recalculate()
     }
 
-    override fun shielding(): Int {
-        return goldToShield(Dungeon.gold)
-    }
+    override fun shielding(): Int = goldToShield(Dungeon.gold)
 
     companion object {
         private const val ASIMPT_LIMIT = 2

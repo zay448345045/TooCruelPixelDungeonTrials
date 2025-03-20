@@ -31,7 +31,6 @@ import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import com.watabou.utils.Reflection
 
-
 class HolderMimic : Mimic() {
     init {
         spriteClass = MimicSprite::class.java
@@ -52,7 +51,7 @@ class HolderStatue : Statue() {
     init {
         spriteClass = StatueSprite::class.java
 
-        //reduced HP
+        // reduced HP
         HT = 10 + Dungeon.depth * 3
         HP = HT
     }
@@ -69,18 +68,26 @@ class StoredHeapData : Bundlable {
     val items: MutableList<Item> = ArrayList()
 
     @Suppress("NAME_SHADOWING")
-    fun restoreAtPos(level: Level, pos: Int) {
+    fun restoreAtPos(
+        level: Level,
+        pos: Int,
+    ) {
         var pos = pos
         val heapConflict =
             heapType.isSomeAnd { ty -> ty != Heap.Type.HEAP } || level.heaps[pos].isSomeAnd { it.type != Heap.Type.HEAP }
 
         val avoidMobs = holderClass != null
-        if ((holderClass == null && heapConflict) || (avoidMobs && Actor.findChar(
-                pos
-            ) != null)
+        if ((holderClass == null && heapConflict) ||
+            (
+                avoidMobs &&
+                    Actor.findChar(
+                        pos,
+                    ) != null
+            )
         ) {
             PathFinder.buildDistanceMap(
-                pos, BArray.or(level.passable, level.avoid, null)
+                pos,
+                BArray.or(level.passable, level.avoid, null),
             )
             val validCells = HashSet<Int>()
             var minDistance = Int.MAX_VALUE
@@ -91,8 +98,14 @@ class StoredHeapData : Bundlable {
                     if (level.heaps.containsKey(i) || !(level.passable[i] || level.avoid[i]) || level.pit[i]) {
                         continue
                     }
-                    if ((level.findMob(i).also { m = it }) != null && (avoidMobs || m.properties()
-                            .contains(Char.Property.IMMOVABLE) || m is NPC)
+                    if ((level.findMob(i).also { m = it }) != null &&
+                        (
+                            avoidMobs ||
+                                m
+                                    .properties()
+                                    .contains(Char.Property.IMMOVABLE) ||
+                                m is NPC
+                        )
                     ) {
                         continue
                     }
@@ -244,9 +257,10 @@ class StoredHeapData : Bundlable {
      * class, no child heaps, and the container type doesn't have special
      * opening restrictions
      */
-    fun isPlainContainer(): Boolean {
-       return holderClass == null && childHeaps.isEmpty() && heapType.isNoneOr { it == Heap.Type.HEAP || it == Heap.Type.CHEST || it == Heap.Type.SKELETON }
-    }
+    fun isPlainContainer(): Boolean =
+        holderClass == null &&
+            childHeaps.isEmpty() &&
+            heapType.isNoneOr { it == Heap.Type.HEAP || it == Heap.Type.CHEST || it == Heap.Type.SKELETON }
 
     fun withoutHolder(): StoredHeapData {
         if (holderClass == null) {
@@ -280,7 +294,7 @@ class StoredHeapData : Bundlable {
         isLevelGenStatue = bundle.getBoolean(IS_LEVEL_GEN_STATUE)
         extraMimicLoot = bundle.getBoolean(EXTRA_MIMIC_LOOT)
         if (bundle.contains(HOLDER_CLASS)) {
-            val cl = bundle.getClass(HOLDER_CLASS);
+            val cl = bundle.getClass(HOLDER_CLASS)
             if (!Mob::class.java.isAssignableFrom(cl)) {
                 throw IllegalArgumentException("Holder class must be a subclass of Mob")
             }
@@ -317,43 +331,46 @@ class StoredHeapData : Bundlable {
         const val CHILD_HEAPS = "child_heaps"
         const val ITEMS = "items"
 
-        fun fromHeap(heap: Heap): StoredHeapData {
-            return StoredHeapData().also {
+        fun fromHeap(heap: Heap): StoredHeapData =
+            StoredHeapData().also {
                 it.items.addAll(heap.items)
                 it.heapType = heap.type
             }
-        }
 
         fun transformHeapIntoMimic(
-            level: Level, heap: Heap, extraLoot: Boolean, weakHolders: Boolean
+            level: Level,
+            heap: Heap,
+            extraLoot: Boolean,
+            weakHolders: Boolean,
         ) {
             val data = fromHeap(heap)
 
-            val cl = when (data.heapType!!) {
-                Heap.Type.HEAP, Heap.Type.FOR_SALE, Heap.Type.CHEST, Heap.Type.TOMB, Heap.Type.SKELETON, Heap.Type.REMAINS -> {
-                    val weaponIdx = data.items.indexOfFirst { it is MeleeWeapon }
-                    var armorIdx = data.items.indexOfFirst { it is Armor }
-                    if (weaponIdx >= 0) {
-                        data.items.add(data.items.removeAt(weaponIdx))
-                        if (armorIdx > weaponIdx) armorIdx--
-                        if (weakHolders) {
-                            HolderStatue::class.java
-                        } else if (armorIdx >= 0) {
-                            data.items.add(data.items.removeAt(armorIdx))
-                            ArmoredStatue::class.java
+            val cl =
+                when (data.heapType!!) {
+                    Heap.Type.HEAP, Heap.Type.FOR_SALE, Heap.Type.CHEST, Heap.Type.TOMB, Heap.Type.SKELETON, Heap.Type.REMAINS -> {
+                        val weaponIdx = data.items.indexOfFirst { it is MeleeWeapon }
+                        var armorIdx = data.items.indexOfFirst { it is Armor }
+                        if (weaponIdx >= 0) {
+                            data.items.add(data.items.removeAt(weaponIdx))
+                            if (armorIdx > weaponIdx) armorIdx--
+                            if (weakHolders) {
+                                HolderStatue::class.java
+                            } else if (armorIdx >= 0) {
+                                data.items.add(data.items.removeAt(armorIdx))
+                                ArmoredStatue::class.java
+                            } else {
+                                Statue::class.java
+                            }
+                        } else if (weakHolders) {
+                            HolderMimic::class.java
                         } else {
-                            Statue::class.java
+                            Mimic::class.java
                         }
-                    } else if (weakHolders) {
-                        HolderMimic::class.java
-                    } else {
-                        Mimic::class.java
                     }
-                }
 
-                Heap.Type.LOCKED_CHEST -> GoldenMimic::class.java
-                Heap.Type.CRYSTAL_CHEST -> CrystalMimic::class.java
-            }
+                    Heap.Type.LOCKED_CHEST -> GoldenMimic::class.java
+                    Heap.Type.CRYSTAL_CHEST -> CrystalMimic::class.java
+                }
             StoredHeapData().let {
                 it.holderClass = cl
                 it.childHeaps.add(data)
@@ -362,8 +379,8 @@ class StoredHeapData : Bundlable {
             }
         }
 
-        fun fromMob(mob: Mob): StoredHeapData {
-            return when (mob) {
+        fun fromMob(mob: Mob): StoredHeapData =
+            when (mob) {
                 is Mimic -> {
                     fromMimic(mob)
                 }
@@ -376,29 +393,26 @@ class StoredHeapData : Bundlable {
                     fromMobRaw(mob)
                 }
             }
-        }
 
-        fun fromMimic(mimic: Mimic): StoredHeapData {
-            return fromMobRaw(mimic).also {
+        fun fromMimic(mimic: Mimic): StoredHeapData =
+            fromMobRaw(mimic).also {
                 if (mimic.items != null) it.items.addAll(mimic.items)
                 for (buff in mimic.buffs(HoldingHeap::class.java)) {
                     it.childHeaps.add(buff.heap)
                     buff.detach()
                 }
             }
-        }
 
-        fun fromStatue(statue: Statue): StoredHeapData {
-            return fromMobRaw(statue).also {
+        fun fromStatue(statue: Statue): StoredHeapData =
+            fromMobRaw(statue).also {
                 it.items.add(statue.weapon)
                 if (statue is ArmoredStatue) {
                     it.items.add(statue.armor)
                 }
             }
-        }
 
-        private fun fromMobRaw(mob: Mob): StoredHeapData {
-            return StoredHeapData().also {
+        private fun fromMobRaw(mob: Mob): StoredHeapData =
+            StoredHeapData().also {
                 it.holderClass = mob.javaClass
 
                 for (buff in mob.buffs(HoldingHeap::class.java)) {
@@ -406,6 +420,5 @@ class StoredHeapData : Bundlable {
                     buff.detach()
                 }
             }
-        }
     }
 }

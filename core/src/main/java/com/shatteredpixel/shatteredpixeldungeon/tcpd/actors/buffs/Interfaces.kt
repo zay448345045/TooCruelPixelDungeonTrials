@@ -2,7 +2,6 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 
-
 interface TimescaleBuff {
     fun speedFactor(): Float
 }
@@ -20,9 +19,10 @@ interface DefSkillChangeBuff {
      *
      * Mainly used for returning [Char.INFINITE_EVASION][Char.INFINITE_EVASION]
      */
-    fun modifyDefSkill(defSkill: Float, attacker: Char): Float {
-        return defSkill
-    }
+    fun modifyDefSkill(
+        defSkill: Float,
+        attacker: Char,
+    ): Float = defSkill
 
     /**
      * Multiplier for the defense roll
@@ -36,9 +36,10 @@ interface AtkSkillChangeBuff {
      *
      * Mainly used for returning [Char.INFINITE_ACCURACY][Char.INFINITE_ACCURACY]
      */
-    fun modifyAtkSkill(atkSkill: Float, defender: Char): Float {
-        return atkSkill
-    }
+    fun modifyAtkSkill(
+        atkSkill: Float,
+        defender: Char,
+    ): Float = atkSkill
 
     /**
      * Multiplier for the attack roll
@@ -47,25 +48,25 @@ interface AtkSkillChangeBuff {
 }
 
 interface AttackAmplificationBuff {
-    fun flatAttackBonus(): Float {
-        return 0f
-    }
+    fun flatAttackBonus(): Float = 0f
 
-    fun attackMultiplier(): Float {
-        return 1f
-    }
+    fun attackMultiplier(): Float = 1f
 
-    fun flatAttackBonusPostMult(): Float {
-        return 0f
-    }
+    fun flatAttackBonusPostMult(): Float = 0f
 }
 
 interface DefenseProcBuff {
-    fun defenseProc(enemy: Char, damage: Int)
+    fun defenseProc(
+        enemy: Char,
+        damage: Int,
+    )
 }
 
 interface AttackProcBuff {
-    fun attackProc(enemy: Char, damage: Int)
+    fun attackProc(
+        enemy: Char,
+        damage: Int,
+    )
 }
 
 interface InvulnerabilityBuff {
@@ -78,7 +79,6 @@ interface OnDeathEffectBuff {
 
 interface MindVisionExtBuff {
     fun revealRadius(): Int
-    fun maxHeroDistance(): Int {
-        return -1
-    }
+
+    fun maxHeroDistance(): Int = -1
 }

@@ -33,10 +33,8 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput
 open class WndModifiers(
     private val modifiers: Modifiers,
     private val trial: Trial?,
-    private val editable: Boolean
-) :
-    TcpdWindow() {
-
+    private val editable: Boolean,
+) : TcpdWindow() {
     constructor(data: TCPDData) : this(data.modifiers, data.trial, false)
     constructor(data: TCPDGameInfoData) : this(data.modifiers, data.trials, false)
 
@@ -52,10 +50,8 @@ open class WndModifiers(
 open class ModifiersComponent(
     private val modifiers: Modifiers,
     private val trial: Trial?,
-    private val editable: Boolean
-) :
-    TcpdComponent() {
-
+    private val editable: Boolean,
+) : TcpdComponent() {
     constructor(data: TCPDData) : this(data.modifiers, data.trial, false)
     constructor(data: TCPDGameInfoData) : this(data.modifiers, data.trials, false)
 
@@ -64,7 +60,11 @@ open class ModifiersComponent(
     }
 }
 
-fun Ui.drawModifiers(modifiers: Modifiers, trial: Trial?, editable: Boolean) {
+fun Ui.drawModifiers(
+    modifiers: Modifiers,
+    trial: Trial?,
+    editable: Boolean,
+) {
     verticalJustified {
         rightToLeft {
             iconButton(Icons.SCROLL_COLOR.descriptor()).onClick {
@@ -78,7 +78,10 @@ fun Ui.drawModifiers(modifiers: Modifiers, trial: Trial?, editable: Boolean) {
                         Messages.get(WndModifiers::class.java, "edit_apply"),
                         Messages.get(WndModifiers::class.java, "edit_cancel"),
                     ) {
-                        override fun onSelect(positive: Boolean, text: String) {
+                        override fun onSelect(
+                            positive: Boolean,
+                            text: String,
+                        ) {
                             if (positive && editable) {
                                 try {
                                     val trimmed = text.trim()
@@ -87,8 +90,8 @@ fun Ui.drawModifiers(modifiers: Modifiers, trial: Trial?, editable: Boolean) {
                                     } else {
                                         modifiers.enableFrom(
                                             Modifiers.deserializeFromString(
-                                                trimmed
-                                            )
+                                                trimmed,
+                                            ),
                                         )
                                     }
                                 } catch (e: Exception) {
@@ -96,20 +99,20 @@ fun Ui.drawModifiers(modifiers: Modifiers, trial: Trial?, editable: Boolean) {
                                         WndError(
                                             Messages.get(
                                                 WndModifiers::class.java,
-                                                "edit_error"
-                                            )
-                                        )
+                                                "edit_error",
+                                            ),
+                                        ),
                                     )
                                 }
                             }
                             super.onSelect(positive, text)
                         }
-                    }
+                    },
                 )
             }
             verticalJustified {
                 label(Messages.get(WndModifiers::class.java, "title"), 12).widget.hardlight(
-                    TITLE_COLOR
+                    TITLE_COLOR,
                 )
             }
         }
@@ -133,24 +136,35 @@ fun Ui.drawModifiers(modifiers: Modifiers, trial: Trial?, editable: Boolean) {
     }
 }
 
-private fun Ui.modifierBtn(modifiers: Modifiers, modifier: Modifier, editable: Boolean) {
+private fun Ui.modifierBtn(
+    modifiers: Modifiers,
+    modifier: Modifier,
+    editable: Boolean,
+) {
     rightToLeft {
         margins(Margins.only(top = 2)) {
             iconButton(Icons.INFO.descriptor()).onClick {
                 ShatteredPixelDungeon.scene().add(
-                    WndMessage(modifier.localizedDesc())
+                    WndMessage(modifier.localizedDesc()),
                 )
             }
         }
         verticalJustified {
             withEnabled(editable) {
                 redButton {
-                    val res = shrinkToFitLabel(
-                        modifier.localizedName(),
-                        9,
-                        availableSpace = top().nextAvailableSpace()
-                            .width() - Icons.CHECKED.descriptor().size().x
-                    )
+                    val res =
+                        shrinkToFitLabel(
+                            modifier.localizedName(),
+                            9,
+                            availableSpace =
+                                top()
+                                    .nextAvailableSpace()
+                                    .width() -
+                                    Icons.CHECKED
+                                        .descriptor()
+                                        .size()
+                                        .x,
+                        )
                     drawRedCheckbox(modifiers.isEnabled(modifier), res.response.rect)
                 }.onClick {
                     modifiers.toggle(modifier)

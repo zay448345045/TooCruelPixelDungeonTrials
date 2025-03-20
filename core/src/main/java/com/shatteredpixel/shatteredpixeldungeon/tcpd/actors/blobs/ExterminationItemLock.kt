@@ -24,16 +24,16 @@ import com.watabou.noosa.particles.PixelParticle.Shrinking
 import com.watabou.utils.Bundle
 import com.watabou.utils.Random
 
-class ExterminationItemLock : Blob(), CustomBlobCellEmission {
+class ExterminationItemLock :
+    Blob(),
+    CustomBlobCellEmission {
     override fun evolve() {
         evolveUnchanged(off)
     }
 
     private val originalHeaps: MutableMap<Int, StoredHeapData> = mutableMapOf()
 
-    override fun tileDesc(): String {
-        return Messages.get(this, "desc")
-    }
+    override fun tileDesc(): String = Messages.get(this, "desc")
 
     override fun use(emitter: BlobEmitter) {
         super.use(emitter)
@@ -48,7 +48,7 @@ class ExterminationItemLock : Blob(), CustomBlobCellEmission {
         }
         originalHeaps.clear()
         fullyClear(level)
-        if(Modifier.MIMICS_ALL.active()) {
+        if (Modifier.MIMICS_ALL.active()) {
             var added = 0
             for (mob in level.mobs) {
                 if (mob is Mimic || mob is Statue) {
@@ -70,7 +70,10 @@ class ExterminationItemLock : Blob(), CustomBlobCellEmission {
         return true
     }
 
-    fun lockItem(level: Level, heap: Heap) {
+    fun lockItem(
+        level: Level,
+        heap: Heap,
+    ) {
         if (cur == null || cur[heap.pos] <= 0) {
             seed(level, heap.pos, 1)
         }
@@ -83,7 +86,10 @@ class ExterminationItemLock : Blob(), CustomBlobCellEmission {
         }
     }
 
-    fun lockMimic(level: Level, mimic: Mimic) {
+    fun lockMimic(
+        level: Level,
+        mimic: Mimic,
+    ) {
         if (cur == null || cur[mimic.pos] <= 0) {
             seed(level, mimic.pos, 1)
         }
@@ -95,7 +101,10 @@ class ExterminationItemLock : Blob(), CustomBlobCellEmission {
         mimic.sprite?.killAndErase()
     }
 
-    fun lockStatue(level: Level, statue: Statue) {
+    fun lockStatue(
+        level: Level,
+        statue: Statue,
+    ) {
         if (cur == null || cur[statue.pos] <= 0) {
             seed(level, statue.pos, 1)
         }
@@ -114,7 +123,7 @@ class ExterminationItemLock : Blob(), CustomBlobCellEmission {
         cellX: Int,
         cellY: Int,
         cell: Int,
-        tileSize: Float
+        tileSize: Float,
     ) {
         Random.shuffle(indices)
         for (i in 0 until indices.size / 2) {
@@ -127,7 +136,7 @@ class ExterminationItemLock : Blob(), CustomBlobCellEmission {
                 emitter,
                 index,
                 (cellX + 0.5f + x) * tileSize,
-                (cellY + 0.5f + y) * tileSize
+                (cellY + 0.5f + y) * tileSize,
             )
         }
     }
@@ -156,16 +165,18 @@ class ExterminationItemLock : Blob(), CustomBlobCellEmission {
         private const val ORIGINAL_HEAPS_IDX = "original_heaps_idx"
         private const val ORIGINAL_HEAPS_TY = "original_heaps_types"
 
-        private val dots = BitPaint(9).also {
-            it.addHLine(2, 6, 0)
-            it.addHLine(0, 8, 4)
-            it.addHLine(0, 8, 9)
-            it.addVLine(1, 2, 4)
-            it.addVLine(7, 2, 4)
-            it.addVLine(0, 5, 8)
-            it.addVLine(8, 5, 8)
-            it.addVLine(4, 6, 7)
-        }.toPairsArray(-4, -7)
+        private val dots =
+            BitPaint(9)
+                .also {
+                    it.addHLine(2, 6, 0)
+                    it.addHLine(0, 8, 4)
+                    it.addHLine(0, 8, 9)
+                    it.addVLine(1, 2, 4)
+                    it.addVLine(7, 2, 4)
+                    it.addVLine(0, 5, 8)
+                    it.addVLine(8, 5, 8)
+                    it.addVLine(4, 6, 7)
+                }.toPairsArray(-4, -7)
 
         private val indices = Array(dots.size / 2) { it }
     }
@@ -177,7 +188,10 @@ open class LockParticle : Shrinking() {
         lifespan = 0.6f
     }
 
-    fun reset(x: Float, y: Float) {
+    fun reset(
+        x: Float,
+        y: Float,
+    ) {
         revive()
 
         this.x = x
@@ -197,14 +211,18 @@ open class LockParticle : Shrinking() {
     }
 
     companion object {
-        val FACTORY: Emitter.Factory = object : Emitter.Factory() {
-            override fun emit(emitter: Emitter, index: Int, x: Float, y: Float) {
-                (emitter.recycle(LockParticle::class.java) as LockParticle).reset(x, y)
-            }
+        val FACTORY: Emitter.Factory =
+            object : Emitter.Factory() {
+                override fun emit(
+                    emitter: Emitter,
+                    index: Int,
+                    x: Float,
+                    y: Float,
+                ) {
+                    (emitter.recycle(LockParticle::class.java) as LockParticle).reset(x, y)
+                }
 
-            override fun lightMode(): Boolean {
-                return false
+                override fun lightMode(): Boolean = false
             }
-        }
     }
 }

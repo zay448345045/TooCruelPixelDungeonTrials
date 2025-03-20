@@ -22,7 +22,9 @@ import com.watabou.utils.Bundle
 import com.watabou.utils.PointF
 import java.util.Collections
 
-class RacingTheDeath : Buff(), Hero.Doom {
+class RacingTheDeath :
+    Buff(),
+    Hero.Doom {
     var particles: Emitter.Factory = PurpleParticle.BURST
     private lateinit var trailCells: MutableList<Int>
     private var trail: MutableList<Image>? = null
@@ -35,7 +37,7 @@ class RacingTheDeath : Buff(), Hero.Doom {
     }
 
     override fun detach() {
-        //This buff can't be detached
+        // This buff can't be detached
     }
 
     override fun attachTo(target: Char): Boolean {
@@ -90,7 +92,10 @@ class RacingTheDeath : Buff(), Hero.Doom {
         }
     }
 
-    private fun burst(pos: Int, amount: Int) {
+    private fun burst(
+        pos: Int,
+        amount: Int,
+    ) {
         if (trail == null) return
         val i = trailCells.indexOf(pos)
         if (i == -1) return
@@ -110,9 +115,9 @@ class RacingTheDeath : Buff(), Hero.Doom {
         for (i in 0 until TRAIL_LENGTH) {
             trailCells.add(0)
         }
-        //to make buff create first piece of trail right away
+        // to make buff create first piece of trail right away
         spend(-1f)
-        //To make sure that buff wont proc multiple times if function called more than once
+        // To make sure that buff wont proc multiple times if function called more than once
         postpone(-1f)
 
         createTrail()
@@ -177,7 +182,10 @@ class RacingTheDeath : Buff(), Hero.Doom {
         trail!!.add(0, segment)
     }
 
-    private fun setTrailSegment(i: Int, pos: Int) {
+    private fun setTrailSegment(
+        i: Int,
+        pos: Int,
+    ) {
         if (trail == null) return
 
         val segment: Image = HeroSprite.avatar(Dungeon.hero.heroClass, Dungeon.hero.tier())
@@ -199,18 +207,21 @@ class RacingTheDeath : Buff(), Hero.Doom {
         trail = null
     }
 
-    private fun worldToCamera(cell: Int, segment: Image): PointF {
+    private fun worldToCamera(
+        cell: Int,
+        segment: Image,
+    ): PointF {
         val csize = DungeonTilemap.SIZE
 
         return PointF(
             PixelScene.align(
                 Camera.main,
-                ((cell % Dungeon.level.width()) + 0.5f) * csize - segment.width * 0.5f
+                ((cell % Dungeon.level.width()) + 0.5f) * csize - segment.width * 0.5f,
             ),
             PixelScene.align(
                 Camera.main,
-                ((cell / Dungeon.level.width()) + 1.0f) * csize - segment.height - csize * (6 / 16f)
-            )
+                ((cell / Dungeon.level.width()) + 1.0f) * csize - segment.height - csize * (6 / 16f),
+            ),
         )
     }
 
@@ -242,7 +253,6 @@ class RacingTheDeath : Buff(), Hero.Doom {
 
         lastDepth = bundle.getInt(DEPTH)
     }
-
 
     override fun onDeath() {
         Dungeon.fail(javaClass)

@@ -28,12 +28,16 @@ const val PATRON_SEED_BLESS: Int = 0x9871
 
 @Suppress("NOTHING_TO_INLINE")
 @JvmInline
-private value class EncodedCell(val rawValue: Int) {
+private value class EncodedCell(
+    val rawValue: Int,
+) {
     companion object {
         val EMPTY: EncodedCell = EncodedCell(0)
-        inline fun from(souls: Int, stacks: Int): EncodedCell {
-            return EMPTY.withStacks(stacks).withSouls(souls)
-        }
+
+        inline fun from(
+            souls: Int,
+            stacks: Int,
+        ): EncodedCell = EMPTY.withStacks(stacks).withSouls(souls)
     }
 
     inline fun withStacks(stacks: Int): EncodedCell {
@@ -43,9 +47,7 @@ private value class EncodedCell(val rawValue: Int) {
         return EncodedCell(rawValue and STACKS_MASK.inv() or stacks)
     }
 
-    inline fun stacks(): Int {
-        return rawValue and STACKS_MASK
-    }
+    inline fun stacks(): Int = rawValue and STACKS_MASK
 
     inline fun incrementStacks(): EncodedCell {
         if (stacks() == MAX_STACKS) {
@@ -61,10 +63,7 @@ private value class EncodedCell(val rawValue: Int) {
         return EncodedCell(rawValue and SOULS_MASK.inv() or (stacks shl 4))
     }
 
-    inline fun souls(): Int {
-        return (rawValue and SOULS_MASK) shr 4
-    }
-
+    inline fun souls(): Int = (rawValue and SOULS_MASK) shr 4
 
     inline fun incrementSouls(): EncodedCell {
         if (souls() == MAX_STACKS) {
@@ -83,15 +82,15 @@ private value class EncodedCell(val rawValue: Int) {
     }
 }
 
-class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
+class PatronSaintsBlob :
+    Blob(),
+    CustomBlobCellEmission {
     init {
         // Act right after mobs, to give buffs to those who enter the area
         actPriority = MOB_PRIO - 1
     }
 
-    fun stacksAt(pos: Int): Int {
-        return cur?.get(pos)?.let { EncodedCell(it).stacks() } ?: 0
-    }
+    fun stacksAt(pos: Int): Int = cur?.get(pos)?.let { EncodedCell(it).stacks() } ?: 0
 
     override fun evolve() {
         evolveUnchanged(off)
@@ -107,11 +106,14 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
         }
     }
 
-    override fun seed(level: Level, cell: Int, amount: Int) {
+    override fun seed(
+        level: Level,
+        cell: Int,
+        amount: Int,
+    ) {
         if (!level.insideMap(cell)) {
             return
         }
-
 
         val curCenter = cur?.get(cell)?.let { EncodedCell(it) } ?: EncodedCell.EMPTY
 
@@ -148,9 +150,8 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
         cellX: Int,
         cellY: Int,
         cell: Int,
-        tileSize: Float
+        tileSize: Float,
     ) {
-
         var top = false
         var bottom = false
         var left = false
@@ -183,12 +184,13 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
             val max = if (souls == 4 || souls == 8) souls + 3 else souls
             repeat(souls) {
                 t += 2 * PI.toFloat() / max
-                val fx = DamageReductionAreaFx.emitOne(
-                    emitter,
-                    index,
-                    (cellX + 0.5f + (cos(t) * sin(4 * t)) / 2) * tileSize,
-                    (cellY + 0.5f + (sin(t) * sin(4 * t)) / 2) * tileSize
-                )
+                val fx =
+                    DamageReductionAreaFx.emitOne(
+                        emitter,
+                        index,
+                        (cellX + 0.5f + (cos(t) * sin(4 * t)) / 2) * tileSize,
+                        (cellY + 0.5f + (sin(t) * sin(4 * t)) / 2) * tileSize,
+                    )
                 fx.color(0xFFA500)
                 fx.acc.set(0f, 0f)
                 fx.setSize(3f)
@@ -204,21 +206,21 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
             if (k == 0 && top) {
                 // top
                 ox = progress
-                oy = 0f;
+                oy = 0f
                 emit = true
             } else if (k == 1 && right) {
                 // right
-                ox = 1f;
+                ox = 1f
                 oy = progress
                 emit = true
             } else if (k == 2 && bottom) {
                 // bottom
                 ox = 1 - progress
-                oy = 1f;
+                oy = 1f
                 emit = true
             } else if (k == 3 && left) {
                 // left
-                ox = 0f;
+                ox = 0f
                 oy = 1 - progress
                 emit = true
             }
@@ -229,20 +231,23 @@ class PatronSaintsBlob : Blob(), CustomBlobCellEmission {
                     emitter,
                     index,
                     cellX * tileSize + ox * shrunkTile,
-                    cellY * tileSize + oy * shrunkTile
+                    cellY * tileSize + oy * shrunkTile,
                 )
             }
         }
     }
 
-    override fun tileDesc(): String {
-        return Messages.get(this, "desc")
-    }
+    override fun tileDesc(): String = Messages.get(this, "desc")
 }
 
 class DamageReductionAreaFx : FlameParticle() {
     companion object {
-        fun emitOne(emitter: Emitter, index: Int, x: Float, y: Float): DamageReductionAreaFx {
+        fun emitOne(
+            emitter: Emitter,
+            index: Int,
+            x: Float,
+            y: Float,
+        ): DamageReductionAreaFx {
             val fx = (emitter.recycle(DamageReductionAreaFx::class.java) as DamageReductionAreaFx)
             fx.reset(x, y)
             fx.color(0x61780d)
@@ -251,15 +256,19 @@ class DamageReductionAreaFx : FlameParticle() {
             return fx
         }
 
-        val FACTORY: Emitter.Factory = object : Emitter.Factory() {
-            override fun emit(emitter: Emitter, index: Int, x: Float, y: Float) {
-                emitOne(emitter, index, x, y)
-            }
+        val FACTORY: Emitter.Factory =
+            object : Emitter.Factory() {
+                override fun emit(
+                    emitter: Emitter,
+                    index: Int,
+                    x: Float,
+                    y: Float,
+                ) {
+                    emitOne(emitter, index, x, y)
+                }
 
-            override fun lightMode(): Boolean {
-                return true
+                override fun lightMode(): Boolean = true
             }
-        }
     }
 
     fun setSize(size: Float) {

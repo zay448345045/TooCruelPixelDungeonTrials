@@ -15,11 +15,17 @@ import com.watabou.utils.Bundle
  *
  * A target killed this way doesn't give any experience
  */
-class DelayedDecay : Buff(), InvulnerabilityBuff {
+class DelayedDecay :
+    Buff(),
+    InvulnerabilityBuff {
     var fx: Boolean = false
     var invulnerable = false
 
-    fun set(delay: Float, fx: Boolean, invulnerable: Boolean) {
+    fun set(
+        delay: Float,
+        fx: Boolean,
+        invulnerable: Boolean,
+    ) {
         timeToNow()
         postpone(delay)
         this.invulnerable = invulnerable
@@ -42,9 +48,7 @@ class DelayedDecay : Buff(), InvulnerabilityBuff {
         return true
     }
 
-    override fun isInvulnerable(effect: Class<out Any>): Boolean {
-        return invulnerable
-    }
+    override fun isInvulnerable(effect: Class<out Any>): Boolean = invulnerable
 
     override fun storeInBundle(bundle: Bundle) {
         super.storeInBundle(bundle)

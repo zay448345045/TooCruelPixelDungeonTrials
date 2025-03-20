@@ -83,41 +83,45 @@ class RetieredBuff : Buff() {
         private val tiers: MutableMap<Class<out Any>, Int> = mutableMapOf()
 
         init {
-            if(!Modifier.UNTIERED.active()) {
+            if (!Modifier.UNTIERED.active()) {
                 pickTierSix(
                     arrayOf(
                         Generator.Category.MIS_T2,
                         Generator.Category.MIS_T3,
                         Generator.Category.MIS_T4,
-                        Generator.Category.MIS_T5
-                    )
+                        Generator.Category.MIS_T5,
+                    ),
                 )
                 pickTierSix(
                     arrayOf(
                         Generator.Category.WEP_T2,
                         Generator.Category.WEP_T3,
                         Generator.Category.WEP_T4,
-                        Generator.Category.WEP_T5
-                    )
+                        Generator.Category.WEP_T5,
+                    ),
                 )
             }
         }
 
-        fun tierFor(weapon: Class<out Any>, curTier: Int): Int {
-            return tiers.getOrPut(weapon) {
+        fun tierFor(
+            weapon: Class<out Any>,
+            curTier: Int,
+        ): Int =
+            tiers.getOrPut(weapon) {
                 if (Modifier.UNTIERED.active()) {
                     1
                 } else {
                     // T1: 50% chance for -1, 25% for no change, 25% for +1, 0% for completely random
                     // Other tiers: 50% chance for -1, 20% for no change, 25% for +1, 5% for completely random
-                    val roll = Random.chances(
-                        floatArrayOf(
-                            0.5f,
-                            if (curTier != 1) 0.20f else 0.25f,
-                            0.25f,
-                            if (curTier != 1) 0.05f else 0f
+                    val roll =
+                        Random.chances(
+                            floatArrayOf(
+                                0.5f,
+                                if (curTier != 1) 0.20f else 0.25f,
+                                0.25f,
+                                if (curTier != 1) 0.05f else 0f,
+                            ),
                         )
-                    );
                     if (roll == 3) {
                         Random.Int(1, 6)
                     } else {
@@ -125,7 +129,6 @@ class RetieredBuff : Buff() {
                     }
                 }
             }
-        }
 
         private fun pickTierSix(categories: Array<Generator.Category>) {
             val items: MutableList<Class<out Any>> = mutableListOf()

@@ -38,17 +38,17 @@ class RawHookRef(
     val state: HookState,
     val index: Int,
     var value: Any?,
-    var tracker: Any
+    var tracker: Any,
 )
 
 @JvmInline
-value class HookRef<T : Any>(private val hook: MutableHookRef<T>) {
+value class HookRef<T : Any>(
+    private val hook: MutableHookRef<T>,
+) {
     /**
      * Get the current value of the hook, or initialize it if it has not been initialized.
      */
-    fun getOrInit(value: T): T {
-        return hook.getOrInit(value)
-    }
+    fun getOrInit(value: T): T = hook.getOrInit(value)
 
     /**
      * Get the current value of the hook, or initialize it if it has not been initialized.
@@ -67,24 +67,23 @@ value class HookRef<T : Any>(private val hook: MutableHookRef<T>) {
      *
      * @throws IllegalStateException if the hook has not been initialized.
      */
-    fun get(): T {
-        return hook.get()
-    }
+    fun get(): T = hook.get()
 
     /**
      * Get the current value of the hook, or return null if it has not been initialized.
      */
-    fun tryGet(): T? {
-        return hook.tryGet()
-    }
+    fun tryGet(): T? = hook.tryGet()
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return get()
-    }
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): T = get()
 }
 
 @JvmInline
-value class MutableHookRef<T : Any>(private val hook: RawHookRef) {
+value class MutableHookRef<T : Any>(
+    private val hook: RawHookRef,
+) {
     /**
      * Get the current value of the hook, or initialize it if it has not been initialized.
      */
@@ -136,19 +135,21 @@ value class MutableHookRef<T : Any>(private val hook: RawHookRef) {
         hook.value = value
     }
 
-    fun immutable(): HookRef<T> {
-        return HookRef(this)
-    }
+    fun immutable(): HookRef<T> = HookRef(this)
 
-    private fun mismatchErr(): Nothing {
+    private fun mismatchErr(): Nothing =
         throw IllegalStateException("Hook type mismatch for index ${hook.index}: unexpected ${hook.value!!::class}")
-    }
 
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
-        return get()
-    }
+    operator fun getValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+    ): T = get()
 
-    operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+    operator fun setValue(
+        thisRef: Any?,
+        property: KProperty<*>,
+        value: T,
+    ) {
         set(value)
     }
 }

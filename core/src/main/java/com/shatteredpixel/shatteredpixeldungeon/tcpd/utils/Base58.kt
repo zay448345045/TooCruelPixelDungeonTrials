@@ -17,12 +17,11 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.utils
  *
  */
 
-
 private const val ENCODED_ZERO = '1'
 
-private const val alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+private const val ALPHABET = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
 private val alphabetIndices by lazy {
-    IntArray(128) { alphabet.indexOf(it.toChar()) }
+    IntArray(128) { ALPHABET.indexOf(it.toChar()) }
 }
 
 /**
@@ -31,7 +30,6 @@ private val alphabetIndices by lazy {
  * @return the base58-encoded string
  */
 fun ByteArray.encodeToBase58String(): String {
-
     val input = copyOf(size) // since we modify it in-place
     if (input.isEmpty()) {
         return ""
@@ -47,7 +45,7 @@ fun ByteArray.encodeToBase58String(): String {
     var inputStart = zeros
     while (inputStart < input.size) {
         encoded[--outputStart] =
-            alphabet[divmod(input, inputStart.toUInt(), 256.toUInt(), 58.toUInt()).toInt()]
+            ALPHABET[divmod(input, inputStart.toUInt(), 256.toUInt(), 58.toUInt()).toInt()]
         if (input[inputStart].toInt() == 0) {
             ++inputStart // optimization - skip leading zeros
         }
@@ -120,7 +118,12 @@ fun String.decodeBase58(): ByteArray {
  * @param divisor    the number to divide by (up to 256)
  * @return the remainder of the division operation
  */
-private fun divmod(number: ByteArray, firstDigit: UInt, base: UInt, divisor: UInt): UInt {
+private fun divmod(
+    number: ByteArray,
+    firstDigit: UInt,
+    base: UInt,
+    divisor: UInt,
+): UInt {
     // this is just long division which accounts for the base of the input digits
     var remainder = 0.toUInt()
     for (i in firstDigit until number.size.toUInt()) {

@@ -31,7 +31,6 @@ import com.watabou.utils.Bundle
 import com.watabou.utils.Random
 import kotlin.math.max
 
-
 class Intoxication : Buff() {
     protected var level: Float = 0f
 
@@ -62,8 +61,11 @@ class Intoxication : Buff() {
         }
         var rnd: Int = Random.Int(4, 6)
 
-        if (level <= DANGER_2) rnd = (rnd * 1.6f).toInt()
-        else if (level <= DANGER_3) rnd = (rnd * 1.2f).toInt()
+        if (level <= DANGER_2) {
+            rnd = (rnd * 1.6f).toInt()
+        } else if (level <= DANGER_3) {
+            rnd = (rnd * 1.2f).toInt()
+        }
 
         level -= rnd.toFloat()
         if (level <= 0) detach()
@@ -72,43 +74,49 @@ class Intoxication : Buff() {
     }
 
     fun toxicLevel(): String {
-        val levels = arrayOf(
-            "t_none",
-            "t_light",
-            "t_medium",
-            "t_heavy",
-            "t_deadly",
-        )
-        val l = if (level > DANGER_4) levels[4]
-        else if (level > DANGER_3) levels[3]
-        else if (level > DANGER_2) levels[2]
-        else if (level > DANGER_1) levels[1]
-        else levels[0]
+        val levels =
+            arrayOf(
+                "t_none",
+                "t_light",
+                "t_medium",
+                "t_heavy",
+                "t_deadly",
+            )
+        val l =
+            if (level > DANGER_4) {
+                levels[4]
+            } else if (level > DANGER_3) {
+                levels[3]
+            } else if (level > DANGER_2) {
+                levels[2]
+            } else if (level > DANGER_1) {
+                levels[1]
+            } else {
+                levels[0]
+            }
         return Messages.get(this, l)
     }
 
-    override fun desc(): String {
-        return Messages.get(this, "desc", level.toInt(), toxicLevel())
-    }
+    override fun desc(): String = Messages.get(this, "desc", level.toInt(), toxicLevel())
 
-    override fun iconTextDisplay(): String {
-        return level.toInt().toString()
-    }
+    override fun iconTextDisplay(): String = level.toInt().toString()
 
-    override fun toString(): String {
-        return Messages.get(this, "name")
-    }
+    override fun toString(): String = Messages.get(this, "name")
 
-    override fun icon(): Int {
-        return BuffIndicator.POISON
-    }
+    override fun icon(): Int = BuffIndicator.POISON
 
     override fun tintIcon(icon: Image) {
-        if (level > DANGER_4) icon.hardlight(0x8000ff)
-        else if (level > DANGER_3) icon.hardlight(0xff0000)
-        else if (level > DANGER_2) icon.hardlight(0xffaa00)
-        else if (level > DANGER_1) icon.hardlight(0xffee00)
-        else icon.hardlight(0x00ff00)
+        if (level > DANGER_4) {
+            icon.hardlight(0x8000ff)
+        } else if (level > DANGER_3) {
+            icon.hardlight(0xff0000)
+        } else if (level > DANGER_2) {
+            icon.hardlight(0xffaa00)
+        } else if (level > DANGER_1) {
+            icon.hardlight(0xffee00)
+        } else {
+            icon.hardlight(0x00ff00)
+        }
     }
 
     fun set(level: Float) {
@@ -122,7 +130,10 @@ class Intoxication : Buff() {
         notifyLevelChange(previous)
     }
 
-    fun processHit(damage: Int, source: Any?) {
+    fun processHit(
+        damage: Int,
+        source: Any?,
+    ) {
         if (damage <= 0) return
 
         if (source is Hunger ||
@@ -131,16 +142,18 @@ class Intoxication : Buff() {
             source is Blob ||
 //            source is Countdown ||
             source is RacingTheDeath
-        ) return
+        ) {
+            return
+        }
 
         var power = 1f * damage / target.HT
 
-        //losing 25% hp equal to 1 base toxic level
+        // losing 25% hp equal to 1 base toxic level
         power *= 4 * BASE
 
         power /= 1.5.toFloat()
 
-        //extra intoxication equal to received damage
+        // extra intoxication equal to received damage
         power += damage.toFloat()
 
         extend(power)
@@ -174,7 +187,7 @@ class Intoxication : Buff() {
         override fun act(): Boolean {
             if (Dungeon.level.map[target.pos] == Terrain.WATER) {
                 affect(target, Intoxication::class.java).extend(
-                    Random.NormalIntRange(5, 10).toFloat()
+                    Random.NormalIntRange(5, 10).toFloat(),
                 )
             }
             spend(TICK)
@@ -194,10 +207,11 @@ class Intoxication : Buff() {
 
         fun applyMajor(targ: Char) {
             when (Random.Int(6)) {
-                0 -> affect(targ, Corrosion::class.java).set(
-                    Random.NormalFloat(3f, 5f),
-                    targ.HT / 20
-                )
+                0 ->
+                    affect(targ, Corrosion::class.java).set(
+                        Random.NormalFloat(3f, 5f),
+                        targ.HT / 20,
+                    )
 
                 1 -> prolong(targ, Paralysis::class.java, Random.NormalFloat(7f, 13f))
                 2 -> prolong(targ, Weakness::class.java, Random.NormalFloat(15f, 25f))
@@ -212,8 +226,12 @@ class Intoxication : Buff() {
                 0 -> affect(targ, Vulnerable::class.java, Random.Float(9f, 15f))
                 1 -> prolong(targ, Blindness::class.java, Random.Float(9f, 15f))
                 2 -> affect(targ, Chill::class.java, Random.NormalFloat(7f, 13f))
-                3 -> if (Modifier.RACING_THE_DEATH.active()) applyMinor(targ)
-                else prolong(targ, Vertigo::class.java, Random.NormalFloat(7f, 13f))
+                3 ->
+                    if (Modifier.RACING_THE_DEATH.active()) {
+                        applyMinor(targ)
+                    } else {
+                        prolong(targ, Vertigo::class.java, Random.NormalFloat(7f, 13f))
+                    }
 
                 4 -> prolong(targ, Cripple::class.java, Random.NormalFloat(7f, 13f))
                 5 -> prolong(targ, Roots::class.java, Random.NormalFloat(7f, 13f))
