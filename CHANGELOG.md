@@ -6,6 +6,23 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Exotic Goods modifier
+- Over the Edge modifier
+- Multiclassing modifier
+- Drought modifier
+
+### Changed
+
+- Clarified that Golden Colossus disables master thieves' armband
+
+### Fixed
+
+- Original items being lost with some mimics modifiers
+- Cursed not applying to items held by mimics or statues
+- Toxic Gas Room not having any gas with Thunderstruck
+
 ## [0.11.0]
 
 > Released on 2025-03-19
