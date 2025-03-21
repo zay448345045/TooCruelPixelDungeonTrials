@@ -171,6 +171,7 @@ class TrialGroup() : Bundlable {
                 false
             }
         if (other.version <= version) return changed
+        version = other.version
         trials = other.trials
         if (name.isBlank()) {
             name = other.name
