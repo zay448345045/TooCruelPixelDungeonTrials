@@ -24,103 +24,104 @@ enum class Modifier(
     val id: Int,
     locString: String? = null,
     val dependencies: Array<Int> = emptyArray(),
+    tags: Array<Tag>,
 ) {
     // Vanilla challenges
-    CHAMPION_ENEMIES(7, locString = "champion_enemies"),
-    COLOSSEUM(32, dependencies = arrayOf(CHAMPION_ENEMIES.id)),
-    STRONGER_BOSSES(8, locString = "stronger_bosses"),
-    ON_DIET(0, locString = "no_food"),
-    FAITH_ARMOR(1, locString = "no_armor"),
-    PHARMACOPHOBIA(2, locString = "no_healing"),
-    BARREN_LAND(3, locString = "no_herbalism") {
+    CHAMPION_ENEMIES(7, locString = "champion_enemies", tags = arrayOf(Tag.ENEMY, Tag.COMBAT, Tag.NEW_STUFF)),
+    COLOSSEUM(32, dependencies = arrayOf(CHAMPION_ENEMIES.id), tags = arrayOf(Tag.EXTREME, Tag.ENEMY)),
+    STRONGER_BOSSES(8, locString = "stronger_bosses", tags = arrayOf(Tag.COMBAT)),
+    ON_DIET(0, locString = "no_food", tags = arrayOf(Tag.HERO, Tag.ITEM)),
+    FAITH_ARMOR(1, locString = "no_armor", tags = arrayOf(Tag.HERO, Tag.ITEM)),
+    PHARMACOPHOBIA(2, locString = "no_healing", tags = arrayOf(Tag.HERO, Tag.ITEM)),
+    BARREN_LAND(3, locString = "no_herbalism", tags = arrayOf(Tag.ITEM, Tag.LEVEL)) {
         override fun _isItemBlocked(item: Item): Boolean = item is Dewdrop
     },
-    DROUGHT(71) {
+    DROUGHT(71, tags = arrayOf(Tag.LEVEL)) {
         override fun _nGrassMult(): Float = 0.5f
 
         override fun _nWaterMult(): Float = 0.5f
     },
-    SWARM_INTELLIGENCE(4, locString = "swarm_intelligence"),
-    DARKNESS(5, locString = "darkness"),
-    FORBIDDEN_RUNES(6, locString = "no_scrolls"),
+    SWARM_INTELLIGENCE(4, locString = "swarm_intelligence", tags = arrayOf(Tag.ENEMY)),
+    DARKNESS(5, locString = "darkness", tags = arrayOf(Tag.LEVEL, Tag.HERO)),
+    FORBIDDEN_RUNES(6, locString = "no_scrolls", tags = arrayOf(Tag.ITEM)),
 
     // Custom content!
-    CARDINAL_DISABILITY(9),
-    RACING_THE_DEATH(10),
-    HORDE(11) {
+    CARDINAL_DISABILITY(9, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
+    RACING_THE_DEATH(10, tags = arrayOf(Tag.EXTREME, Tag.HERO, Tag.NEW_STUFF)),
+    HORDE(11, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)) {
         override fun _nMobsMult(): Float = 2f
     },
-    INVASION(12),
-    GREAT_MIGRATION(13, dependencies = arrayOf(INVASION.id)),
-    MUTAGEN(14),
-    EVOLUTION(15, dependencies = arrayOf(MUTAGEN.id)) {
+    INVASION(12, tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.LEVEL)),
+    GREAT_MIGRATION(13, dependencies = arrayOf(INVASION.id), tags = arrayOf(Tag.EXTREME, Tag.ENEMY, Tag.LEVEL)),
+    MUTAGEN(14, tags = arrayOf(Tag.ENEMY, Tag.RNG)),
+    EVOLUTION(15, dependencies = arrayOf(MUTAGEN.id), tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.RNG)) {
         override fun _isItemBlocked(item: Item): Boolean = item is RatSkull
     },
-    ROTTEN_LUCK(16),
-    ARROWHEAD(17),
-    THUNDERSTRUCK(18, dependencies = arrayOf(ARROWHEAD.id)),
-    SECOND_TRY(19),
-    CRYSTAL_SHELTER(20),
-    CRYSTAL_BLOOD(21),
-    DEEPER_DANGER(22),
-    HEAD_START(23),
-    PRISON_EXPRESS(66, dependencies = arrayOf(HEAD_START.id)),
-    BLINDNESS(24),
-    BLOODBAG(25),
-    REVENGE(26),
-    REVENGE_FURY(27),
-    PREPARED_ENEMIES(28),
-    REPEATER(29),
-    DUPLICATOR(30),
-    EXTREME_CAUTION(31) {
+    ROTTEN_LUCK(16, tags = arrayOf(Tag.HERO, Tag.RNG, Tag.COMBAT)),
+    ARROWHEAD(17, tags = arrayOf(Tag.HERO, Tag.COMBAT, Tag.NEW_STUFF)),
+    THUNDERSTRUCK(18, dependencies = arrayOf(ARROWHEAD.id), tags = arrayOf(Tag.SILLY, Tag.HERO, Tag.COMBAT)),
+    SECOND_TRY(19, tags = arrayOf(Tag.LEVEL, Tag.ITEM, Tag.RNG)),
+    CRYSTAL_SHELTER(20, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
+    CRYSTAL_BLOOD(21, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
+    DEEPER_DANGER(22, tags = arrayOf(Tag.COMBAT, Tag.TRAPS)),
+    HEAD_START(23, tags = arrayOf(Tag.POSITIVE, Tag.DUNGEON)),
+    PRISON_EXPRESS(66, dependencies = arrayOf(HEAD_START.id), tags = arrayOf(Tag.DUNGEON)),
+    BLINDNESS(24, tags = arrayOf(Tag.HARD, Tag.HERO)),
+    BLOODBAG(25, tags = arrayOf(Tag.HERO, Tag.COMBAT, Tag.NEW_STUFF)),
+    REVENGE(26, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
+    REVENGE_FURY(27, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
+    PREPARED_ENEMIES(28, tags = arrayOf(Tag.ENEMY, Tag.COMBAT)),
+    REPEATER(29, tags = arrayOf(Tag.TRAPS)),
+    DUPLICATOR(30, tags = arrayOf(Tag.TRAPS)),
+    EXTREME_CAUTION(31, tags = arrayOf(Tag.LEVEL, Tag.TRAPS)) {
         override fun _nTrapsMult(): Float = 4f
     },
-    PATRON_SAINTS(33),
-    PERSISTENT_SAINTS(34, dependencies = arrayOf(PATRON_SAINTS.id)),
-    HOLY_WATER(35),
-    INTOXICATION(36),
-    PLAGUE(37),
-    TOXIC_WATER(38),
-    CERTAINTY_OF_STEEL(39) {
+    PATRON_SAINTS(33, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
+    PERSISTENT_SAINTS(34, dependencies = arrayOf(PATRON_SAINTS.id), tags = arrayOf(Tag.HARD, Tag.COMBAT)),
+    HOLY_WATER(35, tags = arrayOf(Tag.COMBAT, Tag.LEVEL, Tag.NEW_STUFF)),
+    INTOXICATION(36, tags = arrayOf(Tag.HERO, Tag.ITEM, Tag.NEW_STUFF)),
+    PLAGUE(37, tags = arrayOf(Tag.HERO, Tag.ITEM, Tag.NEW_STUFF)),
+    TOXIC_WATER(38, tags = arrayOf(Tag.HERO, Tag.LEVEL, Tag.NEW_STUFF)),
+    CERTAINTY_OF_STEEL(39, tags = arrayOf(Tag.HERO, Tag.NEW_STUFF)) {
         override fun _isItemBlocked(item: Item): Boolean = item is SaltCube
     },
-    GOLDEN_COLOSSUS(52, dependencies = arrayOf(CERTAINTY_OF_STEEL.id)) {
+    GOLDEN_COLOSSUS(52, dependencies = arrayOf(CERTAINTY_OF_STEEL.id), tags = arrayOf(Tag.POSITIVE, Tag.HERO, Tag.NEW_STUFF)) {
         override fun _isItemBlocked(item: Item): Boolean = item is MasterThievesArmband
     },
-    PARADOX_LEVELGEN(40),
-    RETIERED(41),
-    UNTIERED(42, dependencies = arrayOf(RETIERED.id)),
-    UNSTABLE_ACCESSORIES(43),
-    PANDEMONIUM(44),
-    BARRIER_BREAKER(45),
-    MOLES(46),
-    LOFT(47),
-    BULKY_FRAME(48),
-    SHROUDING_PRESENCE(56, dependencies = arrayOf(BULKY_FRAME.id)),
-    SLIDING(49) {
+    PARADOX_LEVELGEN(40, tags = arrayOf(Tag.LEVEL, Tag.SILLY)),
+    RETIERED(41, tags = arrayOf(Tag.ITEM)),
+    UNTIERED(42, dependencies = arrayOf(RETIERED.id), tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.RNG)),
+    UNSTABLE_ACCESSORIES(43, tags = arrayOf(Tag.SILLY, Tag.ITEM, Tag.RNG, Tag.HERO)),
+    PANDEMONIUM(44, tags = arrayOf(Tag.SILLY, Tag.ITEM, Tag.RNG, Tag.HERO)),
+    BARRIER_BREAKER(45, tags = arrayOf(Tag.HERO)),
+    MOLES(46, tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.LEVEL, Tag.NEW_STUFF)),
+    LOFT(47, tags = arrayOf(Tag.SILLY, Tag.LEVEL)),
+    BULKY_FRAME(48, tags = arrayOf(Tag.ENEMY, Tag.HERO)),
+    SHROUDING_PRESENCE(56, dependencies = arrayOf(BULKY_FRAME.id), tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.HERO)),
+    SLIDING(49, tags = arrayOf(Tag.SILLY, Tag.LEVEL, Tag.HERO, Tag.NEW_STUFF)) {
         override fun _nWaterMult(): Float = 1.5f
     },
-    INSOMNIA(50),
-    LOOT_PARADISE(51),
-    BOMBERMOB(53),
-    CONSTELLATION(62, dependencies = arrayOf(BOMBERMOB.id)),
-    CURSED(54),
-    CURSE_MAGNET(55),
-    EXTERMINATION(57),
-    POSTPAID_LOOT(58, dependencies = arrayOf(EXTERMINATION.id)),
-    MIMICS(59),
-    MIMICS_ALL(60, dependencies = arrayOf(MIMICS.id)),
-    MIMICS_GRIND(61, dependencies = arrayOf(MIMICS.id)),
-    REPOPULATION(63),
-    RESURRECTION(64, dependencies = arrayOf(REPOPULATION.id)),
-    FRACTAL_HIVE(65, dependencies = arrayOf(REPOPULATION.id)),
-    CROOKED_DIE(67),
-    CRUMBLED_STAIRS(68),
-    MULTICLASSING(69),
-    EXOTIC_GOODS(70) {
+    INSOMNIA(50, tags = arrayOf(Tag.HARD, Tag.HERO, Tag.ENEMY)),
+    LOOT_PARADISE(51, tags = arrayOf(Tag.POSITIVE, Tag.ITEM, Tag.LEVEL)),
+    BOMBERMOB(53, tags = arrayOf(Tag.SILLY, Tag.ENEMY, Tag.NEW_STUFF)),
+    CONSTELLATION(62, dependencies = arrayOf(BOMBERMOB.id), tags = arrayOf(Tag.SILLY, Tag.ENEMY, Tag.NEW_STUFF)),
+    CURSED(54, tags = arrayOf(Tag.ITEM)),
+    CURSE_MAGNET(55, tags = arrayOf(Tag.HARD, Tag.HERO, Tag.ITEM)),
+    EXTERMINATION(57, tags = arrayOf(Tag.DUNGEON, Tag.ENEMY, Tag.NEW_STUFF)),
+    POSTPAID_LOOT(58, dependencies = arrayOf(EXTERMINATION.id), tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.DUNGEON, Tag.NEW_STUFF)),
+    MIMICS(59, tags = arrayOf(Tag.ITEM, Tag.LEVEL)),
+    MIMICS_ALL(60, dependencies = arrayOf(MIMICS.id), tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.LEVEL)),
+    MIMICS_GRIND(61, dependencies = arrayOf(MIMICS.id), tags = arrayOf(Tag.POSITIVE, Tag.ITEM, Tag.LEVEL)),
+    REPOPULATION(63, tags = arrayOf(Tag.ENEMY)),
+    RESURRECTION(64, dependencies = arrayOf(REPOPULATION.id), tags = arrayOf(Tag.HARD, Tag.ENEMY)),
+    FRACTAL_HIVE(65, dependencies = arrayOf(REPOPULATION.id), tags = arrayOf(Tag.EXTREME, Tag.ENEMY)),
+    CROOKED_DIE(67, tags = arrayOf(Tag.SILLY, Tag.RNG)),
+    CRUMBLED_STAIRS(68, tags = arrayOf(Tag.DUNGEON)),
+    MULTICLASSING(69, tags = arrayOf(Tag.SILLY, Tag.HERO)),
+    EXOTIC_GOODS(70, tags = arrayOf(Tag.POSITIVE, Tag.ITEM)) {
         override fun _isItemBlocked(item: Item): Boolean = item is ExoticCrystals
     },
-    OVER_THE_EDGE(72),
+    OVER_THE_EDGE(72, tags = arrayOf(Tag.LEVEL, Tag.SILLY)),
     ;
 
     companion object {
@@ -155,6 +156,7 @@ enum class Modifier(
             }
     }
 
+    val tags = Tag.process(dependencies.isNotEmpty(), tags)
     private val localizationKey = locString ?: name.lowercase()
     private val localizationClass =
         if (locString == null) Modifier::class.java else Challenges::class.java
@@ -180,6 +182,59 @@ enum class Modifier(
 
     fun active() = Dungeon.tcpdData?.modifiers?.isEnabled(this) ?: false
 }
+
+enum class Tag(
+    val hidden: Boolean = false,
+) {
+    POSITIVE,
+    HARD,
+    EXTREME,
+    ENEMY,
+    HERO,
+    COMBAT,
+    LEVEL,
+    ITEM,
+    NEW_STUFF,
+    RNG,
+    DUNGEON,
+    TRAPS,
+    SILLY,
+
+    // not assigned directly, but assumed if no other difficulty tag is present
+    NORMAL,
+
+    ADDON(hidden = true),
+    ;
+
+    fun localizedName() {
+        Messages.get(ModifierTag::class.java, name.lowercase())
+    }
+
+    fun isDifficulty() = this == SILLY || this == POSITIVE || this == NORMAL || this == HARD || this == EXTREME
+
+    companion object {
+        internal fun process(
+            hasDependencies: Boolean,
+            tags: Array<Tag>,
+        ): List<Tag> {
+            tags.sortBy { it.ordinal }
+            val isNormal = tags.none { it.isDifficulty() }
+
+            if (!isNormal && !hasDependencies) {
+                return tags.toList()
+            }
+
+            return tags
+                .toMutableList()
+                .apply {
+                    if (isNormal) add(NORMAL)
+                    if (hasDependencies) add(ADDON)
+                }
+        }
+    }
+}
+
+private class ModifierTag
 
 class Modifiers() : Bundlable {
     private val modifiers: BooleanArray = BooleanArray(Modifier.entries.size)
