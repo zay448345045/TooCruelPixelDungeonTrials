@@ -1,7 +1,11 @@
 {
   "name": "Extreme",
-  "version": 1,
+  "version": 2,
   "trials": [
+    {
+      "name": "The Broken Shield",
+      "modifiers": "6MTMFXtDhU7"
+    },
     {
       "name": "Crystal Crusher",
       "modifiers": "Cs3Ub"

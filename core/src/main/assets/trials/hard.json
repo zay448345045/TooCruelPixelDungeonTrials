@@ -1,7 +1,15 @@
 {
   "name": "Hard",
-  "version": 1,
+  "version": 2,
   "trials": [
+    {
+      "name": "Mimic Madness",
+      "modifiers": "11112V29M"
+    },
+    {
+      "name": "Stargazing",
+      "modifiers": "1111112MB5"
+    },
     {
       "name": "Apocalypse",
       "modifiers": "umXeryykK"
