@@ -77,6 +77,13 @@ interface OnDeathEffectBuff {
     fun onDeathProc()
 }
 
+interface OnDamageTakenBuff {
+    fun onDamageTaken(
+        damage: Int,
+        src: Any?,
+    )
+}
+
 interface MindVisionExtBuff {
     fun revealRadius(): Int
 

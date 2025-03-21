@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
+import com.shatteredpixel.shatteredpixeldungeon.actors.Actor
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding
@@ -18,7 +19,9 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Speck
 import com.shatteredpixel.shatteredpixeldungeon.effects.particles.SmokeParticle
 import com.shatteredpixel.shatteredpixeldungeon.items.bombs.Bomb
 import com.shatteredpixel.shatteredpixeldungeon.items.wands.CursedWand
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.WandOfBlastWave
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
+import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
@@ -40,6 +43,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSpeed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvulnerabilityBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ModifiersAppliedTracker
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnDamageTakenBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnDeathEffectBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
@@ -153,7 +157,51 @@ fun Char.damageTakenHook(
             }
         }
     } else if (this is Hero && Modifier.PLAGUE.active() && dmg > 0) {
-        Buff.affect(this, Intoxication::class.java).processHit(dmg + shielded, src)
+        Buff.affect(this, Intoxication::class.java)
+    }
+    if (dmg > 0) {
+        if (Modifier.WHIPLASH.active()) {
+            if (fieldOfView == null) fieldOfView = BooleanArray(Dungeon.level.length())
+            Dungeon.level.updateFieldOfView(this, fieldOfView)
+
+            val charPositions = mutableListOf<Int>()
+            for (char in Actor.chars()) {
+                if (fieldOfView[char.pos] && char != this && Dungeon.level.distance(pos, char.pos) > 1) {
+                    charPositions.add(char.pos)
+                }
+            }
+
+            val targetCell =
+                if (charPositions.isNotEmpty()) {
+                    Random.element(charPositions)
+                } else {
+                    val solid = Dungeon.level.solid
+                    val validCells = mutableListOf<Int>()
+                    for (i in 0 until Dungeon.level.length()) {
+                        if (fieldOfView[i] && solid[i]) {
+                            validCells.add(i)
+                        }
+                    }
+                    Random.element(validCells)
+                }
+
+            if (targetCell != null) {
+                val trajectory =
+                    Ballistica(
+                        pos,
+                        targetCell,
+                        Ballistica.MAGIC_BOLT,
+                    )
+
+                WandOfBlastWave.throwChar(this, trajectory, 999, true, false, src)
+            }
+        }
+
+        for (buff in buffs()) {
+            if (buff is OnDamageTakenBuff) {
+                buff.onDamageTaken(dmg, src)
+            }
+        }
     }
 }
 
