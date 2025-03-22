@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+## [0.13.0]
+
+> Released on 2025-03-22
+
 ### Added
 
 - Whiplash modifier
@@ -319,7 +323,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.12.0...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.13.0...HEAD
+[0.13.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.12.0...TCPD-0.13.0
 [0.12.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.11.0...TCPD-0.12.0
 [0.11.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.10.0...TCPD-0.11.0
 [0.10.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.9.1...TCPD-0.10.0
