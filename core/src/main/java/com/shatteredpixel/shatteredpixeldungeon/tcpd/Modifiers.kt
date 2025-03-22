@@ -122,8 +122,9 @@ enum class Modifier(
         override fun _isItemBlocked(item: Item): Boolean = item is ExoticCrystals
     },
     OVER_THE_EDGE(72, tags = arrayOf(Tag.LEVEL, Tag.SILLY)),
-    WHIPLASH(73, tags = arrayOf(Tag.SILLY)),
-    CASUAL_APPROACH(74, tags = arrayOf(Tag.ENEMY)),
+    WHIPLASH(73, tags = arrayOf(Tag.SILLY, Tag.COMBAT)),
+    CASUAL_APPROACH(74, tags = arrayOf(Tag.HERO, Tag.COMBAT)),
+    LET_THEM_REST(75, tags = arrayOf(Tag.POSITIVE, Tag.HERO)),
     ;
 
     companion object {

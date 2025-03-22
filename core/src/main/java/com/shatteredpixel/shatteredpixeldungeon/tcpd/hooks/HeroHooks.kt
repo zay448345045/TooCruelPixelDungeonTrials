@@ -26,6 +26,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ControlledRand
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.GoldenBody
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvisibleResting
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PrisonExpress
@@ -73,6 +74,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.CASUAL_APPROACH.active()) {
         Buff.affect(this, CasualApproach::class.java)
+    }
+    if (Modifier.LET_THEM_REST.active()) {
+        Buff.affect(this, InvisibleResting::class.java)
     }
 }
 
