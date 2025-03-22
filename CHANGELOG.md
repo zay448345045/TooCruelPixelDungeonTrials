@@ -6,6 +6,18 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Whiplash modifier
+- Let Them Rest modifier
+- More trials
+- Casual Approach modifier
+
+### Fixed
+
+- Trial groups not updating their version on load
+- Missing error message localization for trials
+
 ## [0.12.0]
 
 > Released on 2025-03-21
