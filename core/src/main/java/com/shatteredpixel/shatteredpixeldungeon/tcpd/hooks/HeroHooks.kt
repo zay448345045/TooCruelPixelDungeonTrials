@@ -21,6 +21,7 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CasualApproach
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ControlledRandomness
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.GoldenBody
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
@@ -69,6 +70,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.PRISON_EXPRESS.active()) {
         Buff.affect(this, PrisonExpress::class.java)
+    }
+    if (Modifier.CASUAL_APPROACH.active()) {
+        Buff.affect(this, CasualApproach::class.java)
     }
 }
 

@@ -123,6 +123,7 @@ enum class Modifier(
     },
     OVER_THE_EDGE(72, tags = arrayOf(Tag.LEVEL, Tag.SILLY)),
     WHIPLASH(73, tags = arrayOf(Tag.SILLY)),
+    CASUAL_APPROACH(74, tags = arrayOf(Tag.ENEMY)),
     ;
 
     companion object {
