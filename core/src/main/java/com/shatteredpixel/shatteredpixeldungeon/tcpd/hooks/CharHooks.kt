@@ -49,6 +49,8 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.getFov
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.updateFov
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.PathFinder
@@ -113,8 +115,7 @@ fun Char.beforeDamageShieldedHook(
         return -1
     }
     if ((Modifier.REVENGE.active() || Modifier.REVENGE_FURY.active()) && HP + shielding() <= dmg && this is Mob) {
-        if (fieldOfView == null) fieldOfView = BooleanArray(Dungeon.level.length())
-        Dungeon.level.updateFieldOfView(this, fieldOfView)
+        updateFov(Dungeon.level)
     }
     return dmg
 }
@@ -144,9 +145,10 @@ fun Char.damageTakenHook(
         if (!isAlive() && alignment != Char.Alignment.ALLY) {
             val fury = Modifier.REVENGE_FURY.active()
             val rage = Modifier.REVENGE.active()
+            val fov = getFov(Dungeon.level)
             if ((HP < 0 && rage) || fury) {
                 for (mob in Dungeon.level.mobs) {
-                    if (!fieldOfView[mob.pos]) continue
+                    if (!fov[mob.pos]) continue
                     if (mob is NPC) continue
                     if (mob === this) continue
                     if (mob.alignment == Char.Alignment.ALLY) continue
@@ -161,12 +163,11 @@ fun Char.damageTakenHook(
     }
     if (dmg > 0) {
         if (Modifier.WHIPLASH.active()) {
-            if (fieldOfView == null) fieldOfView = BooleanArray(Dungeon.level.length())
-            Dungeon.level.updateFieldOfView(this, fieldOfView)
+            val fov = this.updateFov(Dungeon.level)
 
             val charPositions = mutableListOf<Int>()
             for (char in Actor.chars()) {
-                if (fieldOfView[char.pos] && char != this && Dungeon.level.distance(pos, char.pos) > 1) {
+                if (fov[char.pos] && char != this && Dungeon.level.distance(pos, char.pos) > 1) {
                     charPositions.add(char.pos)
                 }
             }
@@ -178,7 +179,7 @@ fun Char.damageTakenHook(
                     val solid = Dungeon.level.solid
                     val validCells = mutableListOf<Int>()
                     for (i in 0 until Dungeon.level.length()) {
-                        if (fieldOfView[i] && solid[i]) {
+                        if (fov[i] && solid[i]) {
                             validCells.add(i)
                         }
                     }
@@ -441,7 +442,7 @@ fun Char.moveHook(
 }
 
 /**
- * Same as [Char.damageTakenHook], but called only for mobs.
+ * Called for when mob takes damage, before all other damage calculations
  */
 fun Mob.mobIncomingDamageHook(
     dmg: Int,

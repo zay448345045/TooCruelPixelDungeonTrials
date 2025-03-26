@@ -13,6 +13,7 @@ import com.shatteredpixel.shatteredpixeldungeon.effects.Pushing
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.Ballistica
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.updateFov
 import com.shatteredpixel.shatteredpixeldungeon.tiles.DungeonTilemap
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.Random
@@ -24,12 +25,7 @@ class CasualApproach : Buff() {
     }
 
     override fun act(): Boolean {
-        if (target.fieldOfView == null) {
-            target.fieldOfView = BooleanArray(Dungeon.level.length())
-        }
-        val fov = target.fieldOfView
-
-        Dungeon.level.updateFieldOfView(target, fov)
+        val fov = target.updateFov(Dungeon.level)
 
         val validMobs = mutableListOf<Mob>()
 
