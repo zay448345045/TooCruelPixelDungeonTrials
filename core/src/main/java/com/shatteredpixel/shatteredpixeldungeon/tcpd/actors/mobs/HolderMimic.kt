@@ -221,7 +221,7 @@ class StoredHeapData : Bundlable {
 
                 do {
                     heap = level.drop(items.removeAt(0), pos)
-                } while (heap.isNoneOr { it.isEmpty })
+                } while (heap.isNoneOr { it.isEmpty } && items.isNotEmpty())
 
                 if (heap != null) {
                     if (items.isNotEmpty()) {
