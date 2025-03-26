@@ -415,8 +415,10 @@ private fun Level.applySecondTry() {
         h = heaps.get(c)
         if (h.type == Heap.Type.FOR_SALE) continue
         for (item in ArrayList<Item>(h.items)) {
+            // Only remove regular keys, not subclasses
+            if (item.javaClass == Key::class.java) h.items.remove(item)
             if (item.unique) continue
-            if (!guaranteedItems.contains(item) || item is Key) h.items.remove(item)
+            if (!guaranteedItems.contains(item)) h.items.remove(item)
             if (item is PotionOfLiquidFlame && barricades-- > 0) h.items.remove(item)
         }
         if (h.items.isEmpty()) {
