@@ -35,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.services.news.NewsImpl;
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.UpdateImpl;
 import com.shatteredpixel.shatteredpixeldungeon.services.updates.Updates;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers;
+import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
 import com.watabou.noosa.Game;
 import com.watabou.utils.FileUtils;
 import com.watabou.utils.Point;
@@ -103,17 +104,20 @@ public class DesktopLauncher {
 									exceptionMsg,
 							"ok", "error", false);
 				} else {
-					String modifiers;
+					String modifiers = "<null>";
+					String seed = "<null>";
 					if(Dungeon.tcpdData != null) {
 						modifiers = Dungeon.tcpdData.getModifiers().serializeToString();
-					} else {
-						modifiers = "<null>";
+					}
+					if(Dungeon.seed > 0) {
+						seed = DungeonSeed.convertToCode(Dungeon.seed);
 					}
 					TinyFileDialogs.tinyfd_messageBox(title + " Has Crashed!",
 							title + " has run into an error it cannot recover from and has crashed, sorry about that!\n\n" +
 									"If you could, please send this error message to the developer (@juh9870 on Discord or Telegram):\n\n" +
 									"version: " + Game.version + "\n" +
-									"modifiers" + modifiers + "\n" +
+									"modifiers: " + modifiers + "\n" +
+									"seed: " + seed + "\n" +
 									exceptionMsg,
 							"ok", "error", false);
 				}
