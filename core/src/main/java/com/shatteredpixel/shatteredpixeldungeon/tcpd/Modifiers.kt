@@ -125,6 +125,8 @@ enum class Modifier(
     WHIPLASH(73, tags = arrayOf(Tag.SILLY, Tag.COMBAT)),
     CASUAL_APPROACH(74, tags = arrayOf(Tag.HERO, Tag.COMBAT)),
     LET_THEM_REST(75, tags = arrayOf(Tag.POSITIVE, Tag.HERO)),
+    ETERNAL_FLAMES(76, tags = arrayOf(Tag.ENEMY, Tag.ENVIRONMENT)),
+    DOMAIN_OF_HELL(77, tags = arrayOf(Tag.HARD, Tag.LEVEL, Tag.ENVIRONMENT)),
     ;
 
     companion object {
@@ -196,6 +198,7 @@ enum class Tag(
     HERO,
     COMBAT,
     LEVEL,
+    ENVIRONMENT,
     ITEM,
     NEW_STUFF,
     RNG,

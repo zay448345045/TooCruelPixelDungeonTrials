@@ -4,6 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.armor.Armor
+import com.shatteredpixel.shatteredpixeldungeon.items.wands.Wand
 import com.shatteredpixel.shatteredpixeldungeon.items.weapon.Weapon
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 
@@ -38,5 +39,9 @@ fun Item.curseIfAllowed(known: Boolean) {
         if (a.glyph == null) {
             a.inscribe(Armor.Glyph.randomCurse())
         }
+    }
+    if (this is Wand) {
+        this.cursed = true
+        this.cursedKnown = this.cursedKnown || known
     }
 }

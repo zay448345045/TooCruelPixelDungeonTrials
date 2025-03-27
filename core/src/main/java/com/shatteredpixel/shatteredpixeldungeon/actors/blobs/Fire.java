@@ -32,6 +32,7 @@ import com.shatteredpixel.shatteredpixeldungeon.items.Heap;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.plants.Plant;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 
 public class Fire extends Blob {
 
@@ -45,6 +46,8 @@ public class Fire extends Blob {
 		Freezing freeze = (Freezing)Dungeon.level.blobs.get( Freezing.class );
 
 		boolean observe = false;
+
+		boolean eternal = Modifier.ETERNAL_FLAMES.active();
 
 		for (int i = area.left-1; i <= area.right; i++) {
 			for (int j = area.top-1; j <= area.bottom; j++) {
@@ -69,7 +72,7 @@ public class Fire extends Blob {
 
 					}
 
-				} else if (freeze == null || freeze.volume <= 0 || freeze.cur[cell] <= 0) {
+				} else if (freeze == null || freeze.volume <= 0 || freeze.cur[cell] <= 0 && !eternal) {
 
 					if (flamable[cell]
 							&& (cur[cell-1] > 0
@@ -86,6 +89,8 @@ public class Fire extends Blob {
 				} else {
 					fire = 0;
 				}
+
+				if(eternal && cur[cell] > 0) fire = 4;
 
 				volume += (off[cell] = fire);
 			}

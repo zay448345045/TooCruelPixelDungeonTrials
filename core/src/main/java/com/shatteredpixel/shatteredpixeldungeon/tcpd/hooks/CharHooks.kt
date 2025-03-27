@@ -7,6 +7,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Bleeding
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
+import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Burning
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SuperNovaTracker
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
@@ -47,6 +48,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnDamageTakenB
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnDeathEffectBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TargetedResistance
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.getFov
@@ -491,6 +493,9 @@ fun Mob.applyModifiers() {
     }
     if (Modifier.INSOMNIA.active()) {
         Buff.affect(this, InsomniaSpeed::class.java)
+    }
+    if (Modifier.DOMAIN_OF_HELL.active()) {
+        Buff.affect(this, TargetedResistance::class.java).set(Burning::class.java to 0.9f)
     }
 }
 

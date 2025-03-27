@@ -145,6 +145,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MobSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ResistanceBuff;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.CharHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TargetHealthIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
@@ -1298,11 +1299,14 @@ public abstract class Char extends Actor {
 		for (Property p : properties()){
 			resists.addAll(p.resistances());
 		}
+		float result = 1f;
 		for (Buff b : buffs()){
 			resists.addAll(b.resistances());
+			if(b instanceof ResistanceBuff) {
+				result *= ((ResistanceBuff) b).resist(effect);
+			}
 		}
-		
-		float result = 1f;
+
 		for (Class c : resists){
 			if (c.isAssignableFrom(effect)){
 				result *= 0.5f;

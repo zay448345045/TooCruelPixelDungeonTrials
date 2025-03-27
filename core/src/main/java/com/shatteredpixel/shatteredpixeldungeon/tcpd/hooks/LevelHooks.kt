@@ -40,6 +40,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyDomainOfHell
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyOverTheEdge
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
 import com.watabou.noosa.Game
@@ -102,6 +103,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.OVER_THE_EDGE.active()) {
         applyOverTheEdge()
+    }
+    if (Modifier.DOMAIN_OF_HELL.active()) {
+        applyDomainOfHell()
     }
 }
 
@@ -387,11 +391,11 @@ private fun RegularLevel.placeItemPos(roomType: Class<out Room?>? = null): Int {
     val cell: Int =
         if (roomType != null) randomDropCellExposedHook(roomType) else randomDropCellExposedHook()
 
-    furrowDroppedItemPos(cell)
+    furrowCell(cell)
     return cell
 }
 
-private fun Level.furrowDroppedItemPos(cell: Int) {
+fun Level.furrowCell(cell: Int) {
     if (map[cell] == Terrain.HIGH_GRASS || map[cell] == Terrain.FURROWED_GRASS) {
         map[cell] = Terrain.GRASS
         losBlocking[cell] = false
@@ -480,7 +484,7 @@ private fun Level.applyLootParadise() {
         val cell = validCells[i]
 
         val toDrop = Generator.random() ?: continue
-        furrowDroppedItemPos(cell)
+        furrowCell(cell)
         drop(toDrop, cell)
     }
 }

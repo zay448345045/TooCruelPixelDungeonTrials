@@ -89,3 +89,7 @@ interface MindVisionExtBuff {
 
     fun maxHeroDistance(): Int = -1
 }
+
+interface ResistanceBuff {
+    fun resist(effect: Class<*>): Float
+}

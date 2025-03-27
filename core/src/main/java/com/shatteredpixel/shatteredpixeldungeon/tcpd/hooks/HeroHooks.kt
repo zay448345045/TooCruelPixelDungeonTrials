@@ -21,9 +21,11 @@ import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BrimstoneNeutralizer
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CasualApproach
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ControlledRandomness
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.GoldenBody
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.GrassIgniter
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvisibleResting
@@ -77,6 +79,12 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.LET_THEM_REST.active()) {
         Buff.affect(this, InvisibleResting::class.java)
+    }
+    if (Modifier.DOMAIN_OF_HELL.active()) {
+        Buff.affect(this, BrimstoneNeutralizer::class.java)
+    }
+    if (Modifier.DOMAIN_OF_HELL.active()) {
+        Buff.affect(this, GrassIgniter::class.java)
     }
 }
 
