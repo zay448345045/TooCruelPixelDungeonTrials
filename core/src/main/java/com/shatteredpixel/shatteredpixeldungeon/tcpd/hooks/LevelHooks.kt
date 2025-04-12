@@ -353,21 +353,6 @@ fun Level.placeDuplicatorTraps(trap: Class<out Trap>) {
 
 fun Level.randomDuplicatorTrapCells(): List<Int> {
     val cells: MutableList<Int> = mutableListOf()
-    if (this is RegularLevel) {
-        val rooms = rooms()
-        if (rooms.isNotEmpty()) {
-            for (room in rooms()) {
-                for (point in room.trapPlaceablePoints()) {
-                    val pos = pointToCell(point)
-                    if (isValidDuplicatorTrapPos(pos)) {
-                        cells.add(pos)
-                    }
-                }
-            }
-            return cells
-        }
-    }
-
     for (i in 0 until length()) {
         if (isValidDuplicatorTrapPos(i)) {
             cells.add(i)
