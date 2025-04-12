@@ -145,6 +145,10 @@ public class Statue extends Mob {
 	public void beckon( int cell ) {
 		// Do nothing
 	}
+
+	public void forceBeckon( int cell ) {
+		super.beckon(cell);
+	}
 	
 	@Override
 	public void die( Object cause ) {

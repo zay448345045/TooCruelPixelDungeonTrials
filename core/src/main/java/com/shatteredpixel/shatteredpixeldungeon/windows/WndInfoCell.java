@@ -23,7 +23,9 @@ package com.shatteredpixel.shatteredpixeldungeon.windows;
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon;
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob;
+import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel;
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain;
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene;
 import com.shatteredpixel.shatteredpixeldungeon.tiles.CustomTilemap;
@@ -164,6 +166,14 @@ public class WndInfoCell extends Window {
 			desc += "\nheroFOV: " + Dungeon.level.heroFOV[cell];
 			desc += "\ndiscoverable: " + Dungeon.level.discoverable[cell];
 			desc += "\nmapped: " + Dungeon.level.mapped[cell];
+			if(Dungeon.level instanceof RegularLevel) {
+				Room room = ((RegularLevel)Dungeon.level).room(cell);
+				if(room != null) {
+					desc += "\nroom: " + room.getClass().getSimpleName();
+				} else {
+					desc += "\nroom: null";
+				}
+			}
 		}
 		
 		info.text( desc.length() == 0 ? Messages.get(this, "nothing") : desc );

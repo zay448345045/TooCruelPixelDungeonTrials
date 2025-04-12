@@ -7,8 +7,8 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.Blob
 import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
-import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
@@ -26,6 +26,8 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.Room
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.connection.ConnectionRoom
+import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.entrance.EntranceRoom
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap
 import com.shatteredpixel.shatteredpixeldungeon.mechanics.ShadowCaster
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
@@ -37,8 +39,11 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.PatronSaintsBl
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.findBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvulnerableUntilSeen
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.HolderMimic
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.transformItems
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyDomainOfHell
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyOverTheEdge
@@ -97,6 +102,12 @@ fun Level.postCreateHook() {
     }
     if (Modifier.EXTERMINATION.active()) {
         applyExtermination()
+    }
+    if (Modifier.JACK_IN_A_BOX.active()) {
+        applyJackInTheBox()
+    }
+    if (Modifier.BOXED.active()) {
+        applyBoxed()
     }
     if (Modifier.THUNDERSTRUCK.active()) {
         applyThunderstruck()
@@ -475,8 +486,9 @@ private fun Level.applyLootParadise() {
 }
 
 fun Level.applyCursed() {
-    applyToEveryItem {
+    transformItems {
         it.curseIfAllowed(true)
+        it
     }
 }
 
@@ -518,6 +530,77 @@ fun Level.applyMimics() {
     }
 }
 
+fun Level.applyJackInTheBox() {
+    for (mob in mobs.toTypedArray()) {
+        if (mob.properties().contains(Char.Property.BOSS) ||
+            mob
+                .properties()
+                .contains(Char.Property.MINIBOSS) ||
+            mob
+                .properties()
+                .contains(Char.Property.IMMOVABLE)
+        ) {
+            continue
+        }
+
+        val heapData = StoredHeapData.fromMob(mob)
+        val newMob = HolderMimic()
+        newMob.setLevel(Dungeon.scalingDepth())
+        newMob.pos = mob.pos
+        Buff.affect(newMob, HoldingHeap::class.java).set(heapData)
+
+        if (mob.buff(Exterminating::class.java) != null) {
+            Buff.affect(newMob, Exterminating::class.java)
+        }
+
+        mobs.remove(mob)
+        mobs.add(newMob)
+    }
+}
+
+fun Level.applyBoxed() {
+    if (Dungeon.bossLevel()) return
+    if (this !is RegularLevel) return
+
+    for (room in rooms()) {
+        if (room is EntranceRoom || room is ConnectionRoom) continue
+        for (x in (room.left)..(room.right)) {
+            cellLoop@for (y in (room.top)..(room.bottom)) {
+                if (x > room.left + 1 && x < room.right - 1 && y > room.top + 1 && y < room.bottom - 1) {
+                    continue
+                }
+
+                val i = x + y * width()
+                if (solid[i] || pit[i] || !(passable[i] || avoid[i])) continue
+                var nearSolid = false
+                for (j in PathFinder.CIRCLE8.indices) {
+                    val o = PathFinder.CIRCLE8[j]
+                    val cell = i + o
+
+                    if (solid[cell]) nearSolid = true
+
+                    if (j % 2 == 1 && isDoor(cell)) {
+                        continue@cellLoop
+                    }
+                }
+
+                if (!nearSolid) continue
+                if (findMob(i) != null) continue
+
+                val mob = createMob()
+                val heap = StoredHeapData.fromMob(mob)
+
+                val mimic = HolderMimic()
+                Buff.affect(mimic, HoldingHeap::class.java).set(heap)
+                Buff.affect(mimic, InvulnerableUntilSeen::class.java)
+                mimic.setLevel(Dungeon.scalingDepth())
+                mimic.pos = i
+                mobs.add(mimic)
+            }
+        }
+    }
+}
+
 fun Level.applyExtermination() {
     // Don't exterminate on boss levels
     if (Dungeon.bossLevel()) return
@@ -550,35 +633,33 @@ fun Level.applyExtermination() {
     }
 }
 
-inline fun Level.applyToEveryItem(crossinline cb: (Item) -> Unit) {
+fun Level.isDoor(cell: Int): Boolean {
+    val terrain = map[cell]
+    return terrain == Terrain.DOOR ||
+        terrain == Terrain.OPEN_DOOR ||
+        terrain == Terrain.LOCKED_DOOR ||
+        terrain == Terrain.SECRET_DOOR ||
+        terrain == Terrain.CRYSTAL_DOOR
+}
+
+inline fun Level.transformItems(crossinline cb: (Item) -> Item?) {
     for (h in heaps) {
-        for (item in h.value.items) {
-            cb(item)
-        }
+        h.value.transformItems(cb)
     }
 
-    val boxedCb = { item: Item -> cb(item) }
-
+    val replacementMobs = mutableMapOf<Mob, Mob>()
     for (mob in mobs) {
-        if (mob is Mimic) {
-            mob.items?.let {
-                for (item in it) {
-                    cb(item)
-                }
-            }
-        }
-        if (mob is Statue) {
-            mob.weapon?.let { cb(it) }
-
-            if (mob is ArmoredStatue) {
-                mob.armor?.let { cb(it) }
-            }
-        }
-        for (heap in mob.buffs(HoldingHeap::class.java)) {
-            heap.applyToEveryItem(boxedCb)
+        mob.transformItems(cb)?.let {
+            replacementMobs[mob] = it
         }
     }
-    findBlob<ExterminationItemLock>()?.applyToEveryItem(boxedCb)
+
+    for (mob in replacementMobs) {
+        mobs.remove(mob.key)
+        mobs.add(mob.value)
+    }
+
+    findBlob<ExterminationItemLock>()?.transformItems { cb(it) }
 }
 
 fun Level.destroyWall(cell: Int) {

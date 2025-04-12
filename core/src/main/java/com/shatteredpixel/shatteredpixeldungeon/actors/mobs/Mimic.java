@@ -244,6 +244,10 @@ public class Mimic extends Mob {
 		// Do nothing
 	}
 
+	public void forceBeckon( int cell ) {
+		super.beckon(cell);
+	}
+
 	@Override
 	public int attackSkill( Char target ) {
 		if (target != null && alignment == Alignment.NEUTRAL && target.invisible <= 0){

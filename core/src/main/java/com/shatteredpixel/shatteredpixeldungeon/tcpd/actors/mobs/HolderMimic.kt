@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isNoneOr
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isSomeAnd
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.filterMapInPlace
 import com.watabou.utils.BArray
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
@@ -57,6 +58,55 @@ class HolderStatue : Statue() {
     }
 }
 
+inline fun Mob.transformItems(crossinline cb: (Item) -> Item?): Mob? {
+    var transformIntoMimic = false
+    val extraItems = mutableListOf<Item>()
+    if (this is Mimic) {
+        this.items?.filterMapInPlace(cb)
+    } else if (this is Statue) {
+        val newWeapon =
+            this.weapon?.let { wep ->
+                cb(wep)
+            }
+
+        val newArmor = (this as? ArmoredStatue)?.armor?.let { armor -> cb(armor) }
+
+        if (newWeapon is MeleeWeapon && this is ArmoredStatue && newArmor is Armor) {
+            this.weapon = newWeapon
+            this.armor = newArmor
+        } else if (newWeapon is MeleeWeapon) {
+            this.weapon = newWeapon
+        } else {
+            transformIntoMimic = true
+            newWeapon?.let { extraItems.add(it) }
+            newArmor?.let { extraItems.add(it) }
+        }
+    }
+
+    for (heap in this.buffs(HoldingHeap::class.java)) {
+        heap.transformItems { cb(it) }
+    }
+    if (extraItems.isNotEmpty()) {
+        Buff
+            .affect(this, HoldingHeap::class.java)
+            .set(StoredHeapData().also { it.items.addAll(extraItems) })
+    }
+
+    if (!transformIntoMimic) return null
+
+    val newMob = HolderMimic()
+
+    newMob.setLevel(Dungeon.scalingDepth())
+
+    for (heap in this.buffs(HoldingHeap::class.java)) {
+        if (heap.heap().isNothing()) continue
+        Buff.affect(newMob, HoldingHeap::class.java).set(heap.heap().copy())
+    }
+
+    newMob.pos = this.pos
+    return newMob
+}
+
 class StoredHeapData : Bundlable {
     var isLevelGenStatue = false
     var extraMimicLoot = false
@@ -71,19 +121,29 @@ class StoredHeapData : Bundlable {
     fun restoreAtPos(
         level: Level,
         pos: Int,
+        ignoredChars: List<Char> = emptyList(),
     ) {
         var pos = pos
         val heapConflict =
             heapType.isSomeAnd { ty -> ty != Heap.Type.HEAP } || level.heaps[pos].isSomeAnd { it.type != Heap.Type.HEAP }
 
         val avoidMobs = holderClass != null
+
+        fun isCharBlocking(c: Char?): Boolean =
+            c != null &&
+                !ignoredChars.contains(c) &&
+                (
+
+                    avoidMobs ||
+                        c
+                            .properties()
+                            .contains(Char.Property.IMMOVABLE) ||
+                        c is NPC
+                )
+
+        val blockingChar = Actor.findChar(pos)
         if ((holderClass == null && heapConflict) ||
-            (
-                avoidMobs &&
-                    Actor.findChar(
-                        pos,
-                    ) != null
-            )
+            isCharBlocking(blockingChar)
         ) {
             PathFinder.buildDistanceMap(
                 pos,
@@ -91,22 +151,14 @@ class StoredHeapData : Bundlable {
             )
             val validCells = HashSet<Int>()
             var minDistance = Int.MAX_VALUE
-            var m: Mob
+            var c: Char
             for (i in PathFinder.distance.indices) {
                 val dist = PathFinder.distance[i]
                 if (dist <= minDistance) {
                     if (level.heaps.containsKey(i) || !(level.passable[i] || level.avoid[i]) || level.pit[i]) {
                         continue
                     }
-                    if ((level.findMob(i).also { m = it }) != null &&
-                        (
-                            avoidMobs ||
-                                m
-                                    .properties()
-                                    .contains(Char.Property.IMMOVABLE) ||
-                                m is NPC
-                        )
-                    ) {
+                    if ((Actor.findChar(i).also { c = it }) != null && isCharBlocking(c)) {
                         continue
                     }
                     if (dist == minDistance) {
@@ -201,11 +253,14 @@ class StoredHeapData : Bundlable {
             if (mob is Mimic && heapType.isNoneOr { it == Heap.Type.HEAP }) {
                 if (mob.items == null) mob.items = ArrayList()
                 if (extraMimicLoot) {
-                    holderBuff.heap.items.addAll(mob.items)
+                    holderBuff.heap().items.addAll(mob.items)
                 }
                 mob.items.clear()
             }
             mob.pos = pos
+            if (mob !is Mimic && mob !is Statue) {
+                mob.state = mob.HUNTING
+            }
             if (level == Dungeon.level) {
                 GameScene.add(mob)
             } else {
@@ -252,6 +307,12 @@ class StoredHeapData : Bundlable {
         clear()
     }
 
+    fun isNothing(): Boolean =
+        holderClass == null &&
+            heapType == null &&
+            items.isEmpty() &&
+            childHeaps.isEmpty()
+
     /**
      * Indicates whether this heap is a plain container, i.e. it has no holder
      * class, no child heaps, and the container type doesn't have special
@@ -273,13 +334,11 @@ class StoredHeapData : Bundlable {
         return data
     }
 
-    fun applyToEveryItem(cb: (Item) -> Unit) {
-        for (item in items) {
-            cb(item)
-        }
+    fun transformItems(cb: (Item) -> Item?) {
+        items.filterMapInPlace(cb)
 
         for (childHeap in childHeaps) {
-            childHeap.applyToEveryItem(cb)
+            childHeap.transformItems(cb)
         }
     }
 
@@ -408,7 +467,7 @@ class StoredHeapData : Bundlable {
             fromMobRaw(mimic).also {
                 if (mimic.items != null) it.items.addAll(mimic.items)
                 for (buff in mimic.buffs(HoldingHeap::class.java)) {
-                    it.childHeaps.add(buff.heap)
+                    buff.heap().mergeInto(it)
                     buff.detach()
                 }
             }
@@ -426,7 +485,7 @@ class StoredHeapData : Bundlable {
                 it.holderClass = mob.javaClass
 
                 for (buff in mob.buffs(HoldingHeap::class.java)) {
-                    it.childHeaps.add(buff.heap)
+                    buff.heap().mergeInto(it)
                     buff.detach()
                 }
             }

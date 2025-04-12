@@ -12,6 +12,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Levitation
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.SuperNovaTracker
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.DwarfKing.KingDamager
+import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mimic
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Snake
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
@@ -38,6 +39,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CrystalShield
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageAmplificationBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChangeBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefenseProcBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DelayedBeckon
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.FullSceneUpdater
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSlowdown
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSpeed
@@ -496,6 +498,9 @@ fun Mob.applyModifiers() {
     }
     if (Modifier.DOMAIN_OF_HELL.active()) {
         Buff.affect(this, TargetedResistance::class.java).set(Burning::class.java to 0.9f)
+    }
+    if (Modifier.JACK_IN_A_BOX.active() && this is Mimic) {
+        Buff.affect(this, DelayedBeckon::class.java)
     }
 }
 

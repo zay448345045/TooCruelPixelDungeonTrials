@@ -71,9 +71,9 @@ class ExterminationItemLock :
         return true
     }
 
-    fun applyToEveryItem(cb: (Item) -> Unit) {
+    fun transformItems(cb: (Item) -> Item?) {
         for (heap in originalHeaps.values) {
-            heap.applyToEveryItem(cb)
+            heap.transformItems(cb)
         }
     }
 

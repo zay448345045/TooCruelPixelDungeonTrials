@@ -11,22 +11,23 @@ import com.watabou.utils.Bundle
 class HoldingHeap :
     Buff(),
     OnDeathEffectBuff {
-    lateinit var heap: StoredHeapData
+    private var heap: StoredHeapData = StoredHeapData()
 
     fun set(heap: StoredHeapData): HoldingHeap {
-        if (!this::heap.isInitialized) {
+        if (this.heap.isNothing()) {
             this.heap = heap
         } else {
             heap.mergeInto(this.heap)
         }
+
         return this
     }
 
-    fun applyToEveryItem(cb: (Item) -> Unit) {
-        if (this::heap.isInitialized) {
-            heap.applyToEveryItem(cb)
-        }
+    fun transformItems(cb: (Item) -> Item?) {
+        heap.transformItems { cb(it) }
     }
+
+    fun heap(): StoredHeapData = heap
 
     override fun icon(): Int {
         if (heap.items.isEmpty() && heap.childHeaps.isEmpty()) return BuffIndicator.NONE
@@ -45,7 +46,7 @@ class HoldingHeap :
         }
 
     override fun onDeathProc() {
-        heap.restoreAtPos(Dungeon.level, target.pos)
+        heap.restoreAtPos(Dungeon.level, target.pos, listOf(target))
     }
 
     override fun storeInBundle(bundle: Bundle) {

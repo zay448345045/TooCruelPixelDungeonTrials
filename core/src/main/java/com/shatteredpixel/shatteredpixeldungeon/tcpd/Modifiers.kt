@@ -112,6 +112,8 @@ enum class Modifier(
     MIMICS(59, tags = arrayOf(Tag.ITEM, Tag.LEVEL)),
     MIMICS_ALL(60, dependencies = arrayOf(MIMICS.id), tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.LEVEL)),
     MIMICS_GRIND(61, dependencies = arrayOf(MIMICS.id), tags = arrayOf(Tag.POSITIVE, Tag.ITEM, Tag.LEVEL)),
+    JACK_IN_A_BOX(78, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
+    BOXED(79, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
     REPOPULATION(63, tags = arrayOf(Tag.ENEMY)),
     RESURRECTION(64, dependencies = arrayOf(REPOPULATION.id), tags = arrayOf(Tag.HARD, Tag.ENEMY)),
     FRACTAL_HIVE(65, dependencies = arrayOf(REPOPULATION.id), tags = arrayOf(Tag.EXTREME, Tag.ENEMY)),
