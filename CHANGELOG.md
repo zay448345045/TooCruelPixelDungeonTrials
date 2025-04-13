@@ -6,6 +6,24 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Eternal Flames modifier
+- Domain of Hell modifier
+- In Your Face modifier
+- Crowd Diversity modifier
+- Jack-in-the-box modifier
+- Boxed modifier
+- Recursive Hierarchy modifier
+
+### Fixed
+
+- A range of crashes related to field of view when taking damage
+- Moles not destroying bookshelves
+- Duplicator crash with some rooms
+- Crash when mimic dies over the chasm
+- Keys not getting removed with Second Try
+
 ## [0.13.0]
 
 > Released on 2025-03-22
