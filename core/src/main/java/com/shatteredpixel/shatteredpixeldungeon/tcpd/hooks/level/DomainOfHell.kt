@@ -9,9 +9,11 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.findBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isNoneOr
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 
+@LevelCreationHooks
 fun Level.applyDomainOfHell() {
     getTransition(LevelTransition.Type.REGULAR_ENTRANCE)?.let { transition ->
         val entrance = transition.cell()
