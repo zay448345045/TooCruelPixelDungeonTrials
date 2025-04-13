@@ -134,6 +134,7 @@ class Resizing :
     override fun fx(on: Boolean) {
         if (on) {
             target.sprite.scale.set(GameMath.gate(MIN_THRESHOLD, factor, MAX_THRESHOLD))
+            target.sprite.place(target.pos)
         } else {
             target.sprite.scale.set(1f)
         }
