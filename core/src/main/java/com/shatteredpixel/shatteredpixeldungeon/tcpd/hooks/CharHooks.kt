@@ -57,6 +57,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TargetedResistance
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.getFov
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.updateFov
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
@@ -92,10 +93,8 @@ fun Char.recalculateHT() {
 
 fun Char.htMultiplier(): Float {
     var mult = 1f
-    for (buff in buffs()) {
-        if (buff is HtBoostBuff) {
-            mult *= buff.htMultiplier()
-        }
+    forEachBuff<HtBoostBuff> {
+        mult *= it.htMultiplier()
     }
 
     return mult
@@ -130,10 +129,8 @@ fun Char.damageMultiplierHook(
         return damage
     }
     var damage = damage
-    for (buff in buffs()) {
-        if (buff is DamageAmplificationBuff) {
-            damage *= buff.damageMultiplier(src)
-        }
+    forEachBuff<DamageAmplificationBuff> {
+        damage *= it.damageMultiplier(src)
     }
     return damage
 }
@@ -240,10 +237,8 @@ fun Char.damageTakenHook(
             }
         }
 
-        for (buff in buffs()) {
-            if (buff is OnDamageTakenBuff) {
-                buff.onDamageTaken(dmg, src)
-            }
+        forEachBuff<OnDamageTakenBuff> {
+            it.onDamageTaken(dmg, src)
         }
     }
 }
@@ -255,11 +250,9 @@ fun Char.drRollBonus(): Int {
 
     var bonus = 0
     var mult = 1f
-    for (buff in buffs()) {
-        if (buff is DrRollBuff) {
-            bonus += buff.drRollBonus()
-            mult *= buff.verySketchyDrMultBonus()
-        }
+    forEachBuff<DrRollBuff> {
+        bonus += it.drRollBonus()
+        mult *= it.verySketchyDrMultBonus()
     }
 
     var baseRoll = 0
@@ -278,10 +271,8 @@ fun Char.drRollBonus(): Int {
  */
 fun Char.attackFlatDamageBonusHook(enemy: Char): Float {
     var bonus = 0f
-    for (buff in buffs()) {
-        if (buff is AttackAmplificationBuff) {
-            bonus += buff.flatAttackBonus()
-        }
+    forEachBuff<AttackAmplificationBuff> {
+        bonus += it.flatAttackBonus()
     }
     return bonus
 }
@@ -291,10 +282,8 @@ fun Char.attackFlatDamageBonusHook(enemy: Char): Float {
  */
 fun Char.attackDamageMultiplierHook(enemy: Char): Float {
     var mult = 1f
-    for (buff in buffs()) {
-        if (buff is AttackAmplificationBuff) {
-            mult *= buff.attackMultiplier()
-        }
+    forEachBuff<AttackAmplificationBuff> {
+        mult *= it.attackMultiplier()
     }
     return mult
 }
@@ -307,10 +296,8 @@ fun Char.attackDamageBeforeApplyHook(
     damage: Float,
 ): Float {
     var bonus = 0f
-    for (buff in buffs()) {
-        if (buff is AttackAmplificationBuff) {
-            bonus += buff.flatAttackBonusPostMult()
-        }
+    forEachBuff<AttackAmplificationBuff> {
+        bonus += it.flatAttackBonusPostMult()
     }
     return damage + bonus
 }
@@ -319,10 +306,8 @@ fun Char.attackProcHook(
     enemy: Char,
     damage: Int,
 ) {
-    for (buff in buffs()) {
-        if (buff is AttackProcBuff) {
-            buff.attackProc(enemy, damage)
-        }
+    forEachBuff<AttackProcBuff> {
+        it.attackProc(enemy, damage)
     }
 }
 
@@ -330,10 +315,8 @@ fun Char.defenseProcHook(
     enemy: Char,
     damage: Int,
 ) {
-    for (buff in buffs()) {
-        if (buff is DefenseProcBuff) {
-            buff.defenseProc(enemy, damage)
-        }
+    forEachBuff<DefenseProcBuff> {
+        it.defenseProc(enemy, damage)
     }
 }
 
@@ -341,10 +324,8 @@ fun Char.defenseProcHook(
  * Hook which is called when char dies.
  */
 fun Char.deathHook(src: Any?) {
-    for (buff in buffs()) {
-        if (buff is OnDeathEffectBuff) {
-            buff.onDeathProc()
-        }
+    forEachBuff<OnDeathEffectBuff> {
+        it.onDeathProc()
     }
     if (this is Mob) {
         if (Modifier.BOMBERMOB.active()) {
@@ -404,12 +385,8 @@ fun Mob.attackDelayHook(delay: Float): Float {
 }
 
 fun Char.isInvulnerableHook(effect: Class<*>): Boolean {
-    for (buff in buffs()) {
-        if (buff is InvulnerabilityBuff) {
-            if (buff.isInvulnerable(effect)) {
-                return true
-            }
-        }
+    forEachBuff<InvulnerabilityBuff> {
+        if (it.isInvulnerable(effect)) return true
     }
     return false
 }
