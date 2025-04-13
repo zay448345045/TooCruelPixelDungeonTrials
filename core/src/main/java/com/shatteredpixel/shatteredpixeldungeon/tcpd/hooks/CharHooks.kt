@@ -252,9 +252,6 @@ private var drRollChecksRunning = false
 
 fun Char.drRollBonus(): Int {
     if (drRollChecksRunning) return 0
-    drRollChecksRunning = true
-    val baseRoll = drRoll()
-    drRollChecksRunning = false
 
     var bonus = 0
     var mult = 1f
@@ -264,6 +261,15 @@ fun Char.drRollBonus(): Int {
             mult *= buff.verySketchyDrMultBonus()
         }
     }
+
+    var baseRoll = 0
+
+    if (mult != 1f) {
+        drRollChecksRunning = true
+        baseRoll = drRoll()
+        drRollChecksRunning = false
+    }
+
     return bonus + (baseRoll * (mult - 1)).roundToInt()
 }
 
