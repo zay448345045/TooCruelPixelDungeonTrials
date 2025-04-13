@@ -69,6 +69,10 @@ interface AttackProcBuff {
     )
 }
 
+interface AttackSpeedBuff {
+    fun attackSpeedFactor(): Float
+}
+
 interface InvulnerabilityBuff {
     fun isInvulnerable(effect: Class<out Any>): Boolean
 }
@@ -84,10 +88,27 @@ interface OnDamageTakenBuff {
     )
 }
 
+interface PersistHeapNestingBuff {
+    fun applyNestingEffect(target: Char)
+}
+
 interface MindVisionExtBuff {
     fun revealRadius(): Int
 
     fun maxHeroDistance(): Int = -1
+}
+
+interface DrRollBuff {
+    fun drRollBonus(): Int
+
+    /**
+     * Very hacky approach, only use when absolutely necessary
+     */
+    fun verySketchyDrMultBonus(): Float = 1f
+}
+
+interface HtBoostBuff {
+    fun htMultiplier(): Float
 }
 
 interface ResistanceBuff {

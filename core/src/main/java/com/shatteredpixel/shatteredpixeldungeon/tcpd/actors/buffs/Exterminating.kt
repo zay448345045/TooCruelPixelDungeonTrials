@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs
 
 import com.shatteredpixel.shatteredpixeldungeon.Assets
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
+import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.FlavourBuff
 import com.shatteredpixel.shatteredpixeldungeon.actors.hero.Hero
@@ -17,7 +18,9 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.effects.ExterminationIndica
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
 
-class Exterminating : Buff() {
+class Exterminating :
+    Buff(),
+    PersistHeapNestingBuff {
     var sprite: ExterminationIndicator? = null
 
     override fun fx(on: Boolean) {
@@ -50,6 +53,10 @@ class Exterminating : Buff() {
         }
 
         override fun revealRadius(): Int = 1
+    }
+
+    override fun applyNestingEffect(target: Char) {
+        affect(target, Exterminating::class.java)
     }
 
     companion object {

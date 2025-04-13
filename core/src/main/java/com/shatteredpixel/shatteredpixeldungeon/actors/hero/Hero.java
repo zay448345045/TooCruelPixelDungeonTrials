@@ -255,6 +255,7 @@ public class Hero extends Char {
 		
 		HT = 20 + 5*(lvl-1) + HTBoost;
 		float multiplier = RingOfMight.HTMultiplier(this);
+		multiplier *= CharHooksKt.htMultiplier(this);
 		HT = Math.round(multiplier * HT);
 		
 		if (buff(ElixirOfMight.HTBoost.class) != null){

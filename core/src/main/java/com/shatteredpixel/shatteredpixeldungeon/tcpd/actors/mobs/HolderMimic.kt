@@ -22,6 +22,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.MimicSprite
 import com.shatteredpixel.shatteredpixeldungeon.sprites.StatueSprite
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PersistHeapNestingBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isNoneOr
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isSomeAnd
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.filterMapInPlace
@@ -122,6 +123,7 @@ class StoredHeapData : Bundlable {
         level: Level,
         pos: Int,
         ignoredChars: List<Char> = emptyList(),
+        spawnedCharEffects: List<PersistHeapNestingBuff> = emptyList(),
     ) {
         var pos = pos
         val heapConflict =
@@ -258,6 +260,9 @@ class StoredHeapData : Bundlable {
                 mob.items.clear()
             }
             mob.pos = pos
+            for (ef in spawnedCharEffects) {
+                ef.applyNestingEffect(mob)
+            }
             if (mob !is Mimic && mob !is Statue) {
                 mob.state = mob.HUNTING
             }
@@ -268,7 +273,7 @@ class StoredHeapData : Bundlable {
             }
         } else {
             for (childHeap in childHeaps) {
-                childHeap.restoreAtPos(level, pos)
+                childHeap.restoreAtPos(level, pos, ignoredChars, spawnedCharEffects)
             }
             childHeaps.clear()
             if (items.isNotEmpty()) {

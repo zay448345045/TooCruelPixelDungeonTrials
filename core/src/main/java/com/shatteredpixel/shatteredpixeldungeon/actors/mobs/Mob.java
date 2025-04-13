@@ -137,12 +137,12 @@ public abstract class Mob extends Char {
 	protected boolean firstAdded = true;
 	protected void onAdd(){
 		if (firstAdded) {
-			CharHooksKt.mobFirstAddedHook(this);
-
 			//modify health for ascension challenge if applicable, only on first add
 			float percent = HP / (float) HT;
 			HT = Math.round(HT * AscensionChallenge.statModifier(this));
 			HP = Math.round(HT * percent);
+
+			CharHooksKt.mobFirstAddedHook(this);
 			firstAdded = false;
 		}
 	}
@@ -684,6 +684,7 @@ public abstract class Mob extends Char {
 	public float attackDelay() {
 		float delay = 1f;
 		if ( buff(Adrenaline.class) != null) delay /= 1.5f;
+		delay = CharHooksKt.attackDelayHook(this, delay);
 		return delay;
 	}
 	

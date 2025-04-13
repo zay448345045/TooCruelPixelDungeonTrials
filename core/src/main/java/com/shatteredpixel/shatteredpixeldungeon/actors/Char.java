@@ -147,6 +147,7 @@ import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MobSprite;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ResistanceBuff;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.CharHooksKt;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.chars.ExtraCharData;
 import com.shatteredpixel.shatteredpixeldungeon.ui.TargetHealthIndicator;
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog;
 import com.watabou.noosa.audio.Sample;
@@ -177,6 +178,8 @@ public abstract class Char extends Actor {
 	public boolean rooted		= false;
 	public boolean flying		= false;
 	public int invisible		= 0;
+
+	public ExtraCharData tcpdData = new ExtraCharData();
 
 	//these are relative to the hero
 	public enum Alignment{
@@ -337,7 +340,9 @@ public abstract class Char extends Actor {
 	public void storeInBundle( Bundle bundle ) {
 		
 		super.storeInBundle( bundle );
-		
+
+		bundle.put( ExtraCharData.TAG, tcpdData );
+
 		bundle.put( POS, pos );
 		bundle.put( TAG_HP, HP );
 		bundle.put( TAG_HT, HT );
@@ -348,6 +353,8 @@ public abstract class Char extends Actor {
 	public void restoreFromBundle( Bundle bundle ) {
 		
 		super.restoreFromBundle( bundle );
+
+		tcpdData = (ExtraCharData) bundle.get( ExtraCharData.TAG );
 		
 		pos = bundle.getInt( POS );
 		HP = bundle.getInt( TAG_HP );
@@ -691,6 +698,8 @@ public abstract class Char extends Actor {
 
 		dr += Random.NormalIntRange( 0 , Barkskin.currentLevel(this) );
 
+		dr += CharHooksKt.drRollBonus(this);
+
 		return dr;
 	}
 	
@@ -789,6 +798,8 @@ public abstract class Char extends Actor {
 		if (!needsShieldUpdate){
 			return cachedShield;
 		}
+
+		CharHooksKt.recalculateHT(this);
 		
 		cachedShield = 0;
 		for (ShieldBuff s : buffs(ShieldBuff.class)){

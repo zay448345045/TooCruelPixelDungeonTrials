@@ -27,8 +27,16 @@ enum class Modifier(
     tags: Array<Tag>,
 ) {
     // Vanilla challenges
-    CHAMPION_ENEMIES(7, locString = "champion_enemies", tags = arrayOf(Tag.ENEMY, Tag.COMBAT, Tag.NEW_STUFF)),
-    COLOSSEUM(32, dependencies = arrayOf(CHAMPION_ENEMIES.id), tags = arrayOf(Tag.EXTREME, Tag.ENEMY)),
+    CHAMPION_ENEMIES(
+        7,
+        locString = "champion_enemies",
+        tags = arrayOf(Tag.ENEMY, Tag.COMBAT, Tag.NEW_STUFF),
+    ),
+    COLOSSEUM(
+        32,
+        dependencies = arrayOf(CHAMPION_ENEMIES.id),
+        tags = arrayOf(Tag.EXTREME, Tag.ENEMY),
+    ),
     STRONGER_BOSSES(8, locString = "stronger_bosses", tags = arrayOf(Tag.COMBAT)),
     ON_DIET(0, locString = "no_food", tags = arrayOf(Tag.HERO, Tag.ITEM)),
     FAITH_ARMOR(1, locString = "no_armor", tags = arrayOf(Tag.HERO, Tag.ITEM)),
@@ -52,14 +60,26 @@ enum class Modifier(
         override fun _nMobsMult(): Float = 2f
     },
     INVASION(12, tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.LEVEL)),
-    GREAT_MIGRATION(13, dependencies = arrayOf(INVASION.id), tags = arrayOf(Tag.EXTREME, Tag.ENEMY, Tag.LEVEL)),
+    GREAT_MIGRATION(
+        13,
+        dependencies = arrayOf(INVASION.id),
+        tags = arrayOf(Tag.EXTREME, Tag.ENEMY, Tag.LEVEL),
+    ),
     MUTAGEN(14, tags = arrayOf(Tag.ENEMY, Tag.RNG)),
-    EVOLUTION(15, dependencies = arrayOf(MUTAGEN.id), tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.RNG)) {
+    EVOLUTION(
+        15,
+        dependencies = arrayOf(MUTAGEN.id),
+        tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.RNG),
+    ) {
         override fun _isItemBlocked(item: Item): Boolean = item is RatSkull
     },
     ROTTEN_LUCK(16, tags = arrayOf(Tag.HERO, Tag.RNG, Tag.COMBAT)),
     ARROWHEAD(17, tags = arrayOf(Tag.HERO, Tag.COMBAT, Tag.NEW_STUFF)),
-    THUNDERSTRUCK(18, dependencies = arrayOf(ARROWHEAD.id), tags = arrayOf(Tag.SILLY, Tag.HERO, Tag.COMBAT)),
+    THUNDERSTRUCK(
+        18,
+        dependencies = arrayOf(ARROWHEAD.id),
+        tags = arrayOf(Tag.SILLY, Tag.HERO, Tag.COMBAT),
+    ),
     SECOND_TRY(19, tags = arrayOf(Tag.LEVEL, Tag.ITEM, Tag.RNG)),
     CRYSTAL_SHELTER(20, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
     CRYSTAL_BLOOD(21, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
@@ -77,7 +97,11 @@ enum class Modifier(
         override fun _nTrapsMult(): Float = 4f
     },
     PATRON_SAINTS(33, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
-    PERSISTENT_SAINTS(34, dependencies = arrayOf(PATRON_SAINTS.id), tags = arrayOf(Tag.HARD, Tag.COMBAT)),
+    PERSISTENT_SAINTS(
+        34,
+        dependencies = arrayOf(PATRON_SAINTS.id),
+        tags = arrayOf(Tag.HARD, Tag.COMBAT),
+    ),
     HOLY_WATER(35, tags = arrayOf(Tag.COMBAT, Tag.LEVEL, Tag.NEW_STUFF)),
     INTOXICATION(36, tags = arrayOf(Tag.HERO, Tag.ITEM, Tag.NEW_STUFF)),
     PLAGUE(37, tags = arrayOf(Tag.HERO, Tag.ITEM, Tag.NEW_STUFF)),
@@ -85,7 +109,11 @@ enum class Modifier(
     CERTAINTY_OF_STEEL(39, tags = arrayOf(Tag.HERO, Tag.NEW_STUFF)) {
         override fun _isItemBlocked(item: Item): Boolean = item is SaltCube
     },
-    GOLDEN_COLOSSUS(52, dependencies = arrayOf(CERTAINTY_OF_STEEL.id), tags = arrayOf(Tag.POSITIVE, Tag.HERO, Tag.NEW_STUFF)) {
+    GOLDEN_COLOSSUS(
+        52,
+        dependencies = arrayOf(CERTAINTY_OF_STEEL.id),
+        tags = arrayOf(Tag.POSITIVE, Tag.HERO, Tag.NEW_STUFF),
+    ) {
         override fun _isItemBlocked(item: Item): Boolean = item is MasterThievesArmband
     },
     PARADOX_LEVELGEN(40, tags = arrayOf(Tag.LEVEL, Tag.SILLY)),
@@ -97,26 +125,51 @@ enum class Modifier(
     MOLES(46, tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.LEVEL, Tag.NEW_STUFF)),
     LOFT(47, tags = arrayOf(Tag.SILLY, Tag.LEVEL)),
     BULKY_FRAME(48, tags = arrayOf(Tag.ENEMY, Tag.HERO)),
-    SHROUDING_PRESENCE(56, dependencies = arrayOf(BULKY_FRAME.id), tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.HERO)),
+    SHROUDING_PRESENCE(
+        56,
+        dependencies = arrayOf(BULKY_FRAME.id),
+        tags = arrayOf(Tag.HARD, Tag.ENEMY, Tag.HERO),
+    ),
     SLIDING(49, tags = arrayOf(Tag.SILLY, Tag.LEVEL, Tag.HERO, Tag.NEW_STUFF)) {
         override fun _nWaterMult(): Float = 1.5f
     },
     INSOMNIA(50, tags = arrayOf(Tag.HARD, Tag.HERO, Tag.ENEMY)),
     LOOT_PARADISE(51, tags = arrayOf(Tag.POSITIVE, Tag.ITEM, Tag.LEVEL)),
     BOMBERMOB(53, tags = arrayOf(Tag.SILLY, Tag.ENEMY, Tag.NEW_STUFF)),
-    CONSTELLATION(62, dependencies = arrayOf(BOMBERMOB.id), tags = arrayOf(Tag.SILLY, Tag.ENEMY, Tag.NEW_STUFF)),
+    CONSTELLATION(
+        62,
+        dependencies = arrayOf(BOMBERMOB.id),
+        tags = arrayOf(Tag.SILLY, Tag.ENEMY, Tag.NEW_STUFF),
+    ),
     CURSED(54, tags = arrayOf(Tag.ITEM)),
     CURSE_MAGNET(55, tags = arrayOf(Tag.HARD, Tag.HERO, Tag.ITEM)),
     EXTERMINATION(57, tags = arrayOf(Tag.DUNGEON, Tag.ENEMY, Tag.NEW_STUFF)),
-    POSTPAID_LOOT(58, dependencies = arrayOf(EXTERMINATION.id), tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.DUNGEON, Tag.NEW_STUFF)),
+    POSTPAID_LOOT(
+        58,
+        dependencies = arrayOf(EXTERMINATION.id),
+        tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.DUNGEON, Tag.NEW_STUFF),
+    ),
     MIMICS(59, tags = arrayOf(Tag.ITEM, Tag.LEVEL)),
-    MIMICS_ALL(60, dependencies = arrayOf(MIMICS.id), tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.LEVEL)),
-    MIMICS_GRIND(61, dependencies = arrayOf(MIMICS.id), tags = arrayOf(Tag.POSITIVE, Tag.ITEM, Tag.LEVEL)),
+    MIMICS_ALL(
+        60,
+        dependencies = arrayOf(MIMICS.id),
+        tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.LEVEL),
+    ),
+    MIMICS_GRIND(
+        61,
+        dependencies = arrayOf(MIMICS.id),
+        tags = arrayOf(Tag.POSITIVE, Tag.ITEM, Tag.LEVEL),
+    ),
     JACK_IN_A_BOX(78, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
+    RECURSIVE_HIERARCHY(80, dependencies = arrayOf(JACK_IN_A_BOX.id), tags = arrayOf(Tag.ENEMY)),
     BOXED(79, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
     REPOPULATION(63, tags = arrayOf(Tag.ENEMY)),
     RESURRECTION(64, dependencies = arrayOf(REPOPULATION.id), tags = arrayOf(Tag.HARD, Tag.ENEMY)),
-    FRACTAL_HIVE(65, dependencies = arrayOf(REPOPULATION.id), tags = arrayOf(Tag.EXTREME, Tag.ENEMY)),
+    FRACTAL_HIVE(
+        65,
+        dependencies = arrayOf(REPOPULATION.id),
+        tags = arrayOf(Tag.EXTREME, Tag.ENEMY),
+    ),
     CROOKED_DIE(67, tags = arrayOf(Tag.SILLY, Tag.RNG)),
     CRUMBLED_STAIRS(68, tags = arrayOf(Tag.DUNGEON)),
     MULTICLASSING(69, tags = arrayOf(Tag.SILLY, Tag.HERO)),
@@ -129,6 +182,7 @@ enum class Modifier(
     LET_THEM_REST(75, tags = arrayOf(Tag.POSITIVE, Tag.HERO)),
     ETERNAL_FLAMES(76, tags = arrayOf(Tag.ENEMY, Tag.ENVIRONMENT)),
     DOMAIN_OF_HELL(77, tags = arrayOf(Tag.HARD, Tag.LEVEL, Tag.ENVIRONMENT)),
+    SCALING(81, tags = arrayOf(Tag.ENEMY, Tag.COMBAT)),
     ;
 
     companion object {

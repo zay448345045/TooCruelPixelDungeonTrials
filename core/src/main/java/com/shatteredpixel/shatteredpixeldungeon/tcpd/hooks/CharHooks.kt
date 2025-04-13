@@ -34,13 +34,16 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Arrowhead.MobA
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AtkSkillChangeBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AttackAmplificationBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AttackProcBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.AttackSpeedBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.BloodbagBleeding
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.CrystalShield
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageAmplificationBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefSkillChangeBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DefenseProcBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DelayedBeckon
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DrRollBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.FullSceneUpdater
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HtBoostBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSlowdown
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InsomniaSpeed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
@@ -48,6 +51,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Invulnerabilit
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ModifiersAppliedTracker
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnDamageTakenBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.OnDeathEffectBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Resizing
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeFury
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TargetedResistance
@@ -60,8 +64,42 @@ import com.watabou.noosa.audio.Sample
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 fun sourceIgnored(src: Any?): Boolean = src is KingDamager
+
+fun Char.recalculateHT() {
+    if (this is Hero) {
+        this.updateHT(true)
+        return
+    } else if (this is Mob) {
+        // don't touch boss HT, screw that shit
+        if (properties().contains(Char.Property.BOSS) || this is NPC) {
+            return
+        }
+
+        if (this.tcpdData.originalHT < 0) {
+            this.tcpdData.originalHT = HT
+        }
+
+        val curHPPercentage = HP / HT.toFloat()
+
+        HT = (this.tcpdData.originalHT * htMultiplier()).toInt()
+
+        HP = (HT * curHPPercentage).toInt()
+    }
+}
+
+fun Char.htMultiplier(): Float {
+    var mult = 1f
+    for (buff in buffs()) {
+        if (buff is HtBoostBuff) {
+            mult *= buff.htMultiplier()
+        }
+    }
+
+    return mult
+}
 
 /**
  * Hook which is called when mob takes damage, but before any damage
@@ -210,6 +248,25 @@ fun Char.damageTakenHook(
     }
 }
 
+private var drRollChecksRunning = false
+
+fun Char.drRollBonus(): Int {
+    if (drRollChecksRunning) return 0
+    drRollChecksRunning = true
+    val baseRoll = drRoll()
+    drRollChecksRunning = false
+
+    var bonus = 0
+    var mult = 1f
+    for (buff in buffs()) {
+        if (buff is DrRollBuff) {
+            bonus += buff.drRollBonus()
+            mult *= buff.verySketchyDrMultBonus()
+        }
+    }
+    return bonus + (baseRoll * (mult - 1)).roundToInt()
+}
+
 /**
  * Hook which is called when char attacks, to calculate flat damage bonus before multipliers
  */
@@ -327,6 +384,17 @@ fun Char.speedHook(speed: Float): Float {
         }
     }
     return speed
+}
+
+@Suppress("NAME_SHADOWING")
+fun Mob.attackDelayHook(delay: Float): Float {
+    var delay = delay
+    for (b in buffs()) {
+        if (b is AttackSpeedBuff) {
+            delay /= b.attackSpeedFactor()
+        }
+    }
+    return delay
 }
 
 fun Char.isInvulnerableHook(effect: Class<*>): Boolean {
@@ -501,6 +569,11 @@ fun Mob.applyModifiers() {
     }
     if (Modifier.JACK_IN_A_BOX.active() && this is Mimic) {
         Buff.affect(this, DelayedBeckon::class.java)
+    }
+    if (Modifier.SCALING.active()) {
+        if (buff(Resizing::class.java) == null) {
+            Buff.affect(this, Resizing::class.java).multiplyRandom()
+        }
     }
 }
 

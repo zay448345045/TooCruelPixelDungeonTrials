@@ -46,7 +46,18 @@ class HoldingHeap :
         }
 
     override fun onDeathProc() {
-        heap.restoreAtPos(Dungeon.level, target.pos, listOf(target))
+        val effects = mutableListOf<PersistHeapNestingBuff>()
+        for (buff in target.buffs()) {
+            if (buff is PersistHeapNestingBuff) {
+                effects.add(buff)
+            }
+        }
+        heap.restoreAtPos(
+            Dungeon.level,
+            target.pos,
+            ignoredChars = listOf(target),
+            spawnedCharEffects = effects,
+        )
     }
 
     override fun storeInBundle(bundle: Bundle) {

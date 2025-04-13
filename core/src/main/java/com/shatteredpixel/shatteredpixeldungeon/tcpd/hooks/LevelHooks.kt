@@ -41,6 +41,8 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvulnerableUntilSeen
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.MindVisionExtBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RecursiveResizing
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Resizing
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.HolderMimic
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.transformItems
@@ -50,12 +52,14 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyOverTheEdg
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
 import com.watabou.noosa.Game
 import com.watabou.utils.BArray
+import com.watabou.utils.DeviceCompat
 import com.watabou.utils.GameMath
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
 import com.watabou.utils.Reflection
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 
 fun RegularLevel.createItemsHook() {
     if (Modifier.HEAD_START.active() && Dungeon.depth == 1) {
@@ -108,6 +112,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.BOXED.active()) {
         applyBoxed()
+    }
+    if (Modifier.RECURSIVE_HIERARCHY.active()) {
+        applyRecursiveHierarchy()
     }
     if (Modifier.THUNDERSTRUCK.active()) {
         applyThunderstruck()
@@ -565,7 +572,7 @@ fun Level.applyBoxed() {
     for (room in rooms()) {
         if (room is EntranceRoom || room is ConnectionRoom) continue
         for (x in (room.left)..(room.right)) {
-            cellLoop@for (y in (room.top)..(room.bottom)) {
+            cellLoop@ for (y in (room.top)..(room.bottom)) {
                 if (x > room.left + 1 && x < room.right - 1 && y > room.top + 1 && y < room.bottom - 1) {
                     continue
                 }
@@ -596,6 +603,32 @@ fun Level.applyBoxed() {
                 mimic.setLevel(Dungeon.scalingDepth())
                 mimic.pos = i
                 mobs.add(mimic)
+            }
+        }
+    }
+}
+
+fun Level.applyRecursiveHierarchy() {
+    for (mob in mobs.toTypedArray()) {
+        if (mob is Mimic) {
+            var newMob: Mob = mob
+            val maxRecursion = Dungeon.scalingDepth() / 5 + 2
+            var steps = 0
+            while ((Random.Float() < 0.5 || DeviceCompat.isDebug()) && steps++ < maxRecursion) {
+                val heap = StoredHeapData.fromMob(newMob)
+                newMob = HolderMimic()
+                newMob.setLevel(Dungeon.scalingDepth())
+                newMob.pos = mob.pos
+                Buff.affect(newMob, HoldingHeap::class.java).set(heap)
+            }
+            if (newMob != mob) {
+                mobs.remove(mob)
+                mobs.add(newMob)
+                Buff.affect(newMob, Resizing::class.java).let {
+                    it.multiply(1 / 1.1f.pow(steps - 1))
+                    if (Modifier.SCALING.active()) it.multiplyRandom()
+                }
+                Buff.affect(newMob, RecursiveResizing::class.java).set(1.1f)
             }
         }
     }
