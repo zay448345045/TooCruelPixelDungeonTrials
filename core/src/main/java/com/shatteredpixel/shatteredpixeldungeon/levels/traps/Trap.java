@@ -27,7 +27,7 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Bestiary;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelHooksKt;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.LevelExtKt;
 import com.watabou.noosa.audio.Sample;
 import com.watabou.utils.Bundlable;
 import com.watabou.utils.Bundle;
@@ -107,7 +107,7 @@ public abstract class Trap implements Bundlable {
 
 	public void disarm(){
 		if (Modifier.DUPLICATOR.active())
-			LevelHooksKt.placeDuplicatorTraps(Dungeon.level, getClass());
+			LevelExtKt.placeDuplicatorTraps(Dungeon.level, getClass());
 		if (Modifier.REPEATER.active()) return;
 		active = false;
 		Dungeon.level.disarmTrap(pos);

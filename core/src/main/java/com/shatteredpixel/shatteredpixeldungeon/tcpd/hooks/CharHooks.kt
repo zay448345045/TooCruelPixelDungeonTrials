@@ -57,8 +57,10 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RevengeRage
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TargetedResistance
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.TimescaleBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.destroyWall
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.getFov
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.strongDestroy
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.updateFov
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
