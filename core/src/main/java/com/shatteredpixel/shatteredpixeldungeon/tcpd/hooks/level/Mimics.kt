@@ -11,6 +11,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.connection.ConnectionRoom
 import com.shatteredpixel.shatteredpixeldungeon.levels.rooms.standard.entrance.EntranceRoom
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DelayedBeckon
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.HoldingHeap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvulnerableUntilSeen
@@ -64,9 +65,7 @@ fun Level.applyJackInTheBox() {
         newMob.pos = mob.pos
         Buff.affect(newMob, HoldingHeap::class.java).set(heapData)
 
-        if (mob.buff(Exterminating::class.java) != null) {
-            Buff.affect(newMob, Exterminating::class.java)
-        }
+        transferHoldingBuffs(mob, newMob)
 
         mobs.remove(mob)
         mobs.add(newMob)
@@ -134,6 +133,7 @@ fun Level.applyRecursiveHierarchy() {
             if (newMob != mob) {
                 mobs.remove(mob)
                 mobs.add(newMob)
+                transferHoldingBuffs(mob, newMob)
                 Buff.affect(newMob, Resizing::class.java).let {
                     it.multiply(1 / 1.1f.pow(steps - 1))
                     if (Modifier.CROWD_DIVERSITY.active()) it.multiplyRandom()
@@ -141,5 +141,17 @@ fun Level.applyRecursiveHierarchy() {
                 Buff.affect(newMob, RecursiveResizing::class.java).set(1.1f)
             }
         }
+    }
+}
+
+private fun transferHoldingBuffs(
+    from: Mob,
+    to: Mob,
+) {
+    if (from.buff(Exterminating::class.java) != null) {
+        Buff.affect(to, Exterminating::class.java)
+    }
+    from.buff(DelayedBeckon::class.java)?.let {
+        Buff.affect(to, DelayedBeckon::class.java).start(it.getTicker())
     }
 }

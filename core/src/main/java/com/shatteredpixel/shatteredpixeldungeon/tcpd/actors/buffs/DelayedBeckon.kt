@@ -47,9 +47,11 @@ class DelayedBeckon :
         return true
     }
 
-    private fun start() {
-        if (ticker < 0) ticker = NOTICE_TIMEOUT
+    fun start(delay: Int = NOTICE_TIMEOUT) {
+        if (ticker < 0 || ticker > delay) ticker = delay
     }
+
+    fun getTicker(): Int = ticker
 
     override fun onDamageTaken(
         damage: Int,

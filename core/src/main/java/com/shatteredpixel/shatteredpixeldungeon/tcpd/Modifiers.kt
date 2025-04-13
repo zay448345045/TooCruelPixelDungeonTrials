@@ -183,6 +183,7 @@ enum class Modifier(
     ETERNAL_FLAMES(76, tags = arrayOf(Tag.ENEMY, Tag.ENVIRONMENT)),
     DOMAIN_OF_HELL(77, tags = arrayOf(Tag.HARD, Tag.LEVEL, Tag.ENVIRONMENT)),
     CROWD_DIVERSITY(81, tags = arrayOf(Tag.ENEMY, Tag.COMBAT)),
+    IN_YOUR_FACE(82, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
     ;
 
     companion object {

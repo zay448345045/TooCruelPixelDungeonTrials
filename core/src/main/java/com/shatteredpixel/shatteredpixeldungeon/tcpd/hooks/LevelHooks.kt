@@ -24,6 +24,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyDomainOfHe
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyDrought
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyExtermination
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyHolyWater
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyInYourFace
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyJackInTheBox
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyLoft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level.applyLootParadise
@@ -91,6 +92,9 @@ fun Level.postCreateHook() {
     }
     if (Modifier.MIMICS.active()) {
         applyMimics()
+    }
+    if (Modifier.IN_YOUR_FACE.active()) {
+        applyInYourFace()
     }
     if (Modifier.EXTERMINATION.active()) {
         applyExtermination()
