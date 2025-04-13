@@ -1,7 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs
 
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
-import com.shatteredpixel.shatteredpixeldungeon.actors.Actor
 import com.shatteredpixel.shatteredpixeldungeon.actors.Char
 import com.shatteredpixel.shatteredpixeldungeon.actors.buffs.Buff
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.ArmoredStatue
@@ -143,7 +142,14 @@ class StoredHeapData : Bundlable {
                         c is NPC
                 )
 
-        val blockingChar = Actor.findChar(pos)
+        fun findChar(pos: Int): Char? =
+            if (Dungeon.hero.pos == pos) {
+                Dungeon.hero
+            } else {
+                level.findMob(pos)
+            }
+
+        val blockingChar = findChar(pos)
         if ((holderClass == null && heapConflict) ||
             isCharBlocking(blockingChar)
         ) {
@@ -153,14 +159,14 @@ class StoredHeapData : Bundlable {
             )
             val validCells = HashSet<Int>()
             var minDistance = Int.MAX_VALUE
-            var c: Char
+            var c: Char? = null
             for (i in PathFinder.distance.indices) {
                 val dist = PathFinder.distance[i]
                 if (dist <= minDistance) {
                     if (level.heaps.containsKey(i) || !(level.passable[i] || level.avoid[i]) || level.pit[i]) {
                         continue
                     }
-                    if ((Actor.findChar(i).also { c = it }) != null && isCharBlocking(c)) {
+                    if ((findChar(i)?.also { c = it }) != null && isCharBlocking(c)) {
                         continue
                     }
                     if (dist == minDistance) {
