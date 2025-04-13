@@ -626,7 +626,7 @@ fun Level.applyRecursiveHierarchy() {
                 mobs.add(newMob)
                 Buff.affect(newMob, Resizing::class.java).let {
                     it.multiply(1 / 1.1f.pow(steps - 1))
-                    if (Modifier.SCALING.active()) it.multiplyRandom()
+                    if (Modifier.CROWD_DIVERSITY.active()) it.multiplyRandom()
                 }
                 Buff.affect(newMob, RecursiveResizing::class.java).set(1.1f)
             }

@@ -263,9 +263,9 @@ class StoredHeapData : Bundlable {
             for (ef in spawnedCharEffects) {
                 ef.applyNestingEffect(mob)
             }
-            if (mob !is Mimic && mob !is Statue) {
-                mob.state = mob.HUNTING
-            }
+
+            mob.state = mob.HUNTING
+
             if (level == Dungeon.level) {
                 GameScene.add(mob)
             } else {

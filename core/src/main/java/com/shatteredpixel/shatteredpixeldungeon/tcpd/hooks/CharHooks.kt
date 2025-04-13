@@ -570,7 +570,7 @@ fun Mob.applyModifiers() {
     if (Modifier.JACK_IN_A_BOX.active() && this is Mimic) {
         Buff.affect(this, DelayedBeckon::class.java)
     }
-    if (Modifier.SCALING.active()) {
+    if (Modifier.CROWD_DIVERSITY.active()) {
         if (buff(Resizing::class.java) == null) {
             Buff.affect(this, Resizing::class.java).multiplyRandom()
         }
