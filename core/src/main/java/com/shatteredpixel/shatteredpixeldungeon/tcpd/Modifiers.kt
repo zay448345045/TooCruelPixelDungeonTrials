@@ -93,6 +93,7 @@ enum class Modifier(
     PREPARED_ENEMIES(28, tags = arrayOf(Tag.ENEMY, Tag.COMBAT)),
     REPEATER(29, tags = arrayOf(Tag.TRAPS)),
     DUPLICATOR(30, tags = arrayOf(Tag.TRAPS)),
+    BODY_TRAPS(83, tags = arrayOf(Tag.TRAPS)),
     EXTREME_CAUTION(31, tags = arrayOf(Tag.LEVEL, Tag.TRAPS)) {
         override fun _nTrapsMult(): Float = 4f
     },

@@ -4,7 +4,7 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.blobs.WellWater
 import com.shatteredpixel.shatteredpixeldungeon.items.Generator
 import com.shatteredpixel.shatteredpixeldungeon.items.Heap
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
-import com.shatteredpixel.shatteredpixeldungeon.items.keys.Key
+import com.shatteredpixel.shatteredpixeldungeon.items.keys.IronKey
 import com.shatteredpixel.shatteredpixeldungeon.items.potions.PotionOfLiquidFlame
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.set
@@ -40,7 +40,7 @@ fun Level.applySecondTry() {
         if (h.type == Heap.Type.FOR_SALE) continue
         for (item in ArrayList<Item>(h.items)) {
             // Only remove regular keys, not subclasses
-            if (item.javaClass == Key::class.java) h.items.remove(item)
+            if (item.javaClass == IronKey::class.java) h.items.remove(item)
             if (item.unique) continue
             if (!guaranteedItems.contains(item)) h.items.remove(item)
             if (item is PotionOfLiquidFlame && barricades-- > 0) h.items.remove(item)
