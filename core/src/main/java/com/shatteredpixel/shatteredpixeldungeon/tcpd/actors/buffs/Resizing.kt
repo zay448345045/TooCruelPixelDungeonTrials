@@ -49,7 +49,7 @@ class Resizing :
         if (this.factor < MIN_THRESHOLD) {
             this.factor = MIN_THRESHOLD
         }
-        target.recalculateHT()
+        target?.recalculateHT()
         return this
     }
 
