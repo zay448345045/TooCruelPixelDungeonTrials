@@ -184,7 +184,7 @@ public class Dungeon {
 
 	}
 
-	public static TCPDData tcpdData;
+	public static TCPDData tcpdData = new TCPDData();
 	public static int mobsToChampion;
 
 	public static Hero hero;
