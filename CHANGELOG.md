@@ -6,6 +6,10 @@
 
 > Released on ReleaseDate
 
+### Fixed
+
+- Safety buffer softlock (by juh9870)
+
 ## [0.15.0]
 
 > Released on 2025-06-14
