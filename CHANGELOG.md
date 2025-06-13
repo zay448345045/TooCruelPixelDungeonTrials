@@ -6,9 +6,13 @@
 
 > Released on ReleaseDate
 
+## [0.15.1]
+
+> Released on 2025-06-14
+
 ### Fixed
 
-- Safety buffer softlock (by juh9870)
+- Safety buffer softlock
 
 ## [0.15.0]
 
@@ -377,7 +381,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.0...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.1...HEAD
+[0.15.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.15.0...TCPD-0.15.1
 [0.15.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.14.1...TCPD-0.15.0
 [0.14.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.14.0...TCPD-0.14.1
 [0.14.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.13.0...TCPD-0.14.0
