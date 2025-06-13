@@ -134,3 +134,7 @@ fun Level.defaultNItems(): Int {
     }
     return nItems
 }
+
+fun isLevelBossOrSpecial(): Boolean {
+    return Dungeon.bossLevel() || Dungeon.depth == 26
+}

@@ -20,6 +20,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Resizing
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.HolderMimic
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isDoor
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
 import com.watabou.utils.DeviceCompat
 import com.watabou.utils.PathFinder
@@ -74,7 +75,7 @@ fun Level.applyJackInTheBox() {
 
 @LevelCreationHooks
 fun Level.applyBoxed() {
-    if (Dungeon.bossLevel()) return
+    if (isLevelBossOrSpecial()) return
     if (this !is RegularLevel) return
 
     for (room in rooms()) {

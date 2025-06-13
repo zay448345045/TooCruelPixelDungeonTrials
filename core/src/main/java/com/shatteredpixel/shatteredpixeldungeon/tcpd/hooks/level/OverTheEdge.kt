@@ -8,6 +8,7 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.features.LevelTransition
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GatewayTrap
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.GrimTrap
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.reportRecoverableError
 import com.watabou.utils.BArray
@@ -17,7 +18,7 @@ import kotlin.math.max
 
 @LevelCreationHooks
 fun Level.applyOverTheEdge() {
-    if (Dungeon.bossLevel()) return
+    if (isLevelBossOrSpecial()) return
     buildFlagMaps()
     val importantCells = mutableSetOf<Int>()
     val voidCellsSet = mutableSetOf<Int>()

@@ -17,6 +17,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.mobs.StoredHeapData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.effects.CustomBlobCellEmission
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 import com.shatteredpixel.shatteredpixeldungeon.utils.BitPaint
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
@@ -30,6 +31,9 @@ class ExterminationItemLock :
     CustomBlobCellEmission {
     override fun evolve() {
         evolveUnchanged(off)
+        if(isLevelBossOrSpecial()) {
+            unlockAll(Dungeon.level)
+        }
     }
 
     private val originalHeaps: MutableMap<Int, StoredHeapData> = mutableMapOf()

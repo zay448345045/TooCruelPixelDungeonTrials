@@ -60,6 +60,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.bombermobBomb
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.destroyWall
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.getFov
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.strongDestroy
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.updateFov
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
@@ -331,7 +332,7 @@ fun Char.deathHook(src: Any?) {
     }
     if (this is Mob) {
         if (Modifier.BOMBERMOB.active()) {
-            if ((Modifier.CONSTELLATION.active() || Random.Float() < 0.01f) && !Dungeon.bossLevel()) {
+            if ((Modifier.CONSTELLATION.active() || Random.Float() < 0.01f) && !isLevelBossOrSpecial()) {
                 val nova =
                     Buff.append(
                         Dungeon.hero,

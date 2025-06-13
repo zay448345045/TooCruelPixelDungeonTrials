@@ -7,8 +7,10 @@ import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Statue
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.ExterminationItemLock
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.blobs.findBlob
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DelayedBeckon
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Exterminating
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
 import com.watabou.utils.BArray
 import com.watabou.utils.PathFinder
@@ -17,7 +19,7 @@ import com.watabou.utils.Random
 @LevelCreationHooks
 fun Level.applyExtermination() {
     // Don't exterminate on boss levels
-    if (Dungeon.bossLevel()) return
+    if (isLevelBossOrSpecial()) return
 
     val exterminateItemHolders = Modifier.MIMICS.active()
 
@@ -40,16 +42,23 @@ fun Level.applyExtermination() {
             if (mob is Statue) lock.lockStatue(this, mob)
         }
     }
+    var appliedToAny = false
     for (m in mobs) {
         if (!exterminateItemHolders && (m is Mimic || m is Statue)) continue
         if (requireReachable && PathFinder.distance[m.pos] == Integer.MAX_VALUE) continue
         Buff.affect(m, Exterminating::class.java)
+        appliedToAny = true
+    }
+
+    // undo lock if no mobs were affected
+    if(!appliedToAny) {
+        findBlob<ExterminationItemLock>()?.unlockAll(this)
     }
 }
 
 @LevelCreationHooks
 fun Level.applyInYourFace() {
-    if (Dungeon.bossLevel()) return
+    if (isLevelBossOrSpecial()) return
     val entrance = getTransition(null)?.cell() ?: return
 
     val suitableCells = mutableListOf<Int>()
