@@ -203,7 +203,15 @@ public abstract class RegularLevel extends Level {
 	protected float[] trapChances() {
 		return new float[]{1};
 	}
-	
+
+	public Class<?>[] _hackSmuggleTrapClasses() {
+		return trapClasses();
+	}
+
+	public float[] _hackSmuggleTrapChances() {
+		return trapChances();
+	}
+
 	@Override
 	public int mobLimit() {
 		if (Dungeon.depth <= 1){

@@ -78,6 +78,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDData;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.DungeonHooksKt;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.HeroHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
@@ -514,6 +515,8 @@ public class Dungeon {
 		hero.viewDistance = light == null ? level.viewDistance : Math.max( Light.DISTANCE, level.viewDistance );
 		
 		hero.curAction = hero.lastAction = null;
+
+		HeroHooksKt.switchLevelHook(hero);
 
 		observe();
 		try {

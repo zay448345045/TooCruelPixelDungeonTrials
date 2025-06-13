@@ -4,9 +4,15 @@ import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.Mob
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.scrolls.ScrollOfMagicMapping
+import com.shatteredpixel.shatteredpixeldungeon.levels.CavesLevel
+import com.shatteredpixel.shatteredpixeldungeon.levels.CityLevel
+import com.shatteredpixel.shatteredpixeldungeon.levels.HallsLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.Feeling
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level.set
+import com.shatteredpixel.shatteredpixeldungeon.levels.PrisonLevel
+import com.shatteredpixel.shatteredpixeldungeon.levels.RegularLevel
+import com.shatteredpixel.shatteredpixeldungeon.levels.SewerLevel
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.levels.traps.Trap
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene
@@ -26,15 +32,7 @@ fun Level.placeDuplicatorTraps(trap: Class<out Trap>) {
 
     for (i in 0 until minOf(nTraps, cells.size)) {
         val pos = cells[i]
-        val t = setTrap(Reflection.newInstance(trap), pos)
-        val old = map[pos]
-        set(pos, Terrain.TRAP, this)
-        t.reveal()
-        GameScene.updateMap(pos)
-        if (Dungeon.level.heroFOV[pos]) {
-            GameScene.discoverTile(pos, old)
-            ScrollOfMagicMapping.discover(pos)
-        }
+        placeRevealedTrapAndChangeTerrain(pos, Reflection.newInstance(trap))
     }
 }
 
@@ -134,5 +132,52 @@ fun Level.defaultNItems(): Int {
     }
     return nItems
 }
+
+fun Level.placeRevealedTrapAndChangeTerrain(
+    pos: Int,
+    trap: Trap,
+) {
+    val t = setTrap(trap, pos)
+    val old = map[pos]
+    set(pos, Terrain.TRAP, this)
+    t.reveal()
+    GameScene.updateMap(pos)
+    if (Dungeon.level.heroFOV[pos]) {
+        GameScene.discoverTile(pos, old)
+        ScrollOfMagicMapping.discover(pos)
+    }
+}
+
+fun Level.randomTrap(): Class<out Trap> {
+    if (this is RegularLevel) {
+        _hackSmuggleTrapClasses()[Random.chances(_hackSmuggleTrapChances())]
+    }
+    val (traps, chances) =
+        when (Dungeon.depth) {
+            in 1..5 -> sewerTrapsChances
+            in 6..10 -> prisonTrapsChances
+            in 11..15 -> cavesTrapChances
+            in 16..20 -> cityTrapChances
+            in 21..25, 26 -> hallsTrapChances
+            else -> sewerTrapsChances // fallback to sewer traps
+        }
+
+    @Suppress("UNCHECKED_CAST")
+    return traps[Random.chances(chances)] as Class<out Trap>
+}
+
+private fun getTrapData(l: RegularLevel) = l._hackSmuggleTrapClasses() to l._hackSmuggleTrapChances()
+
+private val sewerTrapsChances by lazy {
+    val d = Dungeon.depth
+    Dungeon.depth = 2
+    val data = getTrapData(SewerLevel())
+    Dungeon.depth = d
+    data
+}
+private val prisonTrapsChances by lazy { getTrapData(PrisonLevel()) }
+private val cavesTrapChances by lazy { getTrapData(CavesLevel()) }
+private val cityTrapChances by lazy { getTrapData(CityLevel()) }
+private val hallsTrapChances by lazy { getTrapData(HallsLevel()) }
 
 fun isLevelBossOrSpecial(): Boolean = Dungeon.bossLevel() || Dungeon.depth == 26

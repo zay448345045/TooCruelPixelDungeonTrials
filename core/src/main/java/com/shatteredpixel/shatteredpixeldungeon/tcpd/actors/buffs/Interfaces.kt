@@ -114,3 +114,7 @@ interface HtBoostBuff {
 interface ResistanceBuff {
     fun resist(effect: Class<*>): Float
 }
+
+interface SwitchLevelBuff {
+    fun onSwitchLevel()
+}

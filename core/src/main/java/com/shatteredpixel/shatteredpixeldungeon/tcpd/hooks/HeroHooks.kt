@@ -30,11 +30,14 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Insomnia
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Intoxication
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.InvisibleResting
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.Pandemonium
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PerfectInformation
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PrisonExpress
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SwitchLevelBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
 import com.watabou.noosa.tweeners.Delayer
 import com.watabou.noosa.tweeners.Tweener.Listener
 import com.watabou.utils.Random
@@ -85,6 +88,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.DOMAIN_OF_HELL.active()) {
         Buff.affect(this, GrassIgniter::class.java)
+    }
+    if (Modifier.PERFECT_INFORMATION.active()) {
+        Buff.affect(this, PerfectInformation::class.java).pushBackInTime()
     }
 }
 
@@ -145,6 +151,12 @@ fun Hero.moveHook(step: Int): Int {
     return step
 }
 
+fun Hero.switchLevelHook() {
+    forEachBuff<SwitchLevelBuff> {
+        it.onSwitchLevel()
+    }
+}
+
 fun Hero.wandProcHook(
     target: Char,
     wand: Wand,
@@ -191,21 +203,25 @@ fun Hero.subClassPicked() {
                     .drop(BrokenSeal().identify(), pos)
                     .sprite
                     ?.drop()
+
             HeroClass.MAGE ->
                 Dungeon.level
                     .drop(MagesStaff().identify(), pos)
                     .sprite
                     ?.drop()
+
             HeroClass.ROGUE ->
                 Dungeon.level
                     .drop(CloakOfShadows().identify(), pos)
                     .sprite
                     ?.drop()
+
             HeroClass.HUNTRESS ->
                 Dungeon.level
                     .drop(SpiritBow().identify(), pos)
                     .sprite
                     ?.drop()
+
             HeroClass.DUELIST -> {} // shame on her
             HeroClass.CLERIC ->
                 Dungeon.level

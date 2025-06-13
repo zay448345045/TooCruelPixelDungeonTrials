@@ -92,7 +92,7 @@ enum class Modifier(
     REVENGE_FURY(27, tags = arrayOf(Tag.COMBAT, Tag.NEW_STUFF)),
     PREPARED_ENEMIES(28, tags = arrayOf(Tag.ENEMY, Tag.COMBAT)),
     REPEATER(29, tags = arrayOf(Tag.TRAPS)),
-    DUPLICATOR(30, tags = arrayOf(Tag.TRAPS)),
+    DUPLICATOR(30, tags = arrayOf(Tag.ENEMY, Tag.TRAPS)),
     BODY_TRAPS(83, tags = arrayOf(Tag.TRAPS)),
     EXTREME_CAUTION(31, tags = arrayOf(Tag.LEVEL, Tag.TRAPS)) {
         override fun _nTrapsMult(): Float = 4f
@@ -185,6 +185,7 @@ enum class Modifier(
     DOMAIN_OF_HELL(77, tags = arrayOf(Tag.HARD, Tag.LEVEL, Tag.ENVIRONMENT)),
     CROWD_DIVERSITY(81, tags = arrayOf(Tag.ENEMY, Tag.COMBAT)),
     IN_YOUR_FACE(82, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
+    PERFECT_INFORMATION(84, tags = arrayOf(Tag.POSITIVE, Tag.HERO)),
     ;
 
     companion object {

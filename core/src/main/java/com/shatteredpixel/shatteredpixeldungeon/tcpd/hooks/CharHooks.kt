@@ -61,12 +61,15 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.destroyWall
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.getFov
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.placeRevealedTrapAndChangeTerrain
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.randomTrap
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.strongDestroy
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.updateFov
 import com.shatteredpixel.shatteredpixeldungeon.utils.GLog
 import com.watabou.noosa.audio.Sample
 import com.watabou.utils.PathFinder
 import com.watabou.utils.Random
+import com.watabou.utils.Reflection
 import kotlin.math.max
 import kotlin.math.roundToInt
 
@@ -344,6 +347,11 @@ fun Char.deathHook(src: Any?) {
             } else {
                 Bomb.igniteAt(bombermobBomb(), pos)
             }
+        }
+        if (Modifier.BODY_TRAPS.active()) {
+            val l = Dungeon.level
+            val t = l.randomTrap()
+            Dungeon.level.placeRevealedTrapAndChangeTerrain(pos, Reflection.newInstance(t))
         }
         if (alignment != Char.Alignment.ALLY) {
             if (Modifier.ARROWHEAD.active()) {
