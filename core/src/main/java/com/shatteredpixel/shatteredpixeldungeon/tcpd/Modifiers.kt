@@ -186,6 +186,7 @@ enum class Modifier(
     CROWD_DIVERSITY(81, tags = arrayOf(Tag.ENEMY, Tag.COMBAT)),
     IN_YOUR_FACE(82, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
     PERFECT_INFORMATION(84, tags = arrayOf(Tag.POSITIVE, Tag.HERO)),
+    SAFETY_BUFFER(85, tags = arrayOf(Tag.POSITIVE)),
     ;
 
     companion object {

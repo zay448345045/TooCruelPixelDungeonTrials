@@ -35,6 +35,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PermaBlind
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.PrisonExpress
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RacingTheDeath
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.RetieredBuff
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SafetyBuffer
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SteelBody
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.SwitchLevelBuff
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.forEachBuff
@@ -91,6 +92,9 @@ fun Hero.heroLiveHook() {
     }
     if (Modifier.PERFECT_INFORMATION.active()) {
         Buff.affect(this, PerfectInformation::class.java).pushBackInTime()
+    }
+    if (Modifier.SAFETY_BUFFER.active()) {
+        Buff.affect(this, SafetyBuffer::class.java)
     }
 }
 

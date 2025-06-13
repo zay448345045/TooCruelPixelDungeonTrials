@@ -118,3 +118,7 @@ interface ResistanceBuff {
 interface SwitchLevelBuff {
     fun onSwitchLevel()
 }
+
+interface DamageIconSource {
+    fun damageIcon(): Int
+}

@@ -148,6 +148,7 @@ import com.shatteredpixel.shatteredpixeldungeon.plants.Swiftthistle;
 import com.shatteredpixel.shatteredpixeldungeon.scenes.GameScene;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.CharSprite;
 import com.shatteredpixel.shatteredpixeldungeon.sprites.MobSprite;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.DamageIconSource;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.actors.buffs.ResistanceBuff;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.CharHooksKt;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.chars.ExtraCharData;
@@ -1049,6 +1050,10 @@ public abstract class Char extends Actor {
 			if (src instanceof Viscosity.DeferedDamage)                 icon = FloatingText.DEFERRED;
 			if (src instanceof Corruption)                              icon = FloatingText.CORRUPTION;
 			if (src instanceof AscensionChallenge)                      icon = FloatingText.AMULET;
+
+			if (src instanceof DamageIconSource) {
+				icon = ((DamageIconSource) src).damageIcon();
+			}
 
 			sprite.showStatusWithIcon(CharSprite.NEGATIVE, Integer.toString(dmg + shielded), icon);
 		}
