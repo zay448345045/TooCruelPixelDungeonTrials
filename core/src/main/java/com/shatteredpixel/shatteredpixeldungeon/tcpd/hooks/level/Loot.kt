@@ -12,12 +12,17 @@ import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.curseIfAllowed
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.defaultNItems
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.furrowCell
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.isLevelBossOrSpecial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.transformItems
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.LevelCreationHooks
 import com.watabou.utils.Random
 
 @LevelCreationHooks
 fun Level.applySecondTry() {
+    if(isLevelBossOrSpecial()) {
+        return
+    }
+
     var barricades = 0
     for (i in 0 until length()) {
         if (map[i] == Terrain.LOCKED_DOOR) {
