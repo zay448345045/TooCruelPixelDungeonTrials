@@ -6,6 +6,13 @@
 
 > Released on ReleaseDate
 
+### Fixed
+
+- Dwarf King not spawning on Second Try (by juh9870)
+- Amulet unobtainable with postapid loot (by juh9870)
+- Crash with Resizing and bosses (by juh9870)
+  > Fixes #3
+
 ## [0.14.0]
 
 > Released on 2025-04-13
