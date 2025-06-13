@@ -6,11 +6,15 @@
 
 > Released on ReleaseDate
 
+## [0.14.1]
+
+> Released on 2025-06-13
+
 ### Fixed
 
-- Dwarf King not spawning on Second Try (by juh9870)
-- Amulet unobtainable with postapid loot (by juh9870)
-- Crash with Resizing and bosses (by juh9870)
+- Dwarf King not spawning on Second Try
+- Amulet unobtainable with postapid loot
+- Crash with Resizing and bosses
   > Fixes #3
 
 ## [0.14.0]
@@ -352,7 +356,8 @@
 - Project seeded on top of Shattered Pixel Dungeon v3.0.0
 
 <!-- next-url -->
-[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.14.0...HEAD
+[Unreleased]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.14.1...HEAD
+[0.14.1]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.14.0...TCPD-0.14.1
 [0.14.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.13.0...TCPD-0.14.0
 [0.13.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.12.0...TCPD-0.13.0
 [0.12.0]: https://github.com/juh9870/TooCruelPixelDungeonTrials/compare/TCPD-0.11.0...TCPD-0.12.0
