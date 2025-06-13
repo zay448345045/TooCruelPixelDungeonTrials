@@ -49,7 +49,7 @@ class ExterminationItemLock :
         if (volume <= 0) return true
 
         for ((pos, heap) in originalHeaps) {
-            heap.restoreAtPos(level, pos)
+            heap.restoreAtPos(level, pos, spawnPassive = true)
         }
         originalHeaps.clear()
         fullyClear(level)

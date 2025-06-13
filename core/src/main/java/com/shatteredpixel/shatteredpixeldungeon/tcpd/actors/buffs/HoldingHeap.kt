@@ -57,6 +57,7 @@ class HoldingHeap :
             target.pos,
             ignoredChars = listOf(target),
             spawnedCharEffects = effects,
+            spawnPassive = false,
         )
     }
 

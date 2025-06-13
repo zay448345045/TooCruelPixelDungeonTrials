@@ -123,6 +123,7 @@ class StoredHeapData : Bundlable {
         pos: Int,
         ignoredChars: List<Char> = emptyList(),
         spawnedCharEffects: List<PersistHeapNestingBuff> = emptyList(),
+        spawnPassive: Boolean,
     ) {
         var pos = pos
         val heapConflict =
@@ -270,7 +271,7 @@ class StoredHeapData : Bundlable {
                 ef.applyNestingEffect(mob)
             }
 
-            mob.state = mob.HUNTING
+            if (!spawnPassive) mob.state = mob.HUNTING
 
             if (level == Dungeon.level) {
                 GameScene.add(mob)
@@ -279,7 +280,7 @@ class StoredHeapData : Bundlable {
             }
         } else {
             for (childHeap in childHeaps) {
-                childHeap.restoreAtPos(level, pos, ignoredChars, spawnedCharEffects)
+                childHeap.restoreAtPos(level, pos, ignoredChars, spawnedCharEffects, spawnPassive)
             }
             childHeaps.clear()
             if (items.isNotEmpty()) {
@@ -455,7 +456,7 @@ class StoredHeapData : Bundlable {
                 it.holderClass = cl
                 it.childHeaps.add(data)
                 it.extraMimicLoot = extraLoot
-                it.restoreAtPos(level, heap.pos)
+                it.restoreAtPos(level, heap.pos, spawnPassive = true)
             }
         }
 
