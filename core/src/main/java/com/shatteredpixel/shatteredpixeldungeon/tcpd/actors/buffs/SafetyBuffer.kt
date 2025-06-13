@@ -90,7 +90,7 @@ class SafetyBuffer : Buff() {
                 detach()
                 return true
             }
-            val safetyBuff = hero.buff(SafetyBuffer::class.java) ?: return false.also { detach() }
+            val safetyBuff = hero.buff(SafetyBuffer::class.java) ?: return true.also { detach() }
             if (safetyBuff.stacks <= 0 || !Dungeon.level.heroFOV[target.pos]) {
                 detach()
                 return true
