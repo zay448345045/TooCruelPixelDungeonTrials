@@ -34,6 +34,7 @@ inline fun <reified T : Enum<T>> Bundle.getEnumArray(key: String): Array<T> {
         }.toTypedArray()
 }
 
+@Suppress("UNCHECKED_CAST")
 inline fun <reified K, reified V> Bundle.putMap(
     key: String,
     values: Map<K, V>,
