@@ -51,7 +51,7 @@ fun Level.applyExtermination() {
     }
 
     // undo lock if no mobs were affected
-    if(!appliedToAny) {
+    if (!appliedToAny) {
         findBlob<ExterminationItemLock>()?.unlockAll(this)
     }
 }

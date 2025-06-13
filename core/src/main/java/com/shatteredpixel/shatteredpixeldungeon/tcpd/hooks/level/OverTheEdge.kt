@@ -1,7 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.hooks.level
 
 import com.badlogic.gdx.math.MathUtils
-import com.shatteredpixel.shatteredpixeldungeon.Dungeon
 import com.shatteredpixel.shatteredpixeldungeon.actors.mobs.npcs.NPC
 import com.shatteredpixel.shatteredpixeldungeon.levels.Level
 import com.shatteredpixel.shatteredpixeldungeon.levels.Terrain

@@ -14,8 +14,7 @@ fun Level.applyDrought() {
         val isGrass =
             terrain == Terrain.GRASS || terrain == Terrain.HIGH_GRASS || terrain == Terrain.FURROWED_GRASS
 
-        if ((isGrass || terrain == Terrain.WATER) && Random.Float() < chance
-        ) {
+        if ((isGrass || terrain == Terrain.WATER) && Random.Float() < chance) {
             if (isGrass) {
                 map[i] = Terrain.EMBERS
             }

@@ -31,7 +31,7 @@ class ExterminationItemLock :
     CustomBlobCellEmission {
     override fun evolve() {
         evolveUnchanged(off)
-        if(isLevelBossOrSpecial()) {
+        if (isLevelBossOrSpecial()) {
             unlockAll(Dungeon.level)
         }
     }

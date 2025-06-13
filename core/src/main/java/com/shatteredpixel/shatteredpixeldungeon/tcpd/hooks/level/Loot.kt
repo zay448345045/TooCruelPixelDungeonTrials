@@ -19,7 +19,7 @@ import com.watabou.utils.Random
 
 @LevelCreationHooks
 fun Level.applySecondTry() {
-    if(isLevelBossOrSpecial()) {
+    if (isLevelBossOrSpecial()) {
         return
     }
 
