@@ -6,6 +6,19 @@
 
 > Released on ReleaseDate
 
+### Added
+
+- Updated to SHPD v3.1.0
+- A Farewell Gift modifier
+- Safety Buffer modifier
+- Perfect Information modifier
+
+### Fixed
+
+- Various crashes related to modifiers not being initialized
+- Second Try not removing iron keys
+- Mimics spawning awake in mimics modifiers
+
 ## [0.14.1]
 
 > Released on 2025-06-13
