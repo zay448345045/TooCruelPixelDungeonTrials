@@ -6,7 +6,7 @@ sourceCompatibility = targetCompatibility = appJavaCompatibility
 
 kotlin {
     compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_24
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_23
     }
 }
 
