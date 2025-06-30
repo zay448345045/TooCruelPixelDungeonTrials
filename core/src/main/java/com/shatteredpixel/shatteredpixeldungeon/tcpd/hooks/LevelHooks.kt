@@ -159,10 +159,10 @@ fun Level.updateHeroMindFovHook(
     heroMindFov: BooleanArray,
 ) {
     val shadowFov = BooleanArray(length())
-    for (mob in mobs) {
+    for (mob in mobs.toTypedArray()) {
         var heroDistance = -1
         val pos = mob.pos
-        for (buff in mob.buffs()) {
+        for (buff in mob.buffs().toTypedArray()) {
             if (buff is MindVisionExtBuff) {
                 var radius = buff.revealRadius()
                 if (radius <= 0) {
@@ -195,10 +195,10 @@ fun Level.updateHeroMindFovHook(
 
 fun dungeonObserveHook(dist: Int) {
     val level = Dungeon.level
-    for (mob in level.mobs) {
+    for (mob in level.mobs.toTypedArray()) {
         var heroDistance = -1
         val pos = mob.pos
-        for (buff in mob.buffs()) {
+        for (buff in mob.buffs().toTypedArray()) {
             if (buff is MindVisionExtBuff) {
                 var radius = buff.revealRadius()
                 if (radius <= 0) {
