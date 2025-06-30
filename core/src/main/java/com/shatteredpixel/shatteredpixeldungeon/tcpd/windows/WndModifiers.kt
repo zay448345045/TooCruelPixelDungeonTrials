@@ -60,7 +60,7 @@ open class ModifiersComponent(
     }
 }
 
-fun Ui.drawModifiers(
+private fun Ui.drawModifiers(
     modifiers: Modifiers,
     trial: Trial?,
     editable: Boolean,
@@ -75,16 +75,22 @@ fun Ui.drawModifiers(
                         modifiers.serializeToString(),
                         256,
                         false,
-                        Messages.get(WndModifiers::class.java, "edit_apply"),
-                        Messages.get(WndModifiers::class.java, "edit_cancel"),
+                        Messages.get(WndModifiers::class.java, "edit_set"),
+                        Messages.get(WndModifiers::class.java, "edit_clear"),
                     ) {
                         override fun onSelect(
                             positive: Boolean,
                             text: String,
                         ) {
-                            if (positive && editable) {
+                            val textValue =
+                                if (editable && !positive) {
+                                    ""
+                                } else {
+                                    text
+                                }
+                            if (editable) {
                                 try {
-                                    val trimmed = text.trim()
+                                    val trimmed = textValue.trim()
                                     if (trimmed.isBlank()) {
                                         modifiers.disableAll()
                                     } else {
@@ -105,7 +111,7 @@ fun Ui.drawModifiers(
                                     )
                                 }
                             }
-                            super.onSelect(positive, text)
+                            super.onSelect(positive, textValue)
                         }
                     },
                 )
