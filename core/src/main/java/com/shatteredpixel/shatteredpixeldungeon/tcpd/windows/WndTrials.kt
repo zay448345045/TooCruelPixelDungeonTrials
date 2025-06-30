@@ -12,25 +12,20 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trials
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdWindow
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.AnimationState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.LoopingState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.UiResponse
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.WidgetResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.NinePatchDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.InteractiveResponse
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.PaginatedList
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.RED_BUTTON_MARGINS
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.activeLabel
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.appearingIconButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.columns
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.customButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.dimInactiveText
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.dimInactiveVisual
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.highlightTouchedVisual
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.horizontal
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.iconButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.image
@@ -40,7 +35,6 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.rightToLeft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.shrinkToFitLabel
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.easeInOutBack
-import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.easeOutBack
 import com.shatteredpixel.shatteredpixeldungeon.ui.ActionIndicator
 import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.Window
@@ -51,11 +45,9 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput
 import com.watabou.gltextures.TextureCache
 import com.watabou.glwrap.Texture
 import com.watabou.noosa.Game
-import com.watabou.noosa.Image
 import com.watabou.utils.ColorMath
 import java.net.MalformedURLException
 import java.net.URL
-import kotlin.math.roundToInt
 import kotlin.math.sin
 
 class WndTrials : TcpdWindow() {
@@ -221,7 +213,7 @@ class WndTrials : TcpdWindow() {
                     val flip = spinner.repeats % 2 == 0
                     img.widget.angle = rotProgress * 180 + if (flip) 180 else 0
 
-                    img.widget.origin.set(img.widget.width / 2, img.widget.height / 2)
+                    img.widget.originToCenter()
 
                     verticalJustified {
                         val totalSize = trials.getGroups().size
@@ -318,7 +310,12 @@ class WndTrials : TcpdWindow() {
                         ShatteredPixelDungeon.scene().add(
                             object : WndTextInput(
                                 Messages.get(WndTrials::class.java, "edit_title"),
-                                Messages.get(WndTrials::class.java, "edit_body", groupName, group.url),
+                                Messages.get(
+                                    WndTrials::class.java,
+                                    "edit_body",
+                                    groupName,
+                                    group.url,
+                                ),
                                 group.url,
                                 1024,
                                 false,
@@ -430,52 +427,6 @@ private val GRADIENT =
         0xFFAEA68Eu.toInt(),
         0xFFC5BC9Fu.toInt(),
     )
-
-fun Ui.appearingIconButton(
-    image: TextureDescriptor,
-    show: Boolean? = null,
-    duration: Float = 0.2f,
-    easingAppear: ((Float) -> Float)? = ::easeOutBack,
-    easingDisappear: ((Float) -> Float)? = ::easeOutBack,
-) = appearingIconButton(image, show, duration, easingAppear, easingDisappear) { _, _ -> }
-
-@Suppress("NAME_SHADOWING")
-inline fun Ui.appearingIconButton(
-    image: TextureDescriptor,
-    show: Boolean? = null,
-    duration: Float = 0.2f,
-    noinline easingAppear: ((Float) -> Float)? = ::easeOutBack,
-    noinline easingDisappear: ((Float) -> Float)? = ::easeOutBack,
-    crossinline extraAnimation: (Image, Float) -> Unit,
-): InteractiveResponse<Image> {
-    val show = show ?: top().isEnabled()
-    return customButton { interaction ->
-        val top = top()
-        val showAnim =
-            ctx().getOrPutMemory(top.id.with("showAnim")) {
-                AnimationState(show).also {
-                    it.easingUp = easingAppear
-                    it.easingDown = easingDisappear
-                }
-            }
-        val imageId = top.nextAutoId()
-
-        val progress = showAnim.animate(show, duration) { it }
-        val imageSize = image.size()
-        val allocated = top.allocateSize(Vec2((imageSize.x * progress).roundToInt(), imageSize.y))
-
-        val img = top.painter().drawImage(imageId, allocated.min, image)
-        img.scale.set(progress)
-        img.origin.set(img.width / 2f * progress, img.height / 2f)
-
-        extraAnimation(img, progress)
-
-        val res = WidgetResponse(img, UiResponse(allocated, imageId))
-        highlightTouchedVisual(interaction, res, top.style().interactionAnimationDuration)
-        dimInactiveVisual(res)
-        img
-    }
-}
 
 private open class WndTrialsGroup(
     val group: TrialGroup,

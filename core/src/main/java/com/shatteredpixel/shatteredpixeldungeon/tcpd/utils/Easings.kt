@@ -17,5 +17,12 @@ fun easeOutBack(x: Float): Float {
     val c1 = 1.70158f
     val c3 = c1 + 1
 
-    return 1 + c3 * (x - 1).pow(3f) + c1 * (x - 1).pow(2f)
+    return 1 + c3 * (x - 1).pow(3) + c1 * (x - 1).pow(2)
+}
+
+fun easeInBack(x: Float): Float {
+    val c1 = 1.70158f
+    val c3 = c1 + 1
+
+    return c3 * x.pow(3) - c1 * x.pow(2)
 }

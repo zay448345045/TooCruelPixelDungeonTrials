@@ -29,5 +29,8 @@ move-binaries: __always
 
 full-build: build sign-release-apk move-binaries
 
+fix:
+	ktlint -F
+
 .PHONY: __always
 __always:
