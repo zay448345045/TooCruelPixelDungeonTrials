@@ -2,6 +2,7 @@ package com.shatteredpixel.shatteredpixeldungeon.tcpd
 
 import com.shatteredpixel.shatteredpixeldungeon.Challenges
 import com.shatteredpixel.shatteredpixeldungeon.Dungeon
+import com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass
 import com.shatteredpixel.shatteredpixeldungeon.items.Dewdrop
 import com.shatteredpixel.shatteredpixeldungeon.items.Item
 import com.shatteredpixel.shatteredpixeldungeon.items.artifacts.MasterThievesArmband
@@ -9,12 +10,16 @@ import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.ExoticCrystals
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.RatSkull
 import com.shatteredpixel.shatteredpixeldungeon.items.trinkets.SaltCube
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.TextureDescriptor
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter.descriptor
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBits
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.asBytes
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.assertEq
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.decodeBase58
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.encodeToBase58String
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.trimEnd
+import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.watabou.utils.BArray
 import com.watabou.utils.Bundlable
 import com.watabou.utils.Bundle
@@ -37,7 +42,7 @@ enum class Modifier(
         dependencies = arrayOf(CHAMPION_ENEMIES.id),
         tags = arrayOf(Tag.EXTREME, Tag.ENEMY),
     ),
-    STRONGER_BOSSES(8, locString = "stronger_bosses", tags = arrayOf(Tag.COMBAT)),
+    STRONGER_BOSSES(8, locString = "stronger_bosses", tags = arrayOf(Tag.COMBAT, Tag.BOSS)),
     ON_DIET(0, locString = "no_food", tags = arrayOf(Tag.HERO, Tag.ITEM)),
     FAITH_ARMOR(1, locString = "no_armor", tags = arrayOf(Tag.HERO, Tag.ITEM)),
     PHARMACOPHOBIA(2, locString = "no_healing", tags = arrayOf(Tag.HERO, Tag.ITEM)),
@@ -143,27 +148,35 @@ enum class Modifier(
         tags = arrayOf(Tag.SILLY, Tag.ENEMY, Tag.NEW_STUFF),
     ),
     CURSED(54, tags = arrayOf(Tag.ITEM)),
-    CURSE_MAGNET(55, tags = arrayOf(Tag.HARD, Tag.HERO, Tag.ITEM)),
+    CURSE_MAGNET(
+        55,
+        dependencies = arrayOf(CURSED.id),
+        tags = arrayOf(Tag.HARD, Tag.HERO, Tag.ITEM),
+    ),
     EXTERMINATION(57, tags = arrayOf(Tag.DUNGEON, Tag.ENEMY, Tag.NEW_STUFF)),
     POSTPAID_LOOT(
         58,
         dependencies = arrayOf(EXTERMINATION.id),
-        tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.DUNGEON, Tag.NEW_STUFF),
+        tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.ITEM, Tag.DUNGEON, Tag.NEW_STUFF),
     ),
-    MIMICS(59, tags = arrayOf(Tag.ITEM, Tag.LEVEL)),
+    MIMICS(59, tags = arrayOf(Tag.ITEM, Tag.MIMICS, Tag.LEVEL)),
     MIMICS_ALL(
         60,
         dependencies = arrayOf(MIMICS.id),
-        tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.LEVEL),
+        tags = arrayOf(Tag.HARD, Tag.ITEM, Tag.MIMICS, Tag.LEVEL),
     ),
     MIMICS_GRIND(
         61,
         dependencies = arrayOf(MIMICS.id),
-        tags = arrayOf(Tag.POSITIVE, Tag.ITEM, Tag.LEVEL),
+        tags = arrayOf(Tag.POSITIVE, Tag.MIMICS, Tag.LEVEL),
     ),
-    JACK_IN_A_BOX(78, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
-    RECURSIVE_HIERARCHY(80, dependencies = arrayOf(JACK_IN_A_BOX.id), tags = arrayOf(Tag.ENEMY)),
-    BOXED(79, tags = arrayOf(Tag.ENEMY, Tag.LEVEL)),
+    JACK_IN_A_BOX(78, tags = arrayOf(Tag.MIMICS, Tag.ENEMY, Tag.LEVEL)),
+    RECURSIVE_HIERARCHY(
+        80,
+        dependencies = arrayOf(JACK_IN_A_BOX.id),
+        tags = arrayOf(Tag.MIMICS, Tag.ENEMY),
+    ),
+    BOXED(79, tags = arrayOf(Tag.MIMICS, Tag.ENEMY, Tag.LEVEL)),
     REPOPULATION(63, tags = arrayOf(Tag.ENEMY)),
     RESURRECTION(64, dependencies = arrayOf(REPOPULATION.id), tags = arrayOf(Tag.HARD, Tag.ENEMY)),
     FRACTAL_HIVE(
@@ -251,32 +264,61 @@ enum class Modifier(
 enum class Tag(
     val hidden: Boolean = false,
 ) {
-    POSITIVE,
+    NEW_STUFF,
+
+    EASY,
+
+    // not assigned directly, but assumed if no other difficulty tag is present
+    NORMAL,
     HARD,
     EXTREME,
+
+    SILLY,
+    POSITIVE,
+
     ENEMY,
     HERO,
     COMBAT,
     LEVEL,
     ENVIRONMENT,
     ITEM,
-    NEW_STUFF,
     RNG,
     DUNGEON,
     TRAPS,
-    SILLY,
-
-    // not assigned directly, but assumed if no other difficulty tag is present
-    NORMAL,
+    MIMICS,
+    BOSS,
 
     ADDON(hidden = true),
     ;
 
-    fun localizedName() {
-        Messages.get(ModifierTag::class.java, name.lowercase())
-    }
+    fun localizedName(): String = Messages.get(ModifierTag::class.java, name.lowercase())
+
+    fun localizedDesc(): String = Messages.get(ModifierTag::class.java, name.lowercase() + "_desc")
 
     fun isDifficulty() = this == SILLY || this == POSITIVE || this == NORMAL || this == HARD || this == EXTREME
+
+    fun icon(): TextureDescriptor =
+        when (this) {
+            ENEMY -> TCPDIcons.RAT.descriptor()
+            HERO -> TextureDescriptor.HeroClass(HeroClass.WARRIOR, 6)
+            COMBAT -> TextureDescriptor.ItemSprite(ItemSpriteSheet.SWORD)
+            LEVEL -> TCPDIcons.MAP.descriptor()
+            ENVIRONMENT -> Icons.GRASS.descriptor()
+            ITEM -> TextureDescriptor.ItemSprite(ItemSpriteSheet.CHEST)
+            NEW_STUFF -> TCPDIcons.STAR.descriptor()
+            RNG -> TCPDIcons.TOKENS.descriptor()
+            DUNGEON -> Icons.ENTER.descriptor()
+            TRAPS -> TextureDescriptor.ItemSprite(ItemSpriteSheet.TRAP_MECHANISM)
+            MIMICS -> TCPDIcons.MIMIC.descriptor()
+            BOSS -> TCPDIcons.DWARF_KING.descriptor()
+            SILLY -> TCPDIcons.CAKE.descriptor()
+            ADDON -> TCPDIcons.UP_DOWN_ARROWS.descriptor()
+            POSITIVE -> TextureDescriptor.ItemSprite(ItemSpriteSheet.ANKH)
+            EASY -> TCPDIcons.CHALLENGE_DULL.descriptor()
+            NORMAL -> TCPDIcons.CHALLENGE_GOLD.descriptor()
+            HARD -> TCPDIcons.CHALLENGE_GOLD_BLOOD.descriptor()
+            EXTREME -> TCPDIcons.CHALLENGE_GOLD_OOZE.descriptor()
+        }
 
     companion object {
         internal fun process(

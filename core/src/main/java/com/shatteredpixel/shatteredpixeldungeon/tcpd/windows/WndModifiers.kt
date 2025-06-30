@@ -1,5 +1,6 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.windows
 
+import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.ShatteredPixelDungeon
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
@@ -7,12 +8,15 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDGameInfoData
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.Tag
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Rect
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdComponent
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdWindow
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.AnimationState
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.MutableHookRef
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
@@ -25,6 +29,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.dimInactiveText
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.drawRedCheckbox
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.horizontal
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.iconButton
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.image
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.label
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.redButton
@@ -39,6 +44,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Window.TITLE_COLOR
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndError
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput
+import kotlin.math.ceil
 
 open class WndModifiers(
     private val modifiers: Modifiers,
@@ -91,22 +97,23 @@ private fun Ui.drawModifiers(
 
         top().addSpace(2)
 
-        var sort by useState(Unit) {
-            FilterOptions(SortType.Default, false)
-        }
+        val sort =
+            useState(Unit) {
+                FilterOptions(SortType.Default, false)
+            }
 
-        sort = sortButton(sort)
+        filterBar(sort)
 
-        val modifiersList by useMemo(sort) {
+        val modifiersList by useMemo(sort.get()) {
             val allEnabled = mutableListOf<Modifier>()
             Modifier.entries.filterTo(allEnabled) { modifiers.isEnabled(it) }.toMutableList()
-            sort.apply(allEnabled)
+            sort.get().apply(allEnabled)
 
             if (!editable) return@useMemo allEnabled
 
             val allDisabled = mutableListOf<Modifier>()
             Modifier.entries.filterTo(allDisabled) { !modifiers.isEnabled(it) }
-            sort.apply(allDisabled)
+            sort.get().apply(allDisabled)
             allEnabled + allDisabled
         }
         PaginatedList(modifiersList.size, 17).show(this) { i ->
@@ -208,10 +215,29 @@ private fun Ui.editStringButton(
     }
 }
 
-private fun Ui.sortButton(sort: FilterOptions): FilterOptions {
-    var curSort = sort
+private fun Ui.filterBar(sort: MutableHookRef<FilterOptions>) {
+    var curSort by sort
     horizontal {
         rightToLeft {
+            redButton(margins = Margins.only(top = 1, bottom = 2, left = 1, right = 1)) {
+                rightToLeft {
+                    val icon =
+                        sort
+                            .get()
+                            .filter.selectedTag
+                            ?.icon() ?: Icons.MAGNIFY.descriptor()
+                    image(icon, Vec2(16, 16))
+                }
+            }.onClick {
+                ShatteredPixelDungeon.scene().add(
+                    object : WndFilter(curSort.filter) {
+                        override fun onBackPressed() {
+                            curSort = curSort.copy(filter = filter)
+                            super.onBackPressed()
+                        }
+                    },
+                )
+            }
             columns(floatArrayOf(1f, 1f), spacing = 1) {
                 arrayOf(
                     SortType.Default,
@@ -263,9 +289,12 @@ private fun Ui.sortButton(sort: FilterOptions): FilterOptions {
                         }.onClick {
                             curSort =
                                 if (selected) {
-                                    FilterOptions(sortType, !curSort.sortReverse)
+                                    curSort.copy(
+                                        sortType = sortType,
+                                        sortReverse = !curSort.sortReverse,
+                                    )
                                 } else {
-                                    FilterOptions(sortType, false)
+                                    curSort.copy(sortType = sortType, sortReverse = false)
                                 }
                         }
                     }
@@ -273,7 +302,90 @@ private fun Ui.sortButton(sort: FilterOptions): FilterOptions {
             }
         }
     }
-    return curSort
+}
+
+private open class WndFilter(
+    var filter: Filter,
+) : TcpdWindow() {
+    init {
+        maxSize = Vec2(120, (PixelScene.uiCamera.height * 0.9f).toInt())
+    }
+
+    override fun Ui.drawUi() {
+        val allTags = Tag.entries
+        val tagWidth = 20
+        val tagHeight = 20
+        val availableSpace = top().nextAvailableSpace()
+        val itemsPerRow = (availableSpace.width() + 2) / (tagWidth + 2)
+        val rows = ceil(allTags.size.toFloat() / itemsPerRow).toInt()
+        val requiredWidth = itemsPerRow * (tagWidth + 2) - 2
+
+        withLayout(
+            availableSpace =
+                Rect.fromSize(
+                    availableSpace.min,
+                    Vec2(requiredWidth, availableSpace.max.y),
+                ),
+        ) {
+            verticalJustified {
+                label(Messages.get(WndModifiers::class.java, "tags"), 9).widget.hardlight(
+                    TITLE_COLOR,
+                )
+                top().addSpace(2)
+                val selected = filter.selectedTag
+                rightToLeft {
+                    val icon = selected?.icon() ?: Icons.MAGNIFY.descriptor()
+                    val name =
+                        selected?.localizedName() ?: Messages.get(
+                            WndModifiers::class.java,
+                            "select_tag",
+                        )
+                    withEnabled(selected != null) {
+                        margins(Margins.only(top = 2)) {
+                            iconButton(Icons.INFO.descriptor()).onClick {
+                                ShatteredPixelDungeon.scene().add(
+                                    WndMessage(selected!!.localizedDesc()),
+                                )
+                            }
+                        }
+                    }
+                    verticalJustified {
+                        horizontal(Chrome.Type.GREY_BUTTON.descriptor()) {
+                            image(icon, Vec2(16, 16))
+
+                            margins(Margins.only(top = 4)) {
+                                shrinkToFitLabel(name, 9)
+                            }
+                        }
+                    }
+                }
+                PaginatedList(rows, tagHeight).show(this) { row ->
+                    columns(FloatArray(itemsPerRow) { 1f }) {
+                        for (i in 0 until itemsPerRow) {
+                            allTags.getOrNull(row * itemsPerRow + i)?.let { tag ->
+                                customButton {
+                                    withRedButtonBackground(
+                                        this,
+                                        filter.selectedTag == tag,
+                                        Margins.ZERO,
+                                    ) {
+                                        image(tag.icon(), Vec2(16, 16))
+                                    }
+                                }.onClick {
+                                    filter =
+                                        if (filter.selectedTag == tag) {
+                                            Filter()
+                                        } else {
+                                            Filter(tag)
+                                        }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 private sealed interface SortType {
@@ -325,11 +437,23 @@ private sealed interface SortType {
 private data class FilterOptions(
     val sortType: SortType,
     val sortReverse: Boolean,
+    val filter: Filter = Filter(),
 ) {
     fun apply(modifiers: MutableList<Modifier>) {
+        if (filter.selectedTag != null) {
+            modifiers.retainAll {
+                it.tags.contains(filter.selectedTag)
+            }
+        }
         sortType.sort(modifiers)
         if (sortReverse) {
             modifiers.reverse()
         }
     }
+}
+
+private data class Filter(
+    val selectedTag: Tag? = null,
+) {
+    fun hasFilter(): Boolean = selectedTag != null
 }
