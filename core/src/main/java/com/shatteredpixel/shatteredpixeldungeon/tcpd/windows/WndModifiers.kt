@@ -130,8 +130,17 @@ private fun Ui.modifierBtn(
     rightToLeft {
         margins(Margins.only(top = 2)) {
             iconButton(Icons.INFO.descriptor()).onClick {
+                var desc = modifier.localizedDesc()
+                if (modifier.tags.isNotEmpty()) {
+                    val tagsDesc =
+                        modifier.tags.joinToString(
+                            separator = ", ",
+                            transform = { it.localizedName() },
+                        )
+                    desc = Messages.get(WndModifiers::class.java, "modifier_tags", desc, tagsDesc)
+                }
                 ShatteredPixelDungeon.scene().add(
-                    WndMessage(modifier.localizedDesc()),
+                    WndMessage(desc),
                 )
             }
         }
