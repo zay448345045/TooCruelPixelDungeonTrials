@@ -42,5 +42,5 @@ abstract class TcpdWindow(
 
     abstract fun Ui.drawUi()
 
-    protected open fun isUpdating(): Boolean = true
+    protected open fun isUpdating(): Boolean = parent.topOfType(Window::class.java) == this
 }

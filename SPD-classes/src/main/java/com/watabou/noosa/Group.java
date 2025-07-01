@@ -24,6 +24,8 @@ package com.watabou.noosa;
 import com.watabou.utils.Random;
 import com.watabou.utils.Reflection;
 
+import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -321,5 +323,19 @@ public class Group extends Gizmo {
 				return;
 			}
 		}
+	}
+
+	@Nullable
+	public synchronized <T> T topOfType(Class<T> c) {
+		if (length == 0) return null;
+		for (int i = length - 1; i >= 0; i--) {
+			Gizmo g = members.get(i);
+			if (g != null) {
+                if (c.isInstance(g)) {
+					return c.cast(g);
+				}
+			}
+		}
+		return null;
 	}
 }

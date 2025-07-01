@@ -56,9 +56,6 @@ class WndTrials : TcpdWindow() {
     }
 
     private var editMode = false
-    private var isOnTop = true
-
-    override fun isUpdating(): Boolean = isOnTop
 
     override fun Ui.drawUi() {
         verticalJustified {
@@ -365,12 +362,10 @@ class WndTrials : TcpdWindow() {
                         }
                     }.onClick {
                         group.notificationShown()
-                        isOnTop = false
                         ShatteredPixelDungeon.scene().add(
                             object : WndTrialsGroup(group) {
                                 override fun onBackPressed() {
                                     super.onBackPressed()
-                                    isOnTop = true
                                 }
                             },
                         )
