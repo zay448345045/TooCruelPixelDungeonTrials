@@ -12,6 +12,12 @@ enum class TCPDIcons {
     CLOSE,
     NOTES,
 
+    AMULET_SMALL,
+    AMULET_SMALL_DULL,
+    SKULL_SMALL,
+    SKULL_SMALL_RED,
+    SKULL_SMALL_BLACK,
+
     GOLDEN_RING,
 
     CHALLENGE_DULL,
@@ -56,6 +62,21 @@ enum class TCPDIcons {
 
                 NOTES ->
                     icon.frame(icon.texture.uvRect(11f, 12f, 21f, 23f))
+
+                AMULET_SMALL ->
+                    icon.frame(icon.texture.uvRect(60f, 0f, 65f, 5f))
+
+                AMULET_SMALL_DULL ->
+                    icon.frame(icon.texture.uvRect(65f, 0f, 70f, 5f))
+
+                SKULL_SMALL ->
+                    icon.frame(icon.texture.uvRect(60f, 5f, 65f, 11f))
+
+                SKULL_SMALL_RED ->
+                    icon.frame(icon.texture.uvRect(65f, 5f, 70f, 11f))
+
+                SKULL_SMALL_BLACK ->
+                    icon.frame(icon.texture.uvRect(70f, 5f, 75f, 11f))
 
                 CHALLENGE_DULL ->
                     icon.frame(icon.texture.uvRect(0f, 23f, 14f, 35f))

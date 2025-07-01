@@ -17,6 +17,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.gltextures.SmartTexture
 import com.watabou.gltextures.TextureCache
+import com.watabou.noosa.BitmapText
 import com.watabou.noosa.ColorBlock
 import com.watabou.noosa.Gizmo
 import com.watabou.noosa.Group
@@ -120,6 +121,12 @@ class Painter internal constructor(
         multiline: Boolean,
     ): RenderedTextBlock = add(id, VisualElement.Text(rect, text, size, multiline)) as RenderedTextBlock
 
+    fun drawBitmapText(
+        id: UiId,
+        rect: Rect,
+        text: String,
+    ): BitmapText = add(id, VisualElement.BitmapText(rect, text)) as BitmapText
+
     fun drawComponent(
         id: UiId,
         rect: Rect,
@@ -175,6 +182,11 @@ internal sealed class VisualElement {
         val text: String,
         val size: Int,
         val multiline: Boolean,
+    ) : VisualElement()
+
+    data class BitmapText(
+        val rect: Rect,
+        val text: String,
     ) : VisualElement()
 
     data class Group(
@@ -317,6 +329,25 @@ internal sealed class VisualElement {
                     block.maxWidth(rect.width())
                 }
                 block.setPos(rect.min.x.toFloat(), rect.min.y.toFloat())
+                return block
+            }
+
+            is BitmapText -> {
+                if (cached?.first is BitmapText && cached.second is com.watabou.noosa.BitmapText) {
+                    val block = cached.second as com.watabou.noosa.BitmapText
+                    val old = cached.first as BitmapText
+
+                    if (block.text() != text) {
+                        block.text(text)
+                    }
+
+                    block.x = rect.min.x.toFloat()
+                    block.y = rect.min.y.toFloat()
+                    return block
+                }
+                val block = BitmapText(text, PixelScene.pixelFont)
+                block.x = rect.min.x.toFloat()
+                block.y = rect.min.y.toFloat()
                 return block
             }
         }

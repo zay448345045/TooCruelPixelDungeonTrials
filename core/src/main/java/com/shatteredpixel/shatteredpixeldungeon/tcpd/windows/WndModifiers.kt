@@ -8,6 +8,8 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifier
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Modifiers
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDData
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDGameInfoData
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDIcons
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDScores
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Tag
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.Trial
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
@@ -17,6 +19,7 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.TcpdWindow
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Vec2
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.AnimationState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.MutableHookRef
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useAnimation
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useMemo
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.hooks.useState
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.layout.Ui
@@ -32,9 +35,12 @@ import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.iconButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.image
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.label
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.margins
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.measureTextWidth
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.redButton
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.rightToLeft
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.shrinkToFitLabel
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.stack
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.vertical
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.verticalJustified
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.widgets.withRedButtonBackground
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.utils.easeInBack
@@ -45,6 +51,8 @@ import com.shatteredpixel.shatteredpixeldungeon.windows.WndError
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndMessage
 import com.shatteredpixel.shatteredpixeldungeon.windows.WndTextInput
 import kotlin.math.ceil
+import kotlin.math.max
+import kotlin.math.roundToInt
 
 open class WndModifiers(
     private val modifiers: Modifiers,
@@ -117,7 +125,12 @@ private fun Ui.drawModifiers(
             allEnabled + allDisabled
         }
         PaginatedList(modifiersList.size, 17).show(this) { i ->
-            modifierBtn(modifiers, modifiersList[i], editable)
+            modifierBtn(
+                modifiers,
+                modifiersList[i],
+                editable,
+                sort.get().sortType == SortType.Completed,
+            )
         }
     }
 }
@@ -126,6 +139,7 @@ private fun Ui.modifierBtn(
     modifiers: Modifiers,
     modifier: Modifier,
     editable: Boolean,
+    showCompletion: Boolean,
 ) {
     rightToLeft {
         margins(Margins.only(top = 2)) {
@@ -144,25 +158,93 @@ private fun Ui.modifierBtn(
                 )
             }
         }
-        verticalJustified {
-            withEnabled(editable) {
-                redButton {
-                    val res =
-                        shrinkToFitLabel(
-                            modifier.localizedName(),
-                            9,
-                            availableSpace =
-                                top()
-                                    .nextAvailableSpace()
-                                    .width() -
-                                    Icons.CHECKED
-                                        .descriptor()
-                                        .size()
-                                        .x,
-                        )
-                    drawRedCheckbox(modifiers.isEnabled(modifier), res.response.rect)
-                }.onClick {
-                    modifiers.toggle(modifier)
+        horizontal {
+            stack {
+                val iconsShow =
+                    useAnimation(Unit, showCompletion, 0.2f) {
+                        it
+                    }
+
+                val offset =
+                    if (iconsShow > 0f) {
+                        val iconsRes =
+                            vertical(background = Chrome.Type.GREY_BUTTON.descriptor()) {
+                                val score = TCPDScores.load().modifierScore(modifier)
+
+                                val winsText = score.wins.toString()
+                                val lossesText = score.losses.toString()
+
+                                val minWidth =
+                                    measureTextWidth(
+                                        "0".repeat(
+                                            max(
+                                                winsText.length,
+                                                lossesText.length,
+                                            ),
+                                        ),
+                                        6,
+                                    )
+
+                                val winsWidth = measureTextWidth(winsText, 6)
+                                val lossesWidth = measureTextWidth(lossesText, 6)
+                                val winsPadding = max(0f, minWidth - winsWidth)
+                                val lossesPadding = max(0f, minWidth - lossesWidth)
+
+                                top().setStyle(top().style().copy(itemSpacing = 1))
+                                horizontal {
+                                    val icon =
+                                        if (score.wins > 0) {
+                                            TCPDIcons.AMULET_SMALL
+                                        } else {
+                                            TCPDIcons.AMULET_SMALL_DULL
+                                        }
+                                    image(icon.descriptor(), allocatedSize = Vec2(5, 6))
+                                    top().addSpace(winsPadding.roundToInt())
+                                    label("${score.wins}", 6)
+                                }
+
+                                horizontal {
+                                    val icon =
+                                        if (score.losses > 50) {
+                                            TCPDIcons.SKULL_SMALL_BLACK
+                                        } else if (score.losses > 0) {
+                                            TCPDIcons.SKULL_SMALL_RED
+                                        } else {
+                                            TCPDIcons.SKULL_SMALL
+                                        }
+                                    image(icon.descriptor(), allocatedSize = Vec2(5, 6))
+                                    top().addSpace(lossesPadding.roundToInt())
+                                    label("${score.losses}", 6)
+                                }
+                            }
+                        (iconsRes.response.rect.width() * iconsShow).roundToInt() - 1
+                    } else {
+                        0
+                    }
+
+                margins(Margins.only(left = offset)) {
+                    verticalJustified {
+                        withEnabled(editable) {
+                            redButton {
+                                val res =
+                                    shrinkToFitLabel(
+                                        modifier.localizedName(),
+                                        9,
+                                        availableSpace =
+                                            top()
+                                                .nextAvailableSpace()
+                                                .width() -
+                                                Icons.CHECKED
+                                                    .descriptor()
+                                                    .size()
+                                                    .x,
+                                    )
+                                drawRedCheckbox(modifiers.isEnabled(modifier), res.response.rect)
+                            }.onClick {
+                                modifiers.toggle(modifier)
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -433,13 +515,25 @@ private sealed interface SortType {
     }
 
     data object Completed : SortType {
+        val comparator: Comparator<Modifier> =
+            Comparator { a, b ->
+                val scores = TCPDScores.load()
+                val aScore = scores.modifierScore(a)
+                val bScore = scores.modifierScore(b)
+                when {
+                    aScore.wins > 0 && bScore.wins == 0 -> -1
+                    aScore.wins == 0 && bScore.wins > 0 -> 1
+                    else -> 0
+                }
+            }
+
         override fun sort(modifiers: MutableList<Modifier>) {
-            TODO()
+            modifiers.sortWith(comparator)
         }
 
         override fun id(): String = "completed"
 
-        override fun available(): Boolean = false
+//        override fun available(): Boolean = false
     }
 }
 
@@ -463,6 +557,4 @@ private data class FilterOptions(
 
 private data class Filter(
     val selectedTag: Tag? = null,
-) {
-    fun hasFilter(): Boolean = selectedTag != null
-}
+)
