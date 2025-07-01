@@ -521,8 +521,16 @@ private sealed interface SortType {
                 val aScore = scores.modifierScore(a)
                 val bScore = scores.modifierScore(b)
                 when {
-                    aScore.wins > 0 || bScore.wins > 0 -> -aScore.wins.compareTo(bScore.wins)
-                    aScore.losses > 0 || bScore.losses > 0 -> -aScore.losses.compareTo(bScore.losses)
+                    (aScore.wins > 0 || bScore.wins > 0) && (aScore.wins != bScore.wins) ->
+                        -aScore.wins.compareTo(
+                            bScore.wins,
+                        )
+
+                    (aScore.losses > 0 || bScore.losses > 0) && (aScore.losses != bScore.losses) ->
+                        -aScore.losses.compareTo(
+                            bScore.losses,
+                        )
+
                     else -> 0
                 }
             }
