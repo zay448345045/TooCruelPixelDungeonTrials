@@ -112,7 +112,9 @@ private fun Ui.drawModifiers(
 
         filterBar(sort)
 
+        var resetPage = false
         val modifiersList by useMemo(sort.get()) {
+            resetPage = true
             val allEnabled = mutableListOf<Modifier>()
             Modifier.entries.filterTo(allEnabled) { modifiers.isEnabled(it) }.toMutableList()
             sort.get().apply(allEnabled)
@@ -124,7 +126,12 @@ private fun Ui.drawModifiers(
             sort.get().apply(allDisabled)
             allEnabled + allDisabled
         }
-        PaginatedList(modifiersList.size, 17).show(this) { i ->
+        val paginated = PaginatedList(modifiersList.size, 17)
+        @Suppress("KotlinConstantConditions") // false positive
+        if (resetPage) {
+            paginated.setPage(0)
+        }
+        paginated.show(this) { i ->
             modifierBtn(
                 modifiers,
                 modifiersList[i],
