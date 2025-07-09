@@ -13,11 +13,13 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
     }
 }
+/*
 kotlin {
     jvmToolchain {
         (17) // 指定JVM版本为17
     }
 }
+*/
 allprojects {
 
     ext {
