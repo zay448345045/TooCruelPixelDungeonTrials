@@ -6,6 +6,7 @@ android {
     compileSdk appAndroidCompileSDK
     compileOptions.sourceCompatibility = compileOptions.targetCompatibility = appJavaCompatibility
 compileOptions {
+
 isCoreLibraryDesugaringEnabled = true
 
 }
