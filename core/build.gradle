@@ -16,3 +16,8 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 }
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += "--add-exports"
+    options.compilerArgs += "java.xml/com.sun.org.apache.xpath.internal.operations=ALL-UNNAMED"
+}
