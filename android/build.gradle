@@ -5,6 +5,7 @@ android {
     namespace 'com.shatteredpixel.shatteredpixeldungeon.android'
     compileSdk appAndroidCompileSDK
     compileOptions.sourceCompatibility = compileOptions.targetCompatibility = appJavaCompatibility
+isCoreLibraryDesugaringEnabled = true
 /*
 compileOptions {
 
