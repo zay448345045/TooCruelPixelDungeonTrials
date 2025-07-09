@@ -6,8 +6,8 @@ sourceCompatibility = targetCompatibility = appJavaCompatibility
 
 kotlin {
     compilerOptions {
-        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17 //1_8
-//isCoreLibraryDesugaringEnabled = true
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17 // 1_8
+// isCoreLibraryDesugaringEnabled = true
     }
 }
 
