@@ -80,7 +80,7 @@ dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
     implementation 'com.github.RohitSurwase.UCE-Handler:uce_handler:1.4'
-coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.0.4'
+coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
 }
 
 // called every time gradle gets executed, takes the native dependencies of
