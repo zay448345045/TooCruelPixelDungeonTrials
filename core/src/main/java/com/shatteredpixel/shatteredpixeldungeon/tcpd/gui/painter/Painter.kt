@@ -1,8 +1,11 @@
 package com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.painter
 
+import com.shatteredpixel.shatteredpixeldungeon.Assets
 import com.shatteredpixel.shatteredpixeldungeon.Chrome
 import com.shatteredpixel.shatteredpixeldungeon.scenes.PixelScene
 import com.shatteredpixel.shatteredpixeldungeon.sprites.HeroSprite
+import com.shatteredpixel.shatteredpixeldungeon.sprites.ItemSpriteSheet
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDIcons
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.ext.margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Margins
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.gui.Pos2
@@ -14,6 +17,7 @@ import com.shatteredpixel.shatteredpixeldungeon.ui.Icons
 import com.shatteredpixel.shatteredpixeldungeon.ui.RenderedTextBlock
 import com.watabou.gltextures.SmartTexture
 import com.watabou.gltextures.TextureCache
+import com.watabou.noosa.BitmapText
 import com.watabou.noosa.ColorBlock
 import com.watabou.noosa.Gizmo
 import com.watabou.noosa.Group
@@ -21,6 +25,7 @@ import com.watabou.noosa.Image
 import com.watabou.noosa.NinePatch
 import com.watabou.noosa.Visual
 import com.watabou.noosa.ui.Component
+import com.watabou.utils.RectF
 import kotlin.math.roundToInt
 
 class Painter internal constructor(
@@ -116,6 +121,12 @@ class Painter internal constructor(
         multiline: Boolean,
     ): RenderedTextBlock = add(id, VisualElement.Text(rect, text, size, multiline)) as RenderedTextBlock
 
+    fun drawBitmapText(
+        id: UiId,
+        rect: Rect,
+        text: String,
+    ): BitmapText = add(id, VisualElement.BitmapText(rect, text)) as BitmapText
+
     fun drawComponent(
         id: UiId,
         rect: Rect,
@@ -171,6 +182,11 @@ internal sealed class VisualElement {
         val text: String,
         val size: Int,
         val multiline: Boolean,
+    ) : VisualElement()
+
+    data class BitmapText(
+        val rect: Rect,
+        val text: String,
     ) : VisualElement()
 
     data class Group(
@@ -315,6 +331,25 @@ internal sealed class VisualElement {
                 block.setPos(rect.min.x.toFloat(), rect.min.y.toFloat())
                 return block
             }
+
+            is BitmapText -> {
+                if (cached?.first is BitmapText && cached.second is com.watabou.noosa.BitmapText) {
+                    val block = cached.second as com.watabou.noosa.BitmapText
+                    val old = cached.first as BitmapText
+
+                    if (block.text() != text) {
+                        block.text(text)
+                    }
+
+                    block.x = rect.min.x.toFloat()
+                    block.y = rect.min.y.toFloat()
+                    return block
+                }
+                val block = BitmapText(text, PixelScene.pixelFont)
+                block.x = rect.min.x.toFloat()
+                block.y = rect.min.y.toFloat()
+                return block
+            }
         }
     }
 }
@@ -338,9 +373,21 @@ sealed interface TextureDescriptor {
         val icon: Icons,
     ) : TextureDescriptor
 
+    class TCPDIcon(
+        val icon: TCPDIcons,
+    ) : TextureDescriptor
+
     class HeroClass(
         val heroClass: com.shatteredpixel.shatteredpixeldungeon.actors.hero.HeroClass,
         val armorTier: Int,
+    ) : TextureDescriptor
+
+    class ItemSprite(
+        val item: Int,
+    ) : TextureDescriptor
+
+    class SpellSprite(
+        val spell: Int,
     ) : TextureDescriptor
 
     fun asImage(): Image =
@@ -349,7 +396,21 @@ sealed interface TextureDescriptor {
             is SmartTexture -> Image(TextureCache.get(texture))
             is Pixmap -> Image(TextureCache.get(pixmap))
             is Icon -> Icons.get(icon)
+            is TCPDIcon -> TCPDIcons.get(icon)
             is HeroClass -> HeroSprite.avatar(heroClass, armorTier)
+            is ItemSprite ->
+                Image(Assets.Sprites.ITEMS).also {
+                    it.frame(
+                        ItemSpriteSheet.film.get(
+                            item,
+                        ),
+                    )
+                }
+
+            is SpellSprite ->
+                Image(Assets.Effects.SPELL_ICONS).also {
+                    it.frame(RectF(spell * 16f, 0f, spell * 16f + 16f, 16f))
+                }
         }
 
     fun update(image: Image) {
@@ -358,14 +419,21 @@ sealed interface TextureDescriptor {
             is Pixmap -> image.texture(TextureCache.get(pixmap))
             is SmartTexture -> image.texture(TextureCache.get(texture))
             is Icon -> image.copy(Icons.get(icon))
+            is TCPDIcon -> image.copy(TCPDIcons.get(icon))
             is HeroClass -> image.copy(HeroSprite.avatar(heroClass, armorTier))
+            is ItemSprite -> image.copy(asImage())
+            is SpellSprite -> image.copy(asImage())
         }
     }
 
     fun size(): Vec2 =
-        TextureSizeCache.getOrPut(this) {
-            val image = asImage()
-            Vec2(image.width.roundToInt(), image.height.roundToInt())
+        when (this) {
+            is ItemSprite -> Vec2(16, 16)
+            else ->
+                TextureSizeCache.getOrPut(this) {
+                    val image = asImage()
+                    Vec2(image.width.roundToInt(), image.height.roundToInt())
+                }
         }
 }
 
@@ -405,6 +473,7 @@ sealed interface NinePatchDescriptor {
             is Chrome ->
                 com.shatteredpixel.shatteredpixeldungeon.Chrome
                     .get(type)
+
             is FlatColor -> NinePatch(TextureCache.createSolid(color.toInt()), 0)
             is Gradient -> NinePatch(TextureCache.createGradient(*colors), 0)
             is TextureId ->

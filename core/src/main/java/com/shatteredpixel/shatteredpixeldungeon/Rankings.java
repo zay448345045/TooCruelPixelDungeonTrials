@@ -38,6 +38,7 @@ import com.shatteredpixel.shatteredpixeldungeon.journal.Notes;
 import com.shatteredpixel.shatteredpixeldungeon.messages.Messages;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDData;
 import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDGameInfoData;
+import com.shatteredpixel.shatteredpixeldungeon.tcpd.TCPDScores;
 import com.shatteredpixel.shatteredpixeldungeon.ui.QuickSlotButton;
 import com.shatteredpixel.shatteredpixeldungeon.ui.Toolbar;
 import com.shatteredpixel.shatteredpixeldungeon.utils.DungeonSeed;
@@ -135,6 +136,8 @@ public enum Rankings {
 			save();
 			return;
 		}
+
+		TCPDScores.Companion.submit( win, rec );
 
 		records.add( rec );
 		

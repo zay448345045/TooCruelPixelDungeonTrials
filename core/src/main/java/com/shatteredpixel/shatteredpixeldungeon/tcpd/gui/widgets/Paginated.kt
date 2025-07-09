@@ -18,6 +18,14 @@ class PaginatedList(
     val bodyBackground: NinePatchDescriptor? = null,
     val bodyMargins: Margins = Margins.ZERO,
 ) {
+    @PublishedApi
+    internal var wantPage: Int? = null
+
+    fun setPage(page: Int?): PaginatedList {
+        wantPage = page
+        return this
+    }
+
     inline fun show(
         ui: Ui,
         crossinline showItem: (Int) -> Unit,
@@ -47,6 +55,10 @@ class PaginatedList(
             val pagesCount = ceil(count.toFloat() / itemsPerPage).toInt()
 
             var currentPage by ui.useState(Unit) { 0 }
+            if (wantPage != null) {
+                currentPage = wantPage!!
+                wantPage = null
+            }
             currentPage = max(0, min(currentPage, pagesCount - 1))
 
             if (pagesCount < 0) {
@@ -71,7 +83,9 @@ class PaginatedList(
                             }
                         }
                         ui.margins(Margins.symmetric(0, 2)) {
-                            ui.label("${currentPage + 1} / $pagesCount", 9).widget.hardlight(0xFFFF44)
+                            ui.label("${currentPage + 1} / $pagesCount", 9).widget.hardlight(
+                                0xFFFF44,
+                            )
                         }
                         ui.withEnabled(currentPage < pagesCount - 1) {
                             ui.redButton(">", margins = Margins.ZERO).onClick {

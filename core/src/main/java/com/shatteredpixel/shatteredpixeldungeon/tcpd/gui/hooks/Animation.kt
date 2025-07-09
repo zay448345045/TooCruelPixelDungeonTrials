@@ -103,3 +103,68 @@ inline fun <reified T : Any> Ui.useLooping(
         val state by get<LoopingState>(tracker).also { it.getOrInit(LoopingState()) }
         state.animate(running, durationSeconds, pauseInSeconds, animation)
     }
+
+class TweenState {
+    private var startValue: Float = 0f
+    private var target: Float = 0f
+
+    private var progress: Float = 0f
+    private var duration: Float = 0f
+
+    var value: Float = 0f
+        private set
+
+    var easing: ((Float) -> Float)? = null
+
+    fun animate(
+        target: Float,
+        durationSeconds: Float,
+    ): Float {
+        if (this.target != target || this.duration != durationSeconds) {
+            this.target = target
+            this.duration = durationSeconds
+            this.progress = 0f
+            this.startValue = value
+        }
+
+        val elapsed = Game.elapsed
+        val progress = GameMath.gate(0f, elapsed / durationSeconds, 1f)
+
+        val easedProgress = easing?.let { it(progress) } ?: progress
+        value =
+            when {
+                progress <= 0f -> {
+                    startValue
+                }
+
+                progress >= 1f -> {
+                    target
+                }
+
+                else -> {
+                    startValue + (target - startValue) * easedProgress
+                }
+            }
+
+        return value
+    }
+
+    fun setInstant(target: Float): Float {
+        this.target = target
+        this.progress = 1f
+        this.startValue = target
+        this.value = target
+        return value
+    }
+}
+
+fun Ui.useTweened(
+    tracker: Any,
+    value: Float,
+    durationSeconds: Float,
+): Float =
+    use {
+        val hook = get<TweenState>(tracker).getOrInitWith { TweenState() }
+
+        hook.animate(value, durationSeconds)
+    }

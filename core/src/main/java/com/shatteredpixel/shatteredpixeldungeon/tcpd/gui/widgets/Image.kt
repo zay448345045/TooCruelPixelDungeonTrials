@@ -18,12 +18,13 @@ class UiImage {
         val id = top.nextAutoId()
         val space = top.layout.nextAvailableSpace(top.style())
         val img = top.painter().drawImage(id, space.min, descriptor)
-        val imageSize = allocatedSize ?: Vec2(img.width.toInt(), img.height.toInt())
+        val originalSize = Vec2(img.width.toInt(), img.height.toInt())
+        val imageSize = allocatedSize ?: originalSize
         val allocated = top.allocateSize(imageSize)
 
         val res =
-            if (allocated.size() != imageSize) {
-                val centered = allocated.centerInside(imageSize)
+            if (allocated.size() != imageSize || imageSize != originalSize) {
+                val centered = allocated.centerInside(originalSize)
                 img.x = centered.min.x.toFloat()
                 img.y = centered.min.y.toFloat()
                 PixelScene.align(img)
