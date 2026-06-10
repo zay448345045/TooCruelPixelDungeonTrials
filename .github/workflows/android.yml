@@ -3,11 +3,13 @@ name: Android CI
 on:
   workflow_dispatch:      # 允许手动点击按钮触发
     inputs:
-      branch:
-        description: '选择构建的分支'
-        required: true
-        default: 'main2'
-        type: choice
+      branch: 
+       description: '选择构建的分支'
+       required: true
+       default: 'main2'
+       type: choice
+       options:
+          - main2
 #  push:
 #    branches: [ "main2" ]
 #    paths:
@@ -30,20 +32,39 @@ jobs:
         distribution: 'temurin'
         cache: gradle
     - name: Setup Gradle
-      uses: gradle/actions/setup-gradle@v5
+      uses: gradle/actions/setup-gradle@v6
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew assembleDebug
-    - uses: actions/upload-artifact@v4
+    - name: 更新 Nightly
+      uses: softprops/action-gh-release@v2
+#        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+      if: github.event_name == 'workflow_dispatch'
       with:
-        name: my-artifact
-        path: |
-         **/*.apk
-         **/*.aab
-         **/*.ipa
-         **/*.app
-         **/*.xcarchive
-         **/*.exe
-         **/*.AppImage
-         **/*..jar
+          tag_name: build-${{ github.run_number }}
+          name: "Nightly Build#${{ github.run_number }}"
+          prerelease: true
+          overwrite: true
+          body: |
+            ### 构建信息
+            - **安卓壳分支**: `${{ github.event.inputs.branch }}`
+            - **子模块分支**: `easy`
+            - **构建时间**: ${{ github.event.repository.updated_at }}
+          files: |
+            app/build/outputs/apk/release/*.apk
+            app/build/outputs/apk/debug/*.apk
+          env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
+#    - uses: actions/upload-artifact@v4
+#      with:
+#        name: my-artifact
+#        path: |
+#         **/*.apk
+#         **/*.aab
+#         **/*.ipa
+#         **/*.app
+#         **/*.xcarchive
+#         **/*.exe
+#         **/*.AppImage
+#         **/*..jar
